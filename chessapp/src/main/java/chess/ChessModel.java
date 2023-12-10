@@ -34,10 +34,12 @@ public class ChessModel
                         new Piece(false, PieceType.Bishop, new Square(5, 0)),
                         new Piece(false, PieceType.Knight, new Square(6, 0)),
                         new Piece(false, PieceType.Rook, new Square(7, 0))));
-        for (Piece piece : blackPieces) {
+        for (Piece piece : blackPieces)
+        {
             board[piece.position.rank][piece.position.file] = piece;
         }
-        for (Piece piece : whitePieces) {
+        for (Piece piece : whitePieces)
+        {
             board[piece.position.rank][piece.position.file] = piece;
         }
         // add pawns
@@ -61,22 +63,13 @@ public class ChessModel
         if (pieceToMove.type != PieceType.None && pieceToMove.isWhite == whiteToMove)
         // legal piece to try to move
         {
-            switch(pieceToMove.type)
+            for (Move legalMove : getLegalMoves())
             {
-                case Pawn:
-                    if(end.file != start.file)
-                    {
-                        if(end.rank == start.rank + 1 && board[end.rank][end.file].type != PieceType.None && board[end.rank][end.file])
-                    }
-                    //promotion
-                    if(start.rank == 6)
-                    {
-
-                    }
-                    for(int i = 1; i < 3; i++)
-
+                if (move.equals(legalMove))
+                {
+                    // TODO do stuff, move something
+                }
             }
-            board[pieceToMove.position.rank][pieceToMove.position.file]
         }
         return;
     }
@@ -90,6 +83,29 @@ public class ChessModel
         else
         {
             legalMoves = new Move[10];
+            ArrayList<Piece> pieces = whiteToMove ? whitePieces : blackPieces;
+
+            //TODO : generate legal moves.
+            for (Piece piece : pieces)
+            {
+                switch(piece.type)
+                {
+                    case Pawn:
+                        if(end.file != start.file)
+                        {
+                            if(end.rank == start.rank + 1 && board[end.rank][end.file].type != PieceType.None && board[end.rank][end.file])
+                        }
+                        //promotion
+                        if(start.rank == 6)
+                        {
+
+                        }
+                        for(int i = 1; i < 3; i++)
+
+                }
+                board[pieceToMove.position.rank][pieceToMove.position.file]
+            }
+
         }
         return legalMoves;
     }
