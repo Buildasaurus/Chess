@@ -11,8 +11,8 @@ public class Piece
 
     public boolean isWhite;
     public PieceType type;
-    public Square position;
-    public Piece(boolean _isWhite, PieceType _type, Square startPosition)
+    public Point position;
+    public Piece(boolean _isWhite, PieceType _type, Point startPosition)
     {
         position = startPosition;
         isWhite = _isWhite;

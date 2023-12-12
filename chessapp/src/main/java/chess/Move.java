@@ -2,13 +2,13 @@ package chess;
 
 public class Move
 {
-    public Square startSquare;
-    public Square targetSquare;
+    public Point startSquare;
+    public Point targetSquare;
     public boolean isCapture;
     public boolean isPromotion;
     public boolean isEnPassent;
 
-    public Move(Square _startSquare, Square _targetSquare)
+    public Move(Point _startSquare, Point _targetSquare)
     {
         startSquare = _startSquare;
         targetSquare = _targetSquare;
