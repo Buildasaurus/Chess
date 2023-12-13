@@ -153,18 +153,75 @@ public class ChessModel
 
 
             // now we know if we are in check, and can generate moves, based on that.
-            //Generate kingMoves.
-
-            if(checkDirections.size() == 1)
+            // Generate kingMoves.
+            for (int dx = -1; dx < 2; dx++) // iterate over 8 directions
             {
-                //Loop over all pieces.
+                for (int dy = -1; dy < 2; dy++)
+                {
+                    Point position = king.position.add(new Point(dx, dy));
+                    if (!squareIsAttacked(position))
+                    {
+                        legalmoves.add(new Move(king.position, position));
+                    }
+                }
             }
-            if(checkDirections.size() == 2)
+            if (checkDirections.size() == 0)
             {
+                // all possible moves, are legal (so you don't have to block a check)
+                for (Piece piece : pieces)
+                {
+                    switch (piece.type)
+                    {
+                        case King:
+                            break;
 
+                        default:
+                            break;
+                    }
+                }
             }
+            if (checkDirections.size() == 1)
+            {
+                // Loop over all pieces.
+            }
+            // if checkdirections is more than 1, then the kingmoves are the only legal ones, and
+            // those are already generated.
         }
         return legalMoves;
+    }
+
+    public boolean squareIsAttacked(Point square)
+    {
+        for (int dx = -1; dx < 2; dx++) // iterate over 8 directions
+        {
+            for (int dy = -1; dy < 2; dy++)
+            {
+                if (dy == 0 && dx == 0)
+                    break;
+
+                Point coordinate = square;
+                Point direction = new Point(dx, dy);
+                while (isInBounds(coordinate = coordinate.add(direction)))
+                {
+                    Piece pieceAtSquare = board[coordinate.y][coordinate.x];
+                    if (pieceAtSquare.type != PieceType.None)
+                    {
+                        if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
+                        {
+                            if (!canAttackInDirection(pieceAtSquare, direction))
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                return true;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public Piece[] getAllPieces(PieceType type, boolean isWhite)
