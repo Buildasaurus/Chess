@@ -3,19 +3,19 @@ package chess;
 public class Point {
     int y;
     int x;
-    public Point(int _rank, int _file)
+    public Point(int _x, int _y)
     {
-        y = _rank;
-        x = _file;
+        x = _x;
+        y = _y;
     }
 
     public Point add(Point other)
     {
-        return new Point(y+other.y, x+other.x);
+        return new Point(x+other.x, y+other.y);
     }
 
     public Point multiply(int scalar)
     {
-        return new Point(y*scalar, x*scalar);
+        return new Point(x*scalar, y*scalar);
     }
 }

@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import javax.print.PrintException;
 import chess.Piece.PieceType;
 
 public class ChessModel
@@ -12,6 +11,14 @@ public class ChessModel
      * Same objects as in blackPieces and whitePieces
      */
     Piece[][] board;
+
+    Piece getPieceAtPoint(Point point)
+    {
+        if (!isInBounds(point))
+            return null;
+        return board[point.y][point.x];
+    }
+
     boolean whiteToMove = true;
     /**
      * Same objects as in board
@@ -35,15 +42,15 @@ public class ChessModel
                         new Piece(true, PieceType.Knight, new Point(6, 0)),
                         new Piece(true, PieceType.Rook, new Point(7, 0))));
 
-        whitePieces =
-                new ArrayList<Piece>(Arrays.asList(new Piece(true, PieceType.Rook, new Point(0, 0)),
-                        new Piece(false, PieceType.Knight, new Point(1, 0)),
-                        new Piece(false, PieceType.Bishop, new Point(2, 0)),
-                        new Piece(false, PieceType.Queen, new Point(3, 0)),
-                        new Piece(false, PieceType.King, new Point(4, 0)),
-                        new Piece(false, PieceType.Bishop, new Point(5, 0)),
-                        new Piece(false, PieceType.Knight, new Point(6, 0)),
-                        new Piece(false, PieceType.Rook, new Point(7, 0))));
+        blackPieces =
+                new ArrayList<Piece>(Arrays.asList(new Piece(true, PieceType.Rook, new Point(0, 7)),
+                        new Piece(false, PieceType.Knight, new Point(1, 7)),
+                        new Piece(false, PieceType.Bishop, new Point(2, 7)),
+                        new Piece(false, PieceType.Queen, new Point(3, 7)),
+                        new Piece(false, PieceType.King, new Point(4, 7)),
+                        new Piece(false, PieceType.Bishop, new Point(5, 7)),
+                        new Piece(false, PieceType.Knight, new Point(6, 7)),
+                        new Piece(false, PieceType.Rook, new Point(7, 7))));
         for (Piece piece : blackPieces)
         {
             board[piece.position.y][piece.position.x] = piece;
@@ -55,13 +62,14 @@ public class ChessModel
         // add pawns
         for (int i = 0; i < board.length; i++)
         {
-            Piece whitePawn = new Piece(true, PieceType.Pawn, new Point(1, i));
-            Piece blackPawn = new Piece(false, PieceType.Pawn, new Point(7, i));
+            Piece whitePawn = new Piece(true, PieceType.Pawn, new Point(i, 1));
+            Piece blackPawn = new Piece(false, PieceType.Pawn, new Point(i, 7));
             whitePieces.add(whitePawn);
             whitePieces.add(blackPawn);
             board[1][i] = whitePawn;
-            board[7][i] = whitePawn;
+            board[6][i] = whitePawn;
         }
+        // add nullPieces
 
 
     }
@@ -73,13 +81,22 @@ public class ChessModel
         if (pieceToMove.type != PieceType.None && pieceToMove.isWhite == whiteToMove)
         // legal piece to try to move
         {
-            for (Move legalMove : getLegalMoves())
+            Move[] moves = getLegalMoves();
+            if (moves == null)
+                System.out.println("No legal moves");
+            else
             {
-                if (move.equals(legalMove))
+                for (Move legalMove : moves)
                 {
-                    // TODO do stuff, move something
+                    if (move.equals(legalMove))
+                    {
+                        pieceToMove.position = new Point(end.x, end.y);
+                        board[start.y][start.x] = null;
+                        board[end.x][end.y] = pieceToMove;
+                    }
                 }
             }
+
         }
         return;
     }
@@ -92,7 +109,7 @@ public class ChessModel
         }
         else
         {
-            ArrayList<Move> legalmoves = new ArrayList<>();
+            ArrayList<Move> legalMovesList = new ArrayList<>();
             ArrayList<Piece> pieces =
                     whiteToMove ? new ArrayList<>(whitePieces) : new ArrayList<>(blackPieces);
             ArrayList<Point> checkDirections = new ArrayList<>();
@@ -115,7 +132,7 @@ public class ChessModel
                     while (isInBounds(coordinate = coordinate.add(direction)))
                     {
                         Piece pieceAtSquare = board[coordinate.y][coordinate.x];
-                        if (pieceAtSquare.type != PieceType.None)
+                        if (pieceAtSquare != null && pieceAtSquare.type != PieceType.None)
                         {
                             if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
                             {
@@ -159,9 +176,9 @@ public class ChessModel
                 for (int dy = -1; dy < 2; dy++)
                 {
                     Point position = king.position.add(new Point(dx, dy));
-                    if (!squareIsAttacked(position))
+                    if (!squareIsAttacked(position) && isInBounds(position))
                     {
-                        legalmoves.add(new Move(king.position, position));
+                        legalMovesList.add(new Move(king.position, position));
                     }
                 }
             }
@@ -170,11 +187,56 @@ public class ChessModel
                 // all possible moves, are legal (so you don't have to block a check)
                 for (Piece piece : pieces)
                 {
+                    if (piece.isWhite != whiteToMove)
+                        continue;
                     switch (piece.type)
                     {
-                        case King:
+                        case King: // already generated
                             break;
-
+                        case Pawn:
+                            Point[] attackSquares =
+                            {piece.position.add(new Point(-1, 1)),
+                                piece.position.add(new Point(1, 1))};
+                            for (Point point : attackSquares)
+                            {
+                                Piece pieceAtPoint = getPieceAtPoint(point);
+                                if (pieceAtPoint != null && isInBounds(point)
+                                        && pieceAtPoint.isWhite != piece.isWhite)
+                                {
+                                    Move move = new Move(piece.position, point);
+                                    move.isCapture = true;
+                                    if (point.y == 7 || point.y == 0)
+                                        move.isPromotion = true;
+                                    legalMovesList.add(move);
+                                }
+                            }
+                            // nonattacking moves.
+                            int movecount = (piece.position.y == 1 || piece.position.y == 7) ? 2: 1;
+                            int increment = whiteToMove ? 1 : -1;
+                            for (int dy = increment; dy <= movecount; dy += increment)
+                            {
+                                Point point = new Point(piece.position.x, piece.position.y + dy);
+                                Piece pieceAtPoint = getPieceAtPoint(point);
+                                System.out.println(pieceAtPoint == null);
+                                System.out.println(isInBounds(point));
+                                if (pieceAtPoint == null && isInBounds(point))
+                                {
+                                    Move move = new Move(piece.position, point);
+                                    move.isCapture = false;
+                                    if (point.y == 7 || point.y == 0)
+                                        move.isPromotion = true;
+                                    legalMovesList.add(move);
+                                }
+                            }
+                            break;
+                        case Bishop:
+                            break;
+                        case Knight:
+                            break;
+                        case Rook:
+                            break;
+                        case Queen:
+                            break;
                         default:
                             break;
                     }
@@ -186,6 +248,7 @@ public class ChessModel
             }
             // if checkdirections is more than 1, then the kingmoves are the only legal ones, and
             // those are already generated.
+            legalMoves = legalMovesList.toArray(new Move[legalMovesList.size()]);
         }
         return legalMoves;
     }
@@ -204,7 +267,7 @@ public class ChessModel
                 while (isInBounds(coordinate = coordinate.add(direction)))
                 {
                     Piece pieceAtSquare = board[coordinate.y][coordinate.x];
-                    if (pieceAtSquare.type != PieceType.None)
+                    if (pieceAtSquare != null && pieceAtSquare.type != PieceType.None)
                     {
                         if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
                         {
@@ -216,12 +279,12 @@ public class ChessModel
                             {
                                 return true;
                             }
-                            break;
                         }
                     }
                 }
             }
         }
+        return false;
     }
 
     public Piece[] getAllPieces(PieceType type, boolean isWhite)
@@ -240,7 +303,7 @@ public class ChessModel
 
     private boolean isInBounds(Point coord)
     {
-        return coord.x > 0 && coord.y > 0 && coord.x < 8 && coord.y < 8;
+        return coord.x >= 0 && coord.y >= 0 && coord.x < 8 && coord.y < 8;
     }
 
     /**

@@ -12,6 +12,9 @@ public class Move
     {
         startSquare = _startSquare;
         targetSquare = _targetSquare;
+        isCapture = false;
+        isPromotion = false;
+        isEnPassent = false;
     }
 
     public boolean equals(Move otherMove)
