@@ -43,7 +43,7 @@ public class ChessModel
                         new Piece(true, PieceType.Rook, new Point(7, 0))));
 
         blackPieces =
-                new ArrayList<Piece>(Arrays.asList(new Piece(true, PieceType.Rook, new Point(0, 7)),
+                new ArrayList<Piece>(Arrays.asList(new Piece(false, PieceType.Rook, new Point(0, 7)),
                         new Piece(false, PieceType.Knight, new Point(1, 7)),
                         new Piece(false, PieceType.Bishop, new Point(2, 7)),
                         new Piece(false, PieceType.Queen, new Point(3, 7)),
@@ -63,11 +63,11 @@ public class ChessModel
         for (int i = 0; i < board.length; i++)
         {
             Piece whitePawn = new Piece(true, PieceType.Pawn, new Point(i, 1));
-            Piece blackPawn = new Piece(false, PieceType.Pawn, new Point(i, 7));
+            Piece blackPawn = new Piece(false, PieceType.Pawn, new Point(i, 6));
             whitePieces.add(whitePawn);
-            whitePieces.add(blackPawn);
+            blackPieces.add(blackPawn);
             board[1][i] = whitePawn;
-            board[6][i] = whitePawn;
+            board[6][i] = blackPawn;
         }
         // add nullPieces
 
@@ -95,6 +95,7 @@ public class ChessModel
                         board[start.y][start.x] = null;
                         board[end.y][end.x] = pieceToMove;
                         legalMoves = null;
+                        whiteToMove = !whiteToMove;
                     }
                 }
             }
@@ -194,9 +195,10 @@ public class ChessModel
                         case King: // already generated
                             break;
                         case Pawn:
+                            int upDirection = whiteToMove ? 1 : -1;
                             Point[] attackSquares =
-                            {piece.position.add(new Point(-1, 1)),
-                                piece.position.add(new Point(1, 1))};
+                            {piece.position.add(new Point(-1, upDirection)),
+                                piece.position.add(new Point(1, upDirection))};
                             for (Point point : attackSquares)
                             {
                                 Piece pieceAtPoint = getPieceAtPoint(point);
@@ -212,14 +214,13 @@ public class ChessModel
                             }
                             // nonattacking moves.
                             int movecount =
-                                    (piece.position.y == 1 || piece.position.y == 7) ? 2 : 1;
-                            int increment = whiteToMove ? 1 : -1;
-                            for (int dy = increment; dy <= movecount; dy += increment)
+                                    (piece.position.y == 1 || piece.position.y == 6) ? 2 : 1;
+                            for (int dy = upDirection; Math.abs(dy) <= movecount; dy += upDirection)
                             {
                                 Point point = new Point(piece.position.x, piece.position.y + dy);
                                 Piece pieceAtPoint = getPieceAtPoint(point);
-                                System.out.println(pieceAtPoint == null);
-                                System.out.println(isInBounds(point));
+                                System.out.println("It is " + !(pieceAtPoint == null) + " that there is a piece at " + point);
+                                System.out.println("isinbounds:" + isInBounds(point));
                                 if (pieceAtPoint == null && isInBounds(point))
                                 {
                                     Move move = new Move(piece.position, point);

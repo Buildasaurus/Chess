@@ -24,29 +24,8 @@ public class Piece
         try
         {
             String imageName;
-            switch (type)
-            {
-                case Pawn:
-                    imageName = "BlackPawn";
-                    break;
-                case Bishop:
-                    imageName = "pawnNot";
-                    break;
-                case King:
-                    if (isWhite)
-                        imageName = "BlackPawn";
-                    else
-                    {
-                        imageName = "BlackKing";
-                    }
-                    break;
-                case Knight:
-                    imageName = "BlackKnight";
-                    break;
-                default:
-                    imageName = "pawnNot";
-                    break;
-            }
+            imageName = isWhite ? "white-" : "black-";
+            imageName += type.toString().toLowerCase();
 
             FileInputStream fis = new FileInputStream(
                     "F:\\Github Projects\\Chess\\chessapp\\src\\main\\resources\\" + imageName
