@@ -17,7 +17,7 @@ public class ChessController
 
         // Add a mouse released event handler to the view
         view.setOnMouseReleased(this::handleMouseRelease);
-        view.updateBoard(model.board);
+        view.initializeBoard(model.board);
     }
 
     Point start;

@@ -18,4 +18,15 @@ public class Point {
     {
         return new Point(x*scalar, y*scalar);
     }
+
+    @Override
+    public String toString()
+    {
+        return x + ", " + y;
+    }
+
+    public boolean equals(Point other)
+    {
+        return other.x == x && other.y == y;
+    }
 }

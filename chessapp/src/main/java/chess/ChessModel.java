@@ -90,15 +90,15 @@ public class ChessModel
                 {
                     if (move.equals(legalMove))
                     {
+                        System.out.println("changing move: " + move.startSquare);
                         pieceToMove.position = new Point(end.x, end.y);
                         board[start.y][start.x] = null;
-                        board[end.x][end.y] = pieceToMove;
+                        board[end.y][end.x] = pieceToMove;
+                        legalMoves = null;
                     }
                 }
             }
-
         }
-        return;
     }
 
     public Move[] getLegalMoves()
@@ -211,7 +211,8 @@ public class ChessModel
                                 }
                             }
                             // nonattacking moves.
-                            int movecount = (piece.position.y == 1 || piece.position.y == 7) ? 2: 1;
+                            int movecount =
+                                    (piece.position.y == 1 || piece.position.y == 7) ? 2 : 1;
                             int increment = whiteToMove ? 1 : -1;
                             for (int dy = increment; dy <= movecount; dy += increment)
                             {
