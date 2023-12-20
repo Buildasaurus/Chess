@@ -21,4 +21,10 @@ public class Move
     {
         return otherMove.startSquare.equals(startSquare) && otherMove.targetSquare.equals(targetSquare);
     }
+
+    @Override
+    public String toString()
+    {
+        return startSquare + " to " + targetSquare;
+    }
 }

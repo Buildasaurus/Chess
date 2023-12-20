@@ -42,8 +42,8 @@ public class ChessModel
                         new Piece(true, PieceType.Knight, new Point(6, 0)),
                         new Piece(true, PieceType.Rook, new Point(7, 0))));
 
-        blackPieces =
-                new ArrayList<Piece>(Arrays.asList(new Piece(false, PieceType.Rook, new Point(0, 7)),
+        blackPieces = new ArrayList<Piece>(
+                Arrays.asList(new Piece(false, PieceType.Rook, new Point(0, 7)),
                         new Piece(false, PieceType.Knight, new Point(1, 7)),
                         new Piece(false, PieceType.Bishop, new Point(2, 7)),
                         new Piece(false, PieceType.Queen, new Point(3, 7)),
@@ -74,11 +74,11 @@ public class ChessModel
 
     }
 
-    void movePiece(Point start, Point end)
+    public void movePiece(Point start, Point end)
     {
         Piece pieceToMove = board[start.y][start.x];
         Move move = new Move(start, end);
-        if (pieceToMove.type != PieceType.None && pieceToMove.isWhite == whiteToMove)
+        if (pieceToMove.type != null && pieceToMove.isWhite == whiteToMove)
         // legal piece to try to move
         {
             Move[] moves = getLegalMoves();
@@ -86,6 +86,7 @@ public class ChessModel
                 System.out.println("No legal moves");
             else
             {
+                boolean wasLegalMove = false;
                 for (Move legalMove : moves)
                 {
                     if (move.equals(legalMove))
@@ -96,9 +97,18 @@ public class ChessModel
                         board[end.y][end.x] = pieceToMove;
                         legalMoves = null;
                         whiteToMove = !whiteToMove;
+                        wasLegalMove = true;
                     }
                 }
+                if(!wasLegalMove)
+                {
+                    System.out.println("Failed to do move: " + move);
+                }
             }
+        }
+        else
+        {
+            System.out.println("piece is null");
         }
     }
 
@@ -133,7 +143,7 @@ public class ChessModel
                     while (isInBounds(coordinate = coordinate.add(direction)))
                     {
                         Piece pieceAtSquare = board[coordinate.y][coordinate.x];
-                        if (pieceAtSquare != null && pieceAtSquare.type != PieceType.None)
+                        if (pieceAtSquare != null)
                         {
                             if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
                             {
@@ -167,7 +177,6 @@ public class ChessModel
                     }
                 }
             }
-            System.out.println(isInCheck);
 
 
             // now we know if we are in check, and can generate moves, based on that.
@@ -177,12 +186,16 @@ public class ChessModel
                 for (int dy = -1; dy < 2; dy++)
                 {
                     Point position = king.position.add(new Point(dx, dy));
-                    if (!squareIsAttacked(position) && isInBounds(position))
+                    if (!squareIsAttacked(position) && isInBounds(position)
+                            && board[position.y][position.x] == null)
                     {
                         legalMovesList.add(new Move(king.position, position));
                     }
                 }
             }
+
+
+            // generate other moves
             if (checkDirections.size() == 0)
             {
                 // all possible moves, are legal (so you don't have to block a check)
@@ -219,8 +232,6 @@ public class ChessModel
                             {
                                 Point point = new Point(piece.position.x, piece.position.y + dy);
                                 Piece pieceAtPoint = getPieceAtPoint(point);
-                                System.out.println("It is " + !(pieceAtPoint == null) + " that there is a piece at " + point);
-                                System.out.println("isinbounds:" + isInBounds(point));
                                 if (pieceAtPoint == null && isInBounds(point))
                                 {
                                     Move move = new Move(piece.position, point);
@@ -232,6 +243,7 @@ public class ChessModel
                             }
                             break;
                         case Bishop:
+                            legalMovesList.addAll(generateDiagonalMoves(piece.position));
                             break;
                         case Knight:
                             break;
@@ -255,6 +267,13 @@ public class ChessModel
         return legalMoves;
     }
 
+    /**
+     * Returns a boolean represeting if a square is attacked by enemy pieces, or protected by enemy
+     * pieces.
+     *
+     * @param square The square the check
+     * @return Whether any enemy pieces see the square.
+     */
     public boolean squareIsAttacked(Point square)
     {
         for (int dx = -1; dx < 2; dx++) // iterate over 8 directions
@@ -269,11 +288,13 @@ public class ChessModel
                 while (isInBounds(coordinate = coordinate.add(direction)))
                 {
                     Piece pieceAtSquare = board[coordinate.y][coordinate.x];
-                    if (pieceAtSquare != null && pieceAtSquare.type != PieceType.None)
+                    if (pieceAtSquare != null)
                     {
                         if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
                         {
-                            if (!canAttackInDirection(pieceAtSquare, direction))
+                            if (!canAttackInDirection(pieceAtSquare, direction)
+                                    || pieceAtSquare.type == PieceType.Pawn
+                                            && coordinate.distance(square) > 1)
                             {
                                 break;
                             }
@@ -308,6 +329,32 @@ public class ChessModel
         return coord.x >= 0 && coord.y >= 0 && coord.x < 8 && coord.y < 8;
     }
 
+    public ArrayList<Move> generateDiagonalMoves(Point startSquare)
+    {
+        Point coordinate;
+        ArrayList<Move> moves = new ArrayList<>();
+        Point[] directions =
+        {new Point(1, 1), new Point(1, -1), new Point(-1, 1), new Point(-1, -1)};
+        for (Point direction : directions)
+        {
+            coordinate = startSquare;
+
+            while (isInBounds(coordinate = coordinate.add(direction)))
+            {
+                Piece pieceAtSquare = board[coordinate.y][coordinate.x];
+                if (pieceAtSquare != null)
+                {
+                    break;
+                }
+                else
+                {
+                    moves.add(new Move(startSquare, coordinate));
+                }
+            }
+        }
+        return moves;
+    }
+
     /**
      * Returns whether the given piece can attack in the given direction. a direction could be (1,0)
      * for attacking right to left.
@@ -319,7 +366,9 @@ public class ChessModel
     private boolean canAttackInDirection(Piece piece, Point direction)
     {
         boolean isDiagonal = direction.x * direction.y == 1;
-        return piece.type == PieceType.Queen || isDiagonal && (piece.type == PieceType.Bishop)
+        return piece.type == PieceType.Queen
+                || isDiagonal && (piece.type == PieceType.Bishop
+                        || (piece.type == PieceType.Pawn && (direction.y > 0 == piece.isWhite)))
                 || !isDiagonal && (piece.type == PieceType.Rook);
     }
 

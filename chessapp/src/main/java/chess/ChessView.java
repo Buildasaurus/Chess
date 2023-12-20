@@ -5,8 +5,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
-import java.io.File;
-import java.net.MalformedURLException;
+
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;

@@ -29,4 +29,14 @@ public class Point {
     {
         return other.x == x && other.y == y;
     }
+
+    /**
+     * Returns the largest distance between two squares, on the x, and y coordinate
+     * @param other the other point to compare distance to.
+     * @return the largest distance between two points
+     */
+    public int distance(Point other)
+    {
+        return Math.max(Math.abs(other.x - x), Math.abs(other.y - y));
+    }
 }
