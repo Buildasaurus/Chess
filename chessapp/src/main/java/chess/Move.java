@@ -19,12 +19,14 @@ public class Move
 
     public boolean equals(Move otherMove)
     {
-        return otherMove.startSquare.equals(startSquare) && otherMove.targetSquare.equals(targetSquare);
+        return otherMove.startSquare.equals(startSquare)
+                && otherMove.targetSquare.equals(targetSquare);
     }
 
     @Override
     public String toString()
     {
-        return startSquare + " to " + targetSquare;
+        return (char) (startSquare.x + 65) + Integer.toString(startSquare.y + 1) + " to "
+                + (char) (targetSquare.x + 65) + Integer.toString(targetSquare.y + 1);
     }
 }

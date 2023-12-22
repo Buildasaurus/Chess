@@ -58,4 +58,10 @@ public class ChessView extends GridPane
             }
         }
     }
+
+    public void showWinner(boolean WhiteWon)
+    {
+        String winner = WhiteWon ? "White" : "Black";
+        System.out.println(winner + " Won!");
+    }
 }

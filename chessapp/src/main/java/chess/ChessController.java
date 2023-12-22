@@ -55,5 +55,10 @@ public class ChessController
         System.out.println("Mouse released at: " + event.getX() + ", " + event.getY());
         view.updateBoard(model.board);
 
+        if(model.isCheckmate())
+        {
+            view.showWinner(!model.whiteToMove);
+        }
+
     }
 }

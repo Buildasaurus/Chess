@@ -78,11 +78,11 @@ public class ChessModel
     {
         Piece pieceToMove = board[start.y][start.x];
         Move move = new Move(start, end);
-        if (pieceToMove.type != null && pieceToMove.isWhite == whiteToMove)
+        if (pieceToMove != null && pieceToMove.isWhite == whiteToMove)
         // legal piece to try to move
         {
             Move[] moves = getLegalMoves();
-            if (moves == null)
+            if (moves.length == 0)
                 System.out.println("No legal moves");
             else
             {
@@ -91,7 +91,19 @@ public class ChessModel
                 {
                     if (move.equals(legalMove))
                     {
-                        System.out.println("changing move: " + move.startSquare);
+                        System.out.println("changing move: " + move);
+                        if (board[end.y][end.x] != null)
+                        {
+                            if (!whiteToMove)
+                            {
+                                whitePieces.remove(board[end.y][end.x]);
+                            }
+                            else
+                            {
+                                blackPieces.remove(board[end.y][end.x]);
+                            }
+                        }
+
                         pieceToMove.position = new Point(end.x, end.y);
                         board[start.y][start.x] = null;
                         board[end.y][end.x] = pieceToMove;
@@ -100,7 +112,7 @@ public class ChessModel
                         wasLegalMove = true;
                     }
                 }
-                if(!wasLegalMove)
+                if (!wasLegalMove)
                 {
                     System.out.println("Failed to do move: " + move);
                 }
@@ -129,13 +141,12 @@ public class ChessModel
             Piece king = getAllPieces(PieceType.King, whiteToMove)[0];
             // diagonals
             Point coordinate;
-            boolean isInCheck = false;
             for (int dx = -1; dx < 2; dx++) // iterate over 8 directions
             {
                 for (int dy = -1; dy < 2; dy++)
                 {
                     if (dy == 0 && dx == 0)
-                        break;
+                        continue;
 
                     coordinate = king.position;
                     Piece possiblyPinnedPiece = null;
@@ -155,15 +166,13 @@ public class ChessModel
                                 {
                                     System.out.println(pieces.remove(possiblyPinnedPiece));
                                 }
-                                else
+                                else // this is a check
                                 {
-                                    isInCheck = true;
                                     for (int i = 1; i <= Math.max(
                                             Math.abs(coordinate.x - king.position.x),
                                             Math.abs(coordinate.y - king.position.y)); i++)
                                     {
                                         legalSquares.add(king.position.add(direction.multiply(i)));
-
                                     }
                                     checkDirections.add(new Point(dx, dy));
                                 }
@@ -177,7 +186,24 @@ public class ChessModel
                     }
                 }
             }
-
+            // knight checks
+            Point[] directions =
+            {new Point(2, 1), new Point(2, -1), new Point(1, 2), new Point(1, -2),
+                new Point(-1, -2), new Point(-1, 2), new Point(-2, 1), new Point(-2, -1)};
+            for (Point direction : directions)
+            {
+                Point possibleKnight = king.position.add(direction);
+                if (isInBounds(possibleKnight))
+                {
+                    Piece pieceAtSquare = board[possibleKnight.y][possibleKnight.x];
+                    if (pieceAtSquare != null && pieceAtSquare.isWhite != whiteToMove
+                            && pieceAtSquare.type == PieceType.Knight)
+                    {
+                        checkDirections.add(possibleKnight);
+                        legalSquares.add(possibleKnight);
+                    }
+                }
+            }
 
             // now we know if we are in check, and can generate moves, based on that.
             // Generate kingMoves.
@@ -185,9 +211,12 @@ public class ChessModel
             {
                 for (int dy = -1; dy < 2; dy++)
                 {
+                    if(dy == 0 && dx == 0)
+                        continue;
                     Point position = king.position.add(new Point(dx, dy));
                     if (!squareIsAttacked(position) && isInBounds(position)
-                            && board[position.y][position.x] == null)
+                            && (board[position.y][position.x] == null
+                                    || board[position.y][position.x].isWhite != whiteToMove))
                     {
                         legalMovesList.add(new Move(king.position, position));
                     }
@@ -199,72 +228,102 @@ public class ChessModel
             if (checkDirections.size() == 0)
             {
                 // all possible moves, are legal (so you don't have to block a check)
-                for (Piece piece : pieces)
-                {
-                    if (piece.isWhite != whiteToMove)
-                        continue;
-                    switch (piece.type)
-                    {
-                        case King: // already generated
-                            break;
-                        case Pawn:
-                            int upDirection = whiteToMove ? 1 : -1;
-                            Point[] attackSquares =
-                            {piece.position.add(new Point(-1, upDirection)),
-                                piece.position.add(new Point(1, upDirection))};
-                            for (Point point : attackSquares)
-                            {
-                                Piece pieceAtPoint = getPieceAtPoint(point);
-                                if (pieceAtPoint != null && isInBounds(point)
-                                        && pieceAtPoint.isWhite != piece.isWhite)
-                                {
-                                    Move move = new Move(piece.position, point);
-                                    move.isCapture = true;
-                                    if (point.y == 7 || point.y == 0)
-                                        move.isPromotion = true;
-                                    legalMovesList.add(move);
-                                }
-                            }
-                            // nonattacking moves.
-                            int movecount =
-                                    (piece.position.y == 1 || piece.position.y == 6) ? 2 : 1;
-                            for (int dy = upDirection; Math.abs(dy) <= movecount; dy += upDirection)
-                            {
-                                Point point = new Point(piece.position.x, piece.position.y + dy);
-                                Piece pieceAtPoint = getPieceAtPoint(point);
-                                if (pieceAtPoint == null && isInBounds(point))
-                                {
-                                    Move move = new Move(piece.position, point);
-                                    move.isCapture = false;
-                                    if (point.y == 7 || point.y == 0)
-                                        move.isPromotion = true;
-                                    legalMovesList.add(move);
-                                }
-                            }
-                            break;
-                        case Bishop:
-                            legalMovesList.addAll(generateDiagonalMoves(piece.position));
-                            break;
-                        case Knight:
-                            break;
-                        case Rook:
-                            break;
-                        case Queen:
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                legalMovesList.addAll(generateAllMoves(pieces));
             }
             if (checkDirections.size() == 1)
             {
                 // Loop over all pieces.
+                ArrayList<Move> allMoves = generateAllMoves(pieces);
+                // generate legal squares, that moves must end on (in front of king, or taking the
+                // chekcing piece)
+                for (Move move : allMoves)
+                {
+                    for (Point legalSquare : legalSquares)
+                    {
+                        if (move.targetSquare.equals(legalSquare))
+                        {
+                            legalMovesList.add(move);
+                            break;
+                        }
+                    }
+                }
             }
             // if checkdirections is more than 1, then the kingmoves are the only legal ones, and
             // those are already generated.
             legalMoves = legalMovesList.toArray(new Move[legalMovesList.size()]);
         }
         return legalMoves;
+    }
+
+
+    private ArrayList<Move> generateAllMoves(ArrayList<Piece> pieces)
+    {
+        ArrayList<Move> legalMovesList = new ArrayList<Move>();
+        for (Piece piece : pieces)
+        {
+            if (piece.isWhite != whiteToMove)
+                continue;
+            switch (piece.type)
+            {
+                case King: // already generated
+                    break;
+                case Pawn:
+                    int upDirection = whiteToMove ? 1 : -1;
+                    Point[] attackSquares =
+                    {piece.position.add(new Point(-1, upDirection)),
+                        piece.position.add(new Point(1, upDirection))};
+                    for (Point point : attackSquares)
+                    {
+                        Piece pieceAtPoint = getPieceAtPoint(point);
+                        if (pieceAtPoint != null && isInBounds(point)
+                                && pieceAtPoint.isWhite != piece.isWhite)
+                        {
+                            Move move = new Move(piece.position, point);
+                            move.isCapture = true;
+                            if (point.y == 7 || point.y == 0)
+                                move.isPromotion = true;
+                            legalMovesList.add(move);
+                        }
+                    }
+                    // nonattacking moves.
+                    int movecount = (piece.position.y == 1 || piece.position.y == 6) ? 2 : 1;
+                    for (int dy = upDirection; Math.abs(dy) <= movecount; dy += upDirection)
+                    {
+                        Point point = new Point(piece.position.x, piece.position.y + dy);
+                        Piece pieceAtPoint = getPieceAtPoint(point);
+                        if (pieceAtPoint == null && isInBounds(point))
+                        {
+                            Move move = new Move(piece.position, point);
+                            move.isCapture = false;
+                            if (point.y == 7 || point.y == 0)
+                                move.isPromotion = true;
+                            legalMovesList.add(move);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    break;
+                case Bishop:
+                    legalMovesList.addAll(generateDiagonalMoves(piece.position));
+                    break;
+                case Knight:
+                    legalMovesList.addAll(generateKnightMoves(piece.position));
+                    break;
+                case Rook:
+                    legalMovesList.addAll(generateStraightMoves(piece.position));
+                    break;
+                case Queen:
+                    legalMovesList.addAll(generateStraightMoves(piece.position));
+                    legalMovesList.addAll(generateDiagonalMoves(piece.position));
+                    break;
+                default:
+                    System.out.println("This piece is no piece??");
+                    break;
+            }
+        }
+        return legalMovesList;
     }
 
     /**
@@ -281,7 +340,7 @@ public class ChessModel
             for (int dy = -1; dy < 2; dy++)
             {
                 if (dy == 0 && dx == 0)
-                    break;
+                    continue;
 
                 Point coordinate = square;
                 Point direction = new Point(dx, dy);
@@ -307,6 +366,22 @@ public class ChessModel
                 }
             }
         }
+        Point[] directions =
+        {new Point(2, 1), new Point(2, -1), new Point(1, 2), new Point(1, -2), new Point(-1, -2),
+            new Point(-1, 2), new Point(-2, 1), new Point(-2, -1)};
+        for (Point direction : directions)
+        {
+            Point coordinate = square.add(direction);
+            if (isInBounds(coordinate))
+            {
+                Piece pieceAtSquare = board[coordinate.y][coordinate.x];
+                if (pieceAtSquare != null && pieceAtSquare.isWhite != whiteToMove
+                        && pieceAtSquare.type == PieceType.Knight)
+                {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -329,12 +404,47 @@ public class ChessModel
         return coord.x >= 0 && coord.y >= 0 && coord.x < 8 && coord.y < 8;
     }
 
-    public ArrayList<Move> generateDiagonalMoves(Point startSquare)
+    public ArrayList<Move> generateKnightMoves(Point startSquare)
     {
-        Point coordinate;
         ArrayList<Move> moves = new ArrayList<>();
         Point[] directions =
+        {new Point(2, 1), new Point(2, -1), new Point(1, 2), new Point(1, -2), new Point(-1, -2),
+            new Point(-1, 2), new Point(-2, 1), new Point(-2, -1)};
+        for (Point direction : directions)
+        {
+            Point coordinate = startSquare.add(direction);
+            if (isInBounds(coordinate))
+            {
+                Piece pieceAtSquare = board[coordinate.y][coordinate.x];
+                if (pieceAtSquare == null || pieceAtSquare.isWhite != whiteToMove)
+                {
+                    moves.add(new Move(startSquare, coordinate));
+                }
+            }
+
+        }
+        return moves;
+    }
+
+    public ArrayList<Move> generateDiagonalMoves(Point startSquare)
+    {
+        Point[] directions =
         {new Point(1, 1), new Point(1, -1), new Point(-1, 1), new Point(-1, -1)};
+        return generateMovesInDirection(startSquare, directions);
+
+    }
+
+    public ArrayList<Move> generateStraightMoves(Point startSquare)
+    {
+        Point[] directions =
+        {new Point(1, 0), new Point(0, 1), new Point(-1, 0), new Point(0, -1)};
+        return generateMovesInDirection(startSquare, directions);
+    }
+
+    private ArrayList<Move> generateMovesInDirection(Point startSquare, Point[] directions)
+    {
+        ArrayList<Move> moves = new ArrayList<>();
+        Point coordinate;
         for (Point direction : directions)
         {
             coordinate = startSquare;
@@ -342,7 +452,7 @@ public class ChessModel
             while (isInBounds(coordinate = coordinate.add(direction)))
             {
                 Piece pieceAtSquare = board[coordinate.y][coordinate.x];
-                if (pieceAtSquare != null)
+                if (pieceAtSquare != null && pieceAtSquare.isWhite == whiteToMove)
                 {
                     break;
                 }
@@ -353,6 +463,7 @@ public class ChessModel
             }
         }
         return moves;
+
     }
 
     /**
@@ -365,7 +476,7 @@ public class ChessModel
      */
     private boolean canAttackInDirection(Piece piece, Point direction)
     {
-        boolean isDiagonal = direction.x * direction.y == 1;
+        boolean isDiagonal = Math.abs(direction.x * direction.y) == 1;
         return piece.type == PieceType.Queen
                 || isDiagonal && (piece.type == PieceType.Bishop
                         || (piece.type == PieceType.Pawn && (direction.y > 0 == piece.isWhite)))
@@ -374,7 +485,7 @@ public class ChessModel
 
     boolean isCheckmate()
     {
-        return true;
+        return getLegalMoves().length == 0;
     }
 
     boolean isDraw()
