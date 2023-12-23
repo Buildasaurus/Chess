@@ -19,6 +19,7 @@ public class ChessModel
         return board[point.y][point.x];
     }
 
+    boolean canCastle = true;
     boolean whiteToMove = true;
     /**
      * Same objects as in board
@@ -211,7 +212,7 @@ public class ChessModel
             {
                 for (int dy = -1; dy < 2; dy++)
                 {
-                    if(dy == 0 && dx == 0)
+                    if (dy == 0 && dx == 0)
                         continue;
                     Point position = king.position.add(new Point(dx, dy));
                     if (!squareIsAttacked(position) && isInBounds(position)
@@ -323,6 +324,12 @@ public class ChessModel
                     break;
             }
         }
+
+
+        // generate en passent
+
+        // generate castling
+
         return legalMovesList;
     }
 
