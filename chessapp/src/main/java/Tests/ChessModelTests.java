@@ -2,10 +2,11 @@ package Tests;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import chess.ChessModel;
 import chess.Move;
+import chess.Piece;
 import chess.Point;
+import chess.Piece.PieceType;
 
 public class ChessModelTests
 {
@@ -16,10 +17,11 @@ public class ChessModelTests
         board = new ChessModel();
         System.out.println("------------------START TEST----------------");
         broadTest();
-        testScholarsMate();
+        mateTest();
         testEnPassent();
         testKingLegalMoves();
         testPins();
+        testCastling();
         System.out.println("-----------------END TEST-----------------");
     }
 
@@ -54,7 +56,7 @@ public class ChessModelTests
             }
         }
         System.out.printf(
-                "Test result: %b, with %d/%d moves correct moves. %d incorrect moves. %d missing moves\n",
+                "Test result: %b \t %d/%d moves correct moves \t %d incorrect moves \t %d missing moves\n",
                 testSucced, counter, correctMoves.length, moves.length - counter,
                 correctMoves.length - counter);
         if (generatedMovesList.size() > 0)
@@ -68,10 +70,10 @@ public class ChessModelTests
         }
     }
 
-    void testScholarsMate()
+    void mateTest()
     {
         board = new ChessModel();
-        System.out.println("<<<SCHOLARS MATE TEST>>>");
+        System.out.println("<<<MATE TEST>>>");
 
 
         board.movePiece(new Point(4, 1), new Point(4, 3)); // 1.e4
@@ -83,6 +85,19 @@ public class ChessModelTests
         board.movePiece(new Point(7, 4), new Point(5, 6)); // 4.Qf6#
 
         Move[] correctMoves = new Move[0];
+        compare(board.getLegalMoves(), correctMoves);
+
+        // part two: King is not safe behind itself.
+        board = new ChessModel();
+
+
+        board.movePiece(new Point(4, 1), new Point(4, 2)); // 1.e3
+        board.movePiece(new Point(4, 6), new Point(4, 4)); // 1.e5
+        board.movePiece(new Point(3, 0), new Point(7, 4)); // 2.Qh5
+        board.movePiece(new Point(4, 7), new Point(4, 6)); // 2.Ke7
+        board.movePiece(new Point(7, 4), new Point(4, 4)); // 3.Qxe5#
+
+        correctMoves = new Move[0];
         compare(board.getLegalMoves(), correctMoves);
 
     }
@@ -271,6 +286,36 @@ public class ChessModelTests
             new Move(new Point(3, 0), new Point(4, 0))};
         compare(board.getLegalMoves(), correctMoves);
 
+
+        // part two, it is safe behind a friendly piece.
+
+        board = new ChessModel();
+
+
+        board.movePiece(new Point(5, 1), new Point(5, 2)); // 1.f3
+        board.movePiece(new Point(6, 6), new Point(6, 5)); // 1.g6
+        board.movePiece(new Point(4, 0), new Point(5, 1)); // 2.Kf2
+        board.movePiece(new Point(5, 7), new Point(6, 6)); // 2.Bg7
+        board.movePiece(new Point(5, 2), new Point(5, 3)); // 3.f4
+        board.movePiece(new Point(6, 6), new Point(4, 4)); // 3.Be5
+
+
+        correctMoves = new Move[]
+        {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
+            new Move(new Point(1, 1), new Point(1, 2)), new Move(new Point(1, 1), new Point(1, 3)),
+            new Move(new Point(2, 1), new Point(2, 2)), new Move(new Point(2, 1), new Point(2, 3)),
+            new Move(new Point(3, 1), new Point(3, 2)), new Move(new Point(3, 1), new Point(3, 3)),
+            new Move(new Point(4, 1), new Point(4, 2)), new Move(new Point(4, 1), new Point(4, 3)),
+            new Move(new Point(5, 3), new Point(5, 4)), new Move(new Point(5, 3), new Point(4, 4)),
+            new Move(new Point(6, 1), new Point(6, 2)), new Move(new Point(6, 1), new Point(6, 3)),
+            new Move(new Point(7, 1), new Point(7, 2)), new Move(new Point(7, 1), new Point(7, 3)),
+            new Move(new Point(1, 0), new Point(0, 2)), new Move(new Point(1, 0), new Point(2, 2)),
+            new Move(new Point(6, 0), new Point(7, 2)), new Move(new Point(6, 0), new Point(5, 2)),
+            new Move(new Point(5, 1), new Point(5, 2)), new Move(new Point(5, 1), new Point(6, 2)),
+            new Move(new Point(5, 1), new Point(4, 2)), new Move(new Point(5, 1), new Point(4, 0)),
+            new Move(new Point(3, 0), new Point(4, 0))};
+        compare(board.getLegalMoves(), correctMoves);
+
     }
 
     void testPins()
@@ -329,8 +374,49 @@ public class ChessModelTests
             new Move(new Point(4, 2), new Point(3, 3))};
         compare(board.getLegalMoves(), correctMoves);
         // no bishops should be pinned.
+    }
+
+    void testCastling()
+    {
+
+        board = new ChessModel();
+        System.out.println("<<<CASTLING TEST>>>");
 
 
+        board.movePiece(new Point(6, 1), new Point(6, 2)); // 1.g3
+        board.movePiece(new Point(4, 6), new Point(4, 5)); // 1.e6
+        board.movePiece(new Point(5, 0), new Point(6, 1)); // 2.Bg2
+        board.movePiece(new Point(4, 5), new Point(4, 4)); // 2.e5
+        board.movePiece(new Point(6, 0), new Point(5, 2)); // 3.Nf3
+        board.movePiece(new Point(4, 4), new Point(4, 3)); // 1.e4
+        // Start position test
+        Move[] correctMoves =
+        {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
+            new Move(new Point(1, 1), new Point(1, 2)), new Move(new Point(1, 1), new Point(1, 3)),
+            new Move(new Point(2, 1), new Point(2, 2)), new Move(new Point(2, 1), new Point(2, 3)),
+            new Move(new Point(3, 1), new Point(3, 2)), new Move(new Point(3, 1), new Point(3, 3)),
+            new Move(new Point(4, 1), new Point(4, 2)),
 
+            new Move(new Point(6, 2), new Point(6, 3)), new Move(new Point(7, 1), new Point(7, 2)),
+            new Move(new Point(7, 1), new Point(7, 3)), new Move(new Point(1, 0), new Point(0, 2)),
+            new Move(new Point(1, 0), new Point(2, 2)), new Move(new Point(5, 2), new Point(6, 0)),
+            new Move(new Point(5, 2), new Point(7, 3)), new Move(new Point(5, 2), new Point(6, 4)),
+            new Move(new Point(5, 2), new Point(4, 4)), new Move(new Point(5, 2), new Point(3, 3)),
+            new Move(new Point(6, 1), new Point(5, 0)), new Move(new Point(6, 1), new Point(7, 2)),
+            new Move(new Point(4, 0), new Point(6, 0)), new Move(new Point(4, 0), new Point(5, 0)),
+            new Move(new Point(7, 0), new Point(5, 0)),
+            new Move(new Point(7, 0), new Point(6, 0)),};
+        compare(board.getLegalMoves(), correctMoves);
+        board.movePiece(new Point(4, 0), new Point(6, 0)); // 4. O-O
+        Piece supposedRook = board.getPieceAtPoint(new Point(5, 0));
+        if (supposedRook == null || supposedRook.type != PieceType.Rook)
+        {
+            System.out.println("WARNING - ROOK ISN'T AT EXPECT SQUARE AFTER     ");
+        }
+        Piece noRookAnymore = board.getPieceAtPoint(new Point(7, 0));
+        if (noRookAnymore != null && noRookAnymore.type == PieceType.Rook)
+        {
+            System.out.println("WARNING - ROOK IS STILL AT IT'S ORIGINAL SQUARE");
+        }
     }
 }

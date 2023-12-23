@@ -11,7 +11,7 @@ public class Piece
     }
 
     Image image;
-
+    public boolean hasMoved = false;
     public boolean isWhite;
     public PieceType type;
     public Point position;

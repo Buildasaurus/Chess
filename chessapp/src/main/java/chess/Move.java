@@ -7,6 +7,7 @@ public class Move
     public boolean isCapture;
     public boolean isPromotion;
     public boolean isEnPassent;
+    public boolean isCastling;
 
     public Move(Point _startSquare, Point _targetSquare)
     {

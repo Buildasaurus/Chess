@@ -33,8 +33,6 @@ public class ChessController
         int col = (int) (x / 100);
 
         start = new Point(col, row);
-        System.out.println("Mouse pressed at: " + event.getX() + ", " + event.getY());
-
     }
 
     Point end;
@@ -52,7 +50,6 @@ public class ChessController
         end = new Point(col, row);
         model.movePiece(start, end);
         // Handle mouse release event
-        System.out.println("Mouse released at: " + event.getX() + ", " + event.getY());
         view.updateBoard(model.board);
 
         if(model.isCheckmate())

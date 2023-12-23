@@ -12,14 +12,7 @@ public class ChessModel
      */
     Piece[][] board;
 
-    public Piece getPieceAtPoint(Point point)
-    {
-        if (!isInBounds(point))
-            return null;
-        return board[point.y][point.x];
-    }
 
-    boolean canCastle = true;
     boolean whiteToMove = true;
     Piece enPassentablePawn;
     /**
@@ -31,6 +24,9 @@ public class ChessModel
      */
     ArrayList<Piece> blackPieces;
 
+    /**
+     * Instantiates a chess board, with pieces on the standard squares.
+     */
     public ChessModel()
     {
         board = new Piece[8][8];
@@ -71,11 +67,15 @@ public class ChessModel
             board[1][i] = whitePawn;
             board[6][i] = blackPawn;
         }
-        // add nullPieces
-
-
     }
 
+    /**
+     * Attempts to move a piece from the given startpoint, to the endpoint. If it isn't possible, it
+     * does nothing. Will generate all legal moves.
+     *
+     * @param start The start square that the piece moves from
+     * @param end The square that the piece wants to move to
+     */
     public void movePiece(Point start, Point end)
     {
         Piece pieceToMove = board[start.y][start.x];
@@ -93,6 +93,7 @@ public class ChessModel
                 {
                     if (move.equals(legalMove))
                     {
+                        // update the piece lists if there are captures
                         enPassentablePawn = null;
                         if (board[end.y][end.x] != null)
                         {
@@ -121,12 +122,36 @@ public class ChessModel
                             }
 
                         }
+
+                        // update the old pieces and vacate the square the piece came from.
                         pieceToMove.position = new Point(end.x, end.y);
                         board[start.y][start.x] = null;
                         board[end.y][end.x] = pieceToMove;
                         legalMoves = null;
                         whiteToMove = !whiteToMove;
                         wasLegalMove = true;
+
+                        if (legalMove.isCastling)
+                        {
+                            if (move.targetSquare.x > 4) // kingside castling
+                            {
+                                Piece rookToMove = board[move.targetSquare.y][7];
+                                rookToMove.position = new Point(5, move.targetSquare.y);
+                                setPieceAtPoint(rookToMove, rookToMove.position);
+                                setPieceAtPoint(null, new Point(7, move.targetSquare.y));
+
+                            }
+                            else// queenside
+                            {
+                                Piece rookToMove = board[move.targetSquare.y][0];
+                                rookToMove.position = new Point(3, move.targetSquare.y);
+                                setPieceAtPoint(rookToMove, rookToMove.position);
+                                setPieceAtPoint(null, new Point(0, move.targetSquare.y));
+                            }
+                        }
+
+                        // for future moves, save that that if move was a pawn pushed two squares,
+                        // it may be en-passented
                         if (pieceToMove.type == PieceType.Pawn)
                         {
                             if (Math.abs(move.targetSquare.y - move.startSquare.y) == 2)
@@ -134,17 +159,18 @@ public class ChessModel
                                 enPassentablePawn = pieceToMove;
                             }
                         }
+                        pieceToMove.hasMoved = true;
                     }
                 }
                 if (!wasLegalMove)
                 {
-                    System.out.println("Failed to do move: " + move);
+                    System.out.println("The following move isn't legal: " + move);
                 }
             }
         }
         else
         {
-            System.out.println("piece is null");
+            System.out.println("piece is null, or not of the right color.");
         }
     }
 
@@ -190,7 +216,7 @@ public class ChessModel
                                 }
                                 if (possiblyPinnedPiece != null)
                                 {
-                                    System.out.println(pieces.remove(possiblyPinnedPiece));
+                                    pieces.remove(possiblyPinnedPiece);
                                 }
                                 else // this is a check
                                 {
@@ -318,9 +344,25 @@ public class ChessModel
             }
         }
         // Castling
-        if (canCastle)
+        if (!king.hasMoved)
         {
-
+            int yPosition = whiteToMove ? 0 : 7;
+            // kingside
+            if (board[yPosition][7] != null && !board[yPosition][7].hasMoved
+                    && isSafeEmptySquare(5, yPosition) && isSafeEmptySquare(6, yPosition))
+            {
+                Move kingsideCastling = new Move(new Point(4, yPosition), new Point(6, yPosition));
+                kingsideCastling.isCastling = true;
+                legalMovesList.add(kingsideCastling);
+            }
+            if (board[yPosition][0] != null && !board[yPosition][0].hasMoved
+                    && isSafeEmptySquare(3, yPosition) && isSafeEmptySquare(2, yPosition)
+                    && board[yPosition][1] == null)
+            {
+                Move queensideCastling = new Move(new Point(4, yPosition), new Point(2, yPosition));
+                queensideCastling.isCastling = true;
+                legalMovesList.add(queensideCastling);
+            }
         }
         // Other moves
         for (Piece piece : pieces)
@@ -407,10 +449,12 @@ public class ChessModel
             }
 
         }
-        // generate castling
+
 
         return legalMovesList;
     }
+
+
 
     /**
      * Returns a boolean represeting if a square is attacked by enemy pieces, or protected by enemy
@@ -447,6 +491,11 @@ public class ChessModel
                             {
                                 return true;
                             }
+
+                        }
+                        else if(pieceAtSquare.type != PieceType.King)
+                        {
+                            break;
                         }
                     }
                 }
@@ -492,10 +541,7 @@ public class ChessModel
         return correctPieces.toArray(new Piece[correctPieces.size()]);
     }
 
-    private boolean isInBounds(Point coord)
-    {
-        return coord.x >= 0 && coord.y >= 0 && coord.x < 8 && coord.y < 8;
-    }
+
 
     public ArrayList<Move> generateKnightMoves(Point startSquare)
     {
@@ -580,9 +626,33 @@ public class ChessModel
                 || !isDiagonal && (piece.type == PieceType.Rook);
     }
 
+    public Piece getPieceAtPoint(Point point)
+    {
+        if (!isInBounds(point))
+            return null;
+        return board[point.y][point.x];
+    }
+
+    public void setPieceAtPoint(Piece piece, Point point)
+    {
+        if (!isInBounds(point))
+            return;
+        board[point.y][point.x] = piece;
+    }
+
     boolean isCheckmate()
     {
         return getLegalMoves().length == 0;
+    }
+
+    private boolean isInBounds(Point coord)
+    {
+        return coord.x >= 0 && coord.y >= 0 && coord.x < 8 && coord.y < 8;
+    }
+
+    boolean isSafeEmptySquare(int x, int y)
+    {
+        return board[y][x] == null && !squareIsAttacked(new Point(x, y));
     }
 
     boolean isDraw()
