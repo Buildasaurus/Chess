@@ -19,6 +19,7 @@ public class ChessModelTests
         testScholarsMate();
         testEnPassent();
         testKingLegalMoves();
+        testPins();
         System.out.println("-----------------END TEST-----------------");
     }
 
@@ -269,6 +270,67 @@ public class ChessModelTests
             new Move(new Point(5, 3), new Point(6, 2)), new Move(new Point(5, 3), new Point(4, 2)),
             new Move(new Point(3, 0), new Point(4, 0))};
         compare(board.getLegalMoves(), correctMoves);
+
+    }
+
+    void testPins()
+    {
+        board = new ChessModel();
+        System.out.println("<<<PINNED BISHOPS TEST>>>");
+
+
+        board.movePiece(new Point(4, 1), new Point(4, 3)); // 1.e4
+        board.movePiece(new Point(4, 6), new Point(4, 4)); // 1.e5
+        board.movePiece(new Point(3, 1), new Point(3, 3)); // 2.d4
+        board.movePiece(new Point(3, 7), new Point(7, 3)); // 2.Qh4
+        board.movePiece(new Point(5, 0), new Point(4, 1)); // 3.Be2
+        board.movePiece(new Point(7, 3), new Point(4, 3)); // 3.Qxe4
+
+        // e2 bishop is pinned now
+        Move[] correctMoves =
+        {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
+            new Move(new Point(1, 1), new Point(1, 2)), new Move(new Point(1, 1), new Point(1, 3)),
+            new Move(new Point(2, 1), new Point(2, 2)), new Move(new Point(2, 1), new Point(2, 3)),
+            new Move(new Point(3, 3), new Point(3, 4)), new Move(new Point(3, 3), new Point(4, 4)),
+            new Move(new Point(5, 1), new Point(5, 2)), new Move(new Point(5, 1), new Point(5, 3)),
+            new Move(new Point(6, 1), new Point(6, 2)), new Move(new Point(6, 1), new Point(6, 3)),
+            new Move(new Point(7, 1), new Point(7, 2)), new Move(new Point(7, 1), new Point(7, 3)),
+            new Move(new Point(1, 0), new Point(0, 2)), new Move(new Point(1, 0), new Point(2, 2)),
+            new Move(new Point(1, 0), new Point(3, 1)), new Move(new Point(6, 0), new Point(5, 2)),
+            new Move(new Point(6, 0), new Point(7, 2)), new Move(new Point(3, 0), new Point(3, 1)),
+            new Move(new Point(3, 0), new Point(3, 2)), new Move(new Point(4, 0), new Point(3, 1)),
+            new Move(new Point(4, 0), new Point(5, 0)), new Move(new Point(2, 0), new Point(3, 1)),
+            new Move(new Point(2, 0), new Point(4, 2)), new Move(new Point(2, 0), new Point(5, 3)),
+            new Move(new Point(2, 0), new Point(6, 4)), new Move(new Point(2, 0), new Point(7, 5))};
+        compare(board.getLegalMoves(), correctMoves);
+
+
+        board.movePiece(new Point(2, 0), new Point(4, 2)); // 4.Be3
+        board.movePiece(new Point(4, 4), new Point(3, 3)); // 4.exd
+        correctMoves = new Move[]
+        {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
+            new Move(new Point(1, 1), new Point(1, 2)), new Move(new Point(1, 1), new Point(1, 3)),
+            new Move(new Point(2, 1), new Point(2, 2)), new Move(new Point(2, 1), new Point(2, 3)),
+            new Move(new Point(5, 1), new Point(5, 2)), new Move(new Point(5, 1), new Point(5, 3)),
+            new Move(new Point(6, 1), new Point(6, 2)), new Move(new Point(6, 1), new Point(6, 3)),
+            new Move(new Point(7, 1), new Point(7, 2)), new Move(new Point(7, 1), new Point(7, 3)),
+            new Move(new Point(1, 0), new Point(0, 2)), new Move(new Point(1, 0), new Point(2, 2)),
+            new Move(new Point(1, 0), new Point(3, 1)), new Move(new Point(6, 0), new Point(5, 2)),
+            new Move(new Point(6, 0), new Point(7, 2)), new Move(new Point(3, 0), new Point(3, 1)),
+            new Move(new Point(3, 0), new Point(3, 2)), new Move(new Point(3, 0), new Point(3, 3)),
+            new Move(new Point(3, 0), new Point(2, 0)), new Move(new Point(4, 0), new Point(3, 1)),
+            new Move(new Point(4, 0), new Point(5, 0)), new Move(new Point(4, 1), new Point(5, 2)),
+            new Move(new Point(4, 1), new Point(6, 3)), new Move(new Point(4, 1), new Point(7, 4)),
+            new Move(new Point(4, 1), new Point(3, 2)), new Move(new Point(4, 1), new Point(2, 3)),
+            new Move(new Point(4, 1), new Point(1, 4)), new Move(new Point(4, 1), new Point(0, 5)),
+            new Move(new Point(4, 1), new Point(5, 0)), new Move(new Point(4, 2), new Point(3, 1)),
+            new Move(new Point(4, 2), new Point(2, 0)), new Move(new Point(4, 2), new Point(5, 3)),
+            new Move(new Point(4, 2), new Point(6, 4)), new Move(new Point(4, 2), new Point(7, 5)),
+            new Move(new Point(4, 2), new Point(3, 3))};
+        compare(board.getLegalMoves(), correctMoves);
+        // no bishops should be pinned.
+
+
 
     }
 }
