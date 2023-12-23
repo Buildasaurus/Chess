@@ -14,9 +14,81 @@ public class ChessModelTests
     public ChessModelTests()
     {
         board = new ChessModel();
-        System.out.println("-------------START TEST-------------");
+        System.out.println("------------------START TEST----------------");
+        broadTest();
+        testScholarsMate();
+        testEnPassent();
+        testKingLegalMoves();
+        System.out.println("-----------------END TEST-----------------");
+    }
+
+    void compare(Move[] moves, Move[] correctMoves)
+    {
+        ArrayList<Move> generatedMovesList = new ArrayList<>(Arrays.asList(moves));
+        ArrayList<Move> missingMovesList = new ArrayList<>(Arrays.asList(correctMoves));
+
+        boolean testSucced = true;
+        int counter = 0;
+        for (Move move : correctMoves)
+        {
+            boolean found = false;
+            for (Move move2 : moves)
+            {
+                if (move.equals(move2))
+                {
+                    generatedMovesList.remove(move2);
+                    missingMovesList.remove(move);
+
+                    found = true;
+                    break;
+                }
+            }
+            if (found == true)
+            {
+                counter++;
+            }
+            else
+            {
+                testSucced = false;
+            }
+        }
+        System.out.printf(
+                "Test result: %b, with %d/%d moves correct moves. %d incorrect moves. %d missing moves\n",
+                testSucced, counter, correctMoves.length, moves.length - counter,
+                correctMoves.length - counter);
+        if (generatedMovesList.size() > 0)
+        {
+            System.out.println("These moves shouldn't be here: " + generatedMovesList);
+        }
+        if (correctMoves.length - counter > 0)
+        {
+            System.out.println("These moves are missing: " + missingMovesList);
+
+        }
+    }
+
+    void testScholarsMate()
+    {
+        board = new ChessModel();
+        System.out.println("<<<SCHOLARS MATE TEST>>>");
 
 
+        board.movePiece(new Point(4, 1), new Point(4, 3)); // 1.e4
+        board.movePiece(new Point(1, 7), new Point(2, 5)); // 1.Nc6
+        board.movePiece(new Point(3, 0), new Point(7, 4)); // 2.Qh4
+        board.movePiece(new Point(2, 5), new Point(1, 7)); // 2.Nb8
+        board.movePiece(new Point(5, 0), new Point(2, 3)); // 3.Bc4
+        board.movePiece(new Point(1, 7), new Point(2, 5)); // 3.Nc6
+        board.movePiece(new Point(7, 4), new Point(5, 6)); // 4.Qf6#
+
+        Move[] correctMoves = new Move[0];
+        compare(board.getLegalMoves(), correctMoves);
+
+    }
+
+    void broadTest()
+    {
+        System.out.println("<<<BROAD TEST>>>");
         // Start position test
         Move[] correctMoves =
         {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
@@ -131,61 +203,71 @@ public class ChessModelTests
 
         board.movePiece(new Point(5, 2), new Point(6, 2)); // Kg3
         board.movePiece(new Point(5, 5), new Point(4, 4)); // Qe5+
-        testScholarsMate();
-        System.out.println("-------------END TEST-------------");
     }
 
-    void compare(Move[] moves, Move[] correctMoves)
-    {
-        ArrayList<Move> generatedMovesList = new ArrayList<>(Arrays.asList(moves));
-        boolean testSucced = true;
-        int counter = 0;
-        for (Move move : correctMoves)
-        {
-            boolean found = false;
-            for (Move move2 : moves)
-            {
-                if (move.equals(move2))
-                {
-                    generatedMovesList.remove(move2);
-                    found = true;
-                    break;
-                }
-            }
-            if (found == true)
-            {
-                counter++;
-            }
-            else
-            {
-                testSucced = false;
-            }
-        }
-        System.out.printf(
-                "Test result: %b, with %d/%d moves correct moves. %d incorrect moves. %d missing moves\n",
-                testSucced, counter, correctMoves.length, moves.length - counter,
-                correctMoves.length - counter);
-        if (generatedMovesList.size() > 0)
-        {
-            System.out.println("These moves shouldn't be here: " + generatedMovesList);
-        }
-    }
-
-    void testScholarsMate()
+    void testEnPassent()
     {
         board = new ChessModel();
-        System.out.println("----SCHOLARS MATE TEST----");
+        System.out.println("<<<EN PASSENT TEST>>>");
 
 
-        board.movePiece(new Point(4, 1), new Point(4, 3)); // 1.e4
-        board.movePiece(new Point(1, 7), new Point(2, 5)); // 1.Nc6
-        board.movePiece(new Point(3, 0), new Point(7, 4)); // 2.Qh4
-        board.movePiece(new Point(2, 5), new Point(1, 7)); // 2.Nb8
-        board.movePiece(new Point(5, 0), new Point(2, 3)); // 3.Bc4
-        board.movePiece(new Point(1, 7), new Point(2, 5)); // 3.Nc6
-        board.movePiece(new Point(7, 4), new Point(5, 6)); // 4.Qf6#
+        board.movePiece(new Point(6, 1), new Point(6, 3)); // 1.g4
+        board.movePiece(new Point(6, 6), new Point(6, 5)); // 1.g6
+        board.movePiece(new Point(6, 3), new Point(6, 4)); // 2.g5
+        board.movePiece(new Point(5, 6), new Point(5, 4)); // 2.f5
 
-        Move[] correctMoves = new Move[0];
+        Move[] correctMoves =
+        {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
+            new Move(new Point(1, 1), new Point(1, 2)), new Move(new Point(1, 1), new Point(1, 3)),
+            new Move(new Point(2, 1), new Point(2, 2)), new Move(new Point(2, 1), new Point(2, 3)),
+            new Move(new Point(3, 1), new Point(3, 2)), new Move(new Point(3, 1), new Point(3, 3)),
+            new Move(new Point(4, 1), new Point(4, 2)), new Move(new Point(4, 1), new Point(4, 3)),
+            new Move(new Point(5, 1), new Point(5, 2)), new Move(new Point(5, 1), new Point(5, 3)),
+            new Move(new Point(6, 4), new Point(5, 5)), new Move(new Point(7, 1), new Point(7, 2)),
+            new Move(new Point(7, 1), new Point(7, 3)), new Move(new Point(1, 0), new Point(0, 2)),
+            new Move(new Point(1, 0), new Point(2, 2)), new Move(new Point(6, 0), new Point(5, 2)),
+            new Move(new Point(6, 0), new Point(7, 2)), new Move(new Point(5, 0), new Point(6, 1)),
+            new Move(new Point(5, 0), new Point(7, 2))};
+        compare(board.getLegalMoves(), correctMoves);
+
+        board.movePiece(new Point(6, 4), new Point(5, 5)); // 3.gxf
+
+        if (board.getPieceAtPoint(new Point(4, 5)) != null)
+        {
+            System.out.println("En passent failed to remove the pawn it caputed");
+        }
+
+    }
+
+    void testKingLegalMoves()
+    {
+        board = new ChessModel();
+        System.out.println("<<<KING LEGAL MOVES TEST>>>");
+
+
+        board.movePiece(new Point(5, 1), new Point(5, 2)); // 1.f3
+        board.movePiece(new Point(4, 6), new Point(4, 5)); // 1.e6
+        board.movePiece(new Point(4, 0), new Point(5, 1)); // 2.Kf2
+        board.movePiece(new Point(1, 7), new Point(2, 5)); // 2.Nc6
+        board.movePiece(new Point(5, 1), new Point(4, 2)); // 2.Ke3
+        board.movePiece(new Point(5, 7), new Point(4, 6)); // 2.Be7
+        board.movePiece(new Point(4, 2), new Point(5, 3)); // 4.Kf4
+        board.movePiece(new Point(6, 7), new Point(5, 5)); // 4.Nf6
+
+
+
+        Move[] correctMoves =
+        {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
+            new Move(new Point(1, 1), new Point(1, 2)), new Move(new Point(1, 1), new Point(1, 3)),
+            new Move(new Point(2, 1), new Point(2, 2)), new Move(new Point(2, 1), new Point(2, 3)),
+            new Move(new Point(3, 1), new Point(3, 2)), new Move(new Point(3, 1), new Point(3, 3)),
+            new Move(new Point(4, 1), new Point(4, 2)), new Move(new Point(4, 1), new Point(4, 3)),
+            new Move(new Point(6, 1), new Point(6, 2)), new Move(new Point(6, 1), new Point(6, 3)),
+            new Move(new Point(7, 1), new Point(7, 2)), new Move(new Point(7, 1), new Point(7, 3)),
+            new Move(new Point(1, 0), new Point(0, 2)), new Move(new Point(1, 0), new Point(2, 2)),
+            new Move(new Point(6, 0), new Point(7, 2)), new Move(new Point(5, 3), new Point(6, 4)),
+            new Move(new Point(5, 3), new Point(6, 2)), new Move(new Point(5, 3), new Point(4, 2)),
+            new Move(new Point(3, 0), new Point(4, 0))};
         compare(board.getLegalMoves(), correctMoves);
 
     }

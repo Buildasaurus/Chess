@@ -12,7 +12,7 @@ public class ChessModel
      */
     Piece[][] board;
 
-    Piece getPieceAtPoint(Point point)
+    public Piece getPieceAtPoint(Point point)
     {
         if (!isInBounds(point))
             return null;
@@ -21,6 +21,7 @@ public class ChessModel
 
     boolean canCastle = true;
     boolean whiteToMove = true;
+    Piece enPassentablePawn;
     /**
      * Same objects as in board
      */
@@ -92,7 +93,7 @@ public class ChessModel
                 {
                     if (move.equals(legalMove))
                     {
-                        System.out.println("changing move: " + move);
+                        enPassentablePawn = null;
                         if (board[end.y][end.x] != null)
                         {
                             if (!whiteToMove)
@@ -104,13 +105,35 @@ public class ChessModel
                                 blackPieces.remove(board[end.y][end.x]);
                             }
                         }
+                        else if (pieceToMove.type == PieceType.Pawn
+                                && move.startSquare.x - move.targetSquare.x != 0)
+                        // if is en passent (pawn attacking diagonally but moving to empty field)
+                        {
+                            if (!whiteToMove)
+                            {
+                                whitePieces.remove(board[end.y + 1][end.x]);
+                                board[end.y + 1][end.x] = null;
+                            }
+                            else
+                            {
+                                blackPieces.remove(board[end.y - 1][end.x]);
+                                board[end.y - 1][end.x] = null;
+                            }
 
+                        }
                         pieceToMove.position = new Point(end.x, end.y);
                         board[start.y][start.x] = null;
                         board[end.y][end.x] = pieceToMove;
                         legalMoves = null;
                         whiteToMove = !whiteToMove;
                         wasLegalMove = true;
+                        if (pieceToMove.type == PieceType.Pawn)
+                        {
+                            if (Math.abs(move.targetSquare.y - move.startSquare.y) == 2)
+                            {
+                                enPassentablePawn = pieceToMove;
+                            }
+                        }
                     }
                 }
                 if (!wasLegalMove)
@@ -159,7 +182,9 @@ public class ChessModel
                         {
                             if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
                             {
-                                if (!canAttackInDirection(pieceAtSquare, direction))
+                                if (!canAttackInDirection(pieceAtSquare, direction.multiply(-1))
+                                        || pieceAtSquare.type == PieceType.Pawn
+                                                && king.position.distance(coordinate) > 1)
                                 {
                                     break;
                                 }
@@ -327,7 +352,23 @@ public class ChessModel
 
 
         // generate en passent
+        if (enPassentablePawn != null)
+        {
+            Piece first = getPieceAtPoint(enPassentablePawn.position.add(1, 0));
+            Piece second = getPieceAtPoint(enPassentablePawn.position.add(-1, 0));
+            int dir = whiteToMove ? 1 : -1;
+            if (first != null && isInBounds(first.position) && first.type == PieceType.Pawn)
+            {
+                legalMovesList
+                        .add(new Move(first.position, enPassentablePawn.position.add(0, dir)));
+            }
+            if (second != null && isInBounds(second.position) && second.type == PieceType.Pawn)
+            {
+                legalMovesList
+                        .add(new Move(second.position, enPassentablePawn.position.add(0, dir)));
+            }
 
+        }
         // generate castling
 
         return legalMovesList;
@@ -358,7 +399,7 @@ public class ChessModel
                     {
                         if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
                         {
-                            if (!canAttackInDirection(pieceAtSquare, direction)
+                            if (!canAttackInDirection(pieceAtSquare, direction.multiply(-1))
                                     || pieceAtSquare.type == PieceType.Pawn
                                             && coordinate.distance(square) > 1)
                             {

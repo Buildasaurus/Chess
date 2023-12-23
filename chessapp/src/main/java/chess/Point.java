@@ -1,8 +1,10 @@
 package chess;
 
-public class Point {
+public class Point
+{
     int y;
     int x;
+
     public Point(int _x, int _y)
     {
         x = _x;
@@ -11,12 +13,22 @@ public class Point {
 
     public Point add(Point other)
     {
-        return new Point(x+other.x, y+other.y);
+        return new Point(x + other.x, y + other.y);
+    }
+
+    public Point add(int scalar)
+    {
+        return new Point(x + scalar, y + scalar);
+    }
+
+    public Point add(int _x, int _y)
+    {
+        return new Point(x + _x, y + _y);
     }
 
     public Point multiply(int scalar)
     {
-        return new Point(x*scalar, y*scalar);
+        return new Point(x * scalar, y * scalar);
     }
 
     @Override
@@ -32,6 +44,7 @@ public class Point {
 
     /**
      * Returns the largest distance between two squares, on the x, and y coordinate
+     *
      * @param other the other point to compare distance to.
      * @return the largest distance between two points
      */
