@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Arrays;
 import chess.Piece.PieceType;
+import javafx.scene.input.KeyCode;
 
 public class ChessModel
 {
@@ -208,9 +209,7 @@ public class ChessModel
                         {
                             if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
                             {
-                                if (!canAttackInDirection(pieceAtSquare, direction.multiply(-1))
-                                        || pieceAtSquare.type == PieceType.Pawn
-                                                && king.position.distance(coordinate) > 1)
+                                if (pieceIsDangerous(pieceAtSquare, direction, king.position))
                                 {
                                     break;
                                 }
@@ -481,9 +480,7 @@ public class ChessModel
                     {
                         if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
                         {
-                            if (!canAttackInDirection(pieceAtSquare, direction.multiply(-1))
-                                    || pieceAtSquare.type == PieceType.Pawn
-                                            && coordinate.distance(square) > 1)
+                            if (pieceIsDangerous(pieceAtSquare, direction, square))
                             {
                                 break;
                             }
@@ -493,7 +490,7 @@ public class ChessModel
                             }
 
                         }
-                        else if(pieceAtSquare.type != PieceType.King)
+                        else if (pieceAtSquare.type != PieceType.King)
                         {
                             break;
                         }
@@ -519,7 +516,13 @@ public class ChessModel
         }
         return false;
     }
-
+    boolean pieceIsDangerous(Piece enemyPiece, Point direction, Point friendlyPiece)
+    {
+        return !canAttackInDirection(enemyPiece, direction.multiply(-1))
+                                    || (enemyPiece.type == PieceType.Pawn
+                                            || enemyPiece.type == PieceType.King)
+                                            && friendlyPiece.distance(enemyPiece.position) > 1;
+    }
     /**
      * returns all the pieces of a specific type.
      *
@@ -620,7 +623,7 @@ public class ChessModel
     private boolean canAttackInDirection(Piece piece, Point direction)
     {
         boolean isDiagonal = Math.abs(direction.x * direction.y) == 1;
-        return piece.type == PieceType.Queen
+        return piece.type == PieceType.Queen || piece.type == PieceType.King
                 || isDiagonal && (piece.type == PieceType.Bishop
                         || (piece.type == PieceType.Pawn && (direction.y > 0 == piece.isWhite)))
                 || !isDiagonal && (piece.type == PieceType.Rook);
