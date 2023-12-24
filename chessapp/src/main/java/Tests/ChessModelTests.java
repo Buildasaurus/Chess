@@ -419,4 +419,50 @@ public class ChessModelTests
             System.out.println("WARNING - ROOK IS STILL AT IT'S ORIGINAL SQUARE");
         }
     }
+
+    void promotionTest()
+    {
+        board = new ChessModel();
+        System.out.println("<<<PROMOTION TEST>>>");
+
+
+        board.movePiece(new Point(7, 1), new Point(7, 3)); // 1.h4
+        board.movePiece(new Point(0, 6), new Point(0, 4)); // 1.a5
+        board.movePiece(new Point(7, 3), new Point(7, 4)); // 2.h5
+        board.movePiece(new Point(0, 4), new Point(0, 3)); // 2.a4
+        board.movePiece(new Point(7, 4), new Point(7, 5)); // 3.h6
+        board.movePiece(new Point(0, 3), new Point(0, 2)); // 3.a3
+        board.movePiece(new Point(7, 5), new Point(6, 6)); // 3.hxg
+        board.movePiece(new Point(0, 2), new Point(1, 1)); // 3.axb
+        board.movePiece(new Point(6, 6), new Point(7, 7)); // 3.gxhQ
+        board.movePiece(new Point(1, 1), new Point(0, 0)); // 3.bxa
+        // At this point you should be able to take the other queen at a1
+        Move[] correctMoves =
+        {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
+            new Move(new Point(1, 1), new Point(1, 2)), new Move(new Point(1, 1), new Point(1, 3)),
+            new Move(new Point(2, 1), new Point(2, 2)), new Move(new Point(2, 1), new Point(2, 3)),
+            new Move(new Point(3, 1), new Point(3, 2)), new Move(new Point(3, 1), new Point(3, 3)),
+            new Move(new Point(4, 1), new Point(4, 2)), new Move(new Point(4, 1), new Point(4, 3)),
+            new Move(new Point(5, 1), new Point(5, 2)), new Move(new Point(5, 1), new Point(5, 3)),
+            new Move(new Point(6, 1), new Point(6, 2)), new Move(new Point(6, 1), new Point(6, 3)),
+            new Move(new Point(7, 1), new Point(7, 2)), new Move(new Point(7, 1), new Point(7, 3)),
+            new Move(new Point(1, 0), new Point(0, 2)), new Move(new Point(1, 0), new Point(2, 2)),
+            new Move(new Point(6, 0), new Point(5, 2)), new Move(new Point(6, 0), new Point(7, 2)),
+            new Move(new Point(7, 7), new Point(1, 1)), new Move(new Point(7, 7), new Point(2, 2)),
+            new Move(new Point(7, 7), new Point(4, 4)), new Move(new Point(7, 7), new Point(3, 3)),
+            new Move(new Point(7, 7), new Point(5, 5)), new Move(new Point(7, 7), new Point(6, 6)),
+            new Move(new Point(7, 7), new Point(0, 0)),};
+        compare(board.getLegalMoves(), correctMoves);
+        board.movePiece(new Point(4, 0), new Point(6, 0)); // 4. O-O
+        Piece supposedRook = board.getPieceAtPoint(new Point(5, 0));
+        if (supposedRook == null || supposedRook.type != PieceType.Rook)
+        {
+            System.out.println("WARNING - ROOK ISN'T AT EXPECT SQUARE AFTER     ");
+        }
+        Piece noRookAnymore = board.getPieceAtPoint(new Point(7, 0));
+        if (noRookAnymore != null && noRookAnymore.type == PieceType.Rook)
+        {
+            System.out.println("WARNING - ROOK IS STILL AT IT'S ORIGINAL SQUARE");
+        }
+    }
 }
