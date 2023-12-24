@@ -2,8 +2,8 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import chess.Piece.PieceType;
-import javafx.scene.input.KeyCode;
 
 public class ChessModel
 {
@@ -128,10 +128,22 @@ public class ChessModel
                         pieceToMove.position = new Point(end.x, end.y);
                         board[start.y][start.x] = null;
                         board[end.y][end.x] = pieceToMove;
-                        legalMoves = null;
-                        whiteToMove = !whiteToMove;
-                        wasLegalMove = true;
 
+                        if (legalMove.isPromotion)
+                        {
+                            Piece newQueen = new Piece(whiteToMove, PieceType.Queen, end);
+                            if (whiteToMove)
+                            {
+                                whitePieces.remove(pieceToMove);
+                                whitePieces.add(newQueen);
+                            }
+                            else
+                            {
+                                blackPieces.remove(pieceToMove);
+                                blackPieces.add(newQueen);
+                            }
+                            setPieceAtPoint(newQueen, end);
+                        }
                         if (legalMove.isCastling)
                         {
                             if (move.targetSquare.x > 4) // kingside castling
@@ -160,6 +172,9 @@ public class ChessModel
                                 enPassentablePawn = pieceToMove;
                             }
                         }
+                        legalMoves = null;
+                        whiteToMove = !whiteToMove;
+                        wasLegalMove = true;
                         pieceToMove.hasMoved = true;
                     }
                 }
@@ -186,6 +201,9 @@ public class ChessModel
             ArrayList<Move> legalMovesList = new ArrayList<>();
             ArrayList<Piece> pieces =
                     whiteToMove ? new ArrayList<>(whitePieces) : new ArrayList<>(blackPieces);
+            ArrayList<Piece> pinnedPieces = new ArrayList<>();
+            ArrayList<Point> pinnedDirections = new ArrayList<>();
+
             ArrayList<Point> checkDirections = new ArrayList<>();
             ArrayList<Point> legalSquares = new ArrayList<>();
             // Find all pins, and checks.
@@ -216,6 +234,8 @@ public class ChessModel
                                 if (possiblyPinnedPiece != null)
                                 {
                                     pieces.remove(possiblyPinnedPiece);
+                                    pinnedPieces.add(possiblyPinnedPiece);
+                                    pinnedDirections.add(direction);
                                 }
                                 else // this is a check
                                 {
@@ -261,6 +281,21 @@ public class ChessModel
                 }
             }
 
+            if (checkDirections.size() == 0 || checkDirections.size() == 1)
+            {
+                for (int i = 0; i < pinnedPieces.size(); i++) // might be more pinned pieces
+                {
+                    ArrayList<Move> pinnedMoves = generateAllMoves(pinnedPieces);
+                    for (Move move : pinnedMoves)
+                    {
+                        if (move.targetSquare.subtract(move.startSquare)
+                                .isParallel(pinnedDirections.get(i)))
+                        {
+                            legalMovesList.add(move);
+                        }
+                    }
+                }
+            }
 
 
             // generate other moves
@@ -295,16 +330,8 @@ public class ChessModel
             else
             {
                 // Loop over all pieces.
-                ArrayList<Move> allMoves = generateAllMoves(pieces);
-                // generate legal squares, that moves must end on (in front of king, or taking the
-                // chekcing piece)
-                for (Move move : allMoves)
-                {
-                    if (getPieceAtPoint(move.startSquare).type == PieceType.King)
-                    {
-                        legalMovesList.add(move);
-                    }
-                }
+                legalMovesList.addAll(generateAllMoves(new ArrayList<>(Arrays.asList(king))));
+
             }
             // if checkdirections is more than 1, then the kingmoves are the only legal ones, and
             // those are already generated.
@@ -312,6 +339,7 @@ public class ChessModel
         }
         return legalMoves;
     }
+
 
     /**
      * Generates all moves that pieces can make, regardless of whether king is in check, or if
@@ -326,43 +354,7 @@ public class ChessModel
 
         ArrayList<Move> legalMovesList = new ArrayList<Move>();
 
-        // Generate kingMoves.
-        for (int dx = -1; dx < 2; dx++) // iterate over 8 directions
-        {
-            for (int dy = -1; dy < 2; dy++)
-            {
-                if (dy == 0 && dx == 0)
-                    continue;
-                Point position = king.position.add(new Point(dx, dy));
-                if (!squareIsAttacked(position) && isInBounds(position)
-                        && (board[position.y][position.x] == null
-                                || board[position.y][position.x].isWhite != whiteToMove))
-                {
-                    legalMovesList.add(new Move(king.position, position));
-                }
-            }
-        }
-        // Castling
-        if (!king.hasMoved)
-        {
-            int yPosition = whiteToMove ? 0 : 7;
-            // kingside
-            if (board[yPosition][7] != null && !board[yPosition][7].hasMoved
-                    && isSafeEmptySquare(5, yPosition) && isSafeEmptySquare(6, yPosition))
-            {
-                Move kingsideCastling = new Move(new Point(4, yPosition), new Point(6, yPosition));
-                kingsideCastling.isCastling = true;
-                legalMovesList.add(kingsideCastling);
-            }
-            if (board[yPosition][0] != null && !board[yPosition][0].hasMoved
-                    && isSafeEmptySquare(3, yPosition) && isSafeEmptySquare(2, yPosition)
-                    && board[yPosition][1] == null)
-            {
-                Move queensideCastling = new Move(new Point(4, yPosition), new Point(2, yPosition));
-                queensideCastling.isCastling = true;
-                legalMovesList.add(queensideCastling);
-            }
-        }
+
         // Other moves
         for (Piece piece : pieces)
         {
@@ -370,7 +362,47 @@ public class ChessModel
                 continue;
             switch (piece.type)
             {
-                case King: // already generated
+                case King:
+                    // Generate kingMoves.
+                    for (int dx = -1; dx < 2; dx++) // iterate over 8 directions
+                    {
+                        for (int dy = -1; dy < 2; dy++)
+                        {
+                            if (dy == 0 && dx == 0)
+                                continue;
+                            Point position = king.position.add(new Point(dx, dy));
+                            if (!squareIsAttacked(position) && isInBounds(position)
+                                    && (board[position.y][position.x] == null
+                                            || board[position.y][position.x].isWhite != whiteToMove))
+                            {
+                                legalMovesList.add(new Move(king.position, position));
+                            }
+                        }
+                    }
+                    // Castling
+                    if (!king.hasMoved)
+                    {
+                        int yPosition = whiteToMove ? 0 : 7;
+                        // kingside
+                        if (board[yPosition][7] != null && !board[yPosition][7].hasMoved
+                                && isSafeEmptySquare(5, yPosition)
+                                && isSafeEmptySquare(6, yPosition))
+                        {
+                            Move kingsideCastling =
+                                    new Move(new Point(4, yPosition), new Point(6, yPosition));
+                            kingsideCastling.isCastling = true;
+                            legalMovesList.add(kingsideCastling);
+                        }
+                        if (board[yPosition][0] != null && !board[yPosition][0].hasMoved
+                                && isSafeEmptySquare(3, yPosition)
+                                && isSafeEmptySquare(2, yPosition) && board[yPosition][1] == null)
+                        {
+                            Move queensideCastling =
+                                    new Move(new Point(4, yPosition), new Point(2, yPosition));
+                            queensideCastling.isCastling = true;
+                            legalMovesList.add(queensideCastling);
+                        }
+                    }
                     break;
                 case Pawn:
                     int upDirection = whiteToMove ? 1 : -1;
@@ -516,13 +548,14 @@ public class ChessModel
         }
         return false;
     }
+
     boolean pieceIsDangerous(Piece enemyPiece, Point direction, Point friendlyPiece)
     {
         return !canAttackInDirection(enemyPiece, direction.multiply(-1))
-                                    || (enemyPiece.type == PieceType.Pawn
-                                            || enemyPiece.type == PieceType.King)
-                                            && friendlyPiece.distance(enemyPiece.position) > 1;
+                || (enemyPiece.type == PieceType.Pawn || enemyPiece.type == PieceType.King)
+                        && friendlyPiece.distance(enemyPiece.position) > 1;
     }
+
     /**
      * returns all the pieces of a specific type.
      *
