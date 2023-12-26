@@ -1,4 +1,4 @@
-package chess;
+package chess.Models;
 
 public class Move
 {

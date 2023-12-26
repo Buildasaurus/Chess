@@ -1,9 +1,9 @@
-package chess;
+package chess.Models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import chess.Piece.PieceType;
+import chess.Models.Piece.PieceType;
 
 public class ChessModel
 {
@@ -11,10 +11,10 @@ public class ChessModel
     /**
      * Same objects as in blackPieces and whitePieces
      */
-    Piece[][] board;
+    public Piece[][] board;
 
 
-    boolean whiteToMove = true;
+    public boolean whiteToMove = true;
     Piece enPassentablePawn;
     /**
      * Same objects as in board
@@ -70,6 +70,12 @@ public class ChessModel
         }
     }
 
+    public void movePiece(Point start, Point end)
+    {
+        Move move = new Move(start, end);
+        movePiece(move);
+    }
+
     /**
      * Attempts to move a piece from the given startpoint, to the endpoint. If it isn't possible, it
      * does nothing. Will generate all legal moves.
@@ -77,10 +83,11 @@ public class ChessModel
      * @param start The start square that the piece moves from
      * @param end The square that the piece wants to move to
      */
-    public void movePiece(Point start, Point end)
+    public void movePiece(Move move)
     {
+        Point start = move.startSquare;
+        Point end = move.targetSquare;
         Piece pieceToMove = board[start.y][start.x];
-        Move move = new Move(start, end);
         if (pieceToMove != null && pieceToMove.isWhite == whiteToMove)
         // legal piece to try to move
         {
@@ -676,7 +683,7 @@ public class ChessModel
         board[point.y][point.x] = piece;
     }
 
-    boolean isCheckmate()
+    public boolean isCheckmate()
     {
         return getLegalMoves().length == 0;
     }

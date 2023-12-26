@@ -1,4 +1,4 @@
-package chess;
+package chess.Models;
 
 import java.io.FileInputStream;
 import javafx.scene.image.Image;

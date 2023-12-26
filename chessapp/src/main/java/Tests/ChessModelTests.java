@@ -2,11 +2,11 @@ package Tests;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import chess.ChessModel;
-import chess.Move;
-import chess.Piece;
-import chess.Point;
-import chess.Piece.PieceType;
+import chess.Models.ChessModel;
+import chess.Models.Move;
+import chess.Models.Piece;
+import chess.Models.Point;
+import chess.Models.Piece.PieceType;
 
 public class ChessModelTests
 {

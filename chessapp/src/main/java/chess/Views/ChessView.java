@@ -1,11 +1,11 @@
-package chess;
+package chess.Views;
 
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
-
+import chess.Models.Piece;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;

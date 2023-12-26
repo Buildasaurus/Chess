@@ -1,13 +1,20 @@
-package chess;
+package chess.Controllers;
 
+import chess.Bots.Bot;
+import chess.Bots.Randombot;
+import chess.Models.ChessModel;
+import chess.Models.Point;
+import chess.Views.ChessView;
 import javafx.scene.input.MouseEvent;
 
-public class ChessController
+public class HumanVsComputerController
 {
     ChessView view;
     ChessModel model;
+    boolean computerIsWhite = false;
+    Bot bot = new Randombot();
 
-    public ChessController(ChessView _view, ChessModel _model)
+    public HumanVsComputerController(ChessView _view, ChessModel _model)
     {
         model = _model;
         view = _view;
@@ -26,7 +33,7 @@ public class ChessController
     {
         // Get the x and y coordinates of the mouse click
         double x = event.getX();
-        double y =  800-event.getY();
+        double y = 800 - event.getY();
 
         // Convert the coordinates to a position on the chess board
         int row = (int) (y / 100);
@@ -39,22 +46,41 @@ public class ChessController
 
     private void handleMouseRelease(MouseEvent event)
     {
+        if (model.isCheckmate())
+        {
+            return;
+        }
         // Get the x and y coordinates of the mouse click
         double x = event.getX();
-        double y = 800- event.getY();
+        double y = 800 - event.getY();
 
         // Convert the coordinates to a position on the chess board
         int row = (int) (y / 100);
         int col = (int) (x / 100);
 
         end = new Point(col, row);
-        model.movePiece(start, end);
+        if (model.whiteToMove != computerIsWhite)
+        {
+            model.movePiece(start, end);
+        }
         // Handle mouse release event
         view.updateBoard(model.board);
 
-        if(model.isCheckmate())
+        if (model.isCheckmate())
         {
             view.showWinner(!model.whiteToMove);
+        }
+        else
+        {
+            if (model.whiteToMove == computerIsWhite)
+            {
+                model.movePiece(bot.think(model));
+                view.updateBoard(model.board);
+                if (model.isCheckmate())
+                {
+                    view.showWinner(!model.whiteToMove);
+                }
+            }
         }
 
     }
