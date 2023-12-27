@@ -18,26 +18,27 @@ public class ChessView extends GridPane
 {
     public void initializeBoard(Piece[][] pieces)
     {
-        double size = 100;
+        double columnSize = 100; // board will be 8 times this size
+        double dimension = 8 * columnSize;
+        this.getColumnConstraints().clear();
+        this.getRowConstraints().clear();
 
         for (int i = 0; i < 8; i++)
         {
-            ColumnConstraints column = new ColumnConstraints(size);
-            RowConstraints row = new RowConstraints(size);
+            ColumnConstraints column = new ColumnConstraints(columnSize);
+            RowConstraints row = new RowConstraints(columnSize);
             this.getColumnConstraints().add(column);
             this.getRowConstraints().add(row);
         }
 
         Image backgroundImage = new Image("/board.png");
-        BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, true, false);
-        BackgroundImage background = new BackgroundImage(backgroundImage,
-                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
-                backgroundSize);
+        BackgroundSize backgroundSize =
+                new BackgroundSize(dimension, dimension, false, false, false, false);
+        BackgroundImage background =
+                new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, backgroundSize);
         this.setBackground(new Background(background));
         updateBoard(pieces);
-
-
-
     }
 
     public void updateBoard(Piece[][] pieces)
@@ -48,11 +49,13 @@ public class ChessView extends GridPane
         {
             for (int y = 0; y < 8; y++)
             {
-                Text text = new Text(x + " " + y);
-                this.add(text, x, 7 - y);
+                // Text text = new Text(x + " " + y);
+                // this.add(text, x, 7 - y);
                 if (pieces[y][x] != null)
                 {
                     ImageView imageView = new ImageView(pieces[y][x].getImage());
+                    imageView.setFitWidth(100);
+                    imageView.setPreserveRatio(true);
                     this.add(imageView, x, 7 - y);
                 }
             }
