@@ -4,7 +4,7 @@ import java.util.Random;
 import chess.Models.ChessModel;
 import chess.Models.Move;
 
-public class Randombot implements Bot
+public class Randombot implements IBot
 {
     public Move think(ChessModel board)
     {

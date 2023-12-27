@@ -1,6 +1,6 @@
 package chess.Controllers;
 
-import chess.Bots.Bot;
+import chess.Bots.IBot;
 import chess.Bots.Randombot;
 import chess.Models.ChessModel;
 import chess.Models.Point;
@@ -12,7 +12,7 @@ public class HumanVsComputerController
     ChessView view;
     ChessModel model;
     boolean computerIsWhite = false;
-    Bot bot = new Randombot();
+    IBot bot = new Randombot();
 
     public HumanVsComputerController(ChessView _view, ChessModel _model)
     {
