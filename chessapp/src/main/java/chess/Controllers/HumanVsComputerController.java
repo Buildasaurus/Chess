@@ -70,6 +70,10 @@ public class HumanVsComputerController
         {
             view.showWinner(!model.whiteToMove);
         }
+        if (model.isDraw())
+        {
+            view.displayDraw();
+        }
         else
         {
             if (model.whiteToMove == computerIsWhite)

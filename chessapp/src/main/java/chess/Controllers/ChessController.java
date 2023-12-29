@@ -29,7 +29,7 @@ public class ChessController
     {
         // Get the x and y coordinates of the mouse click
         double x = event.getX();
-        double y =  800-event.getY();
+        double y = 800 - event.getY();
 
         // Convert the coordinates to a position on the chess board
         int row = (int) (y / 100);
@@ -44,7 +44,7 @@ public class ChessController
     {
         // Get the x and y coordinates of the mouse click
         double x = event.getX();
-        double y = 800- event.getY();
+        double y = 800 - event.getY();
 
         // Convert the coordinates to a position on the chess board
         int row = (int) (y / 100);
@@ -55,9 +55,13 @@ public class ChessController
         // Handle mouse release event
         view.updateBoard(model.board);
 
-        if(model.isCheckmate())
+        if (model.isCheckmate())
         {
             view.showWinner(!model.whiteToMove);
+        }
+        if (model.isDraw())
+        {
+            view.displayDraw();
         }
 
     }

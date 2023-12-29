@@ -12,6 +12,7 @@ public class ChessModel
      */
     public Piece[][] board;
 
+    private Boolean isInCheck;
 
     public boolean whiteToMove = true;
     Piece enPassentablePawn;
@@ -181,6 +182,7 @@ public class ChessModel
                         legalMoves = null;
                         whiteToMove = !whiteToMove;
                         wasLegalMove = true;
+                        isInCheck = null;
                         pieceToMove.hasMoved = true;
                     }
                 }
@@ -252,6 +254,7 @@ public class ChessModel
                                         legalSquares.add(king.position.add(direction.multiply(i)));
                                     }
                                     checkDirections.add(new Point(dx, dy));
+                                    isInCheck = true;
                                 }
                                 break;
                             }
@@ -281,10 +284,15 @@ public class ChessModel
                     if (pieceAtSquare != null && pieceAtSquare.isWhite != whiteToMove
                             && pieceAtSquare.type == PieceType.Knight)
                     {
+                        isInCheck = true;
                         checkDirections.add(possibleKnight);
                         legalSquares.add(possibleKnight);
                     }
                 }
+            }
+            if(isInCheck == null)
+            {
+                isInCheck = false;
             }
 
             if (checkDirections.size() == 0 || checkDirections.size() == 1)
@@ -684,7 +692,7 @@ public class ChessModel
 
     public boolean isCheckmate()
     {
-        return getLegalMoves().length == 0;
+        return getLegalMoves().length == 0 && isInCheck();
     }
 
     private boolean isInBounds(Point coord)
@@ -697,8 +705,18 @@ public class ChessModel
         return board[y][x] == null && !squareIsAttacked(new Point(x, y));
     }
 
-    boolean isDraw()
+    public boolean isDraw()
     {
-        return false;
+        return getLegalMoves().length == 0 && !isInCheck();
+    }
+
+    public boolean isInCheck()
+    {
+        if (isInCheck == null)
+        {
+            getLegalMoves();
+        }
+        return isInCheck;
+
     }
 }
