@@ -12,11 +12,12 @@ public class HumanVsComputerController
 {
     ChessView view;
     Board model;
-    boolean computerIsWhite = false;
+    public boolean computerIsWhite = false;
     IBot bot = new V1();
 
-    public HumanVsComputerController(ChessView _view, Board _model)
+    public HumanVsComputerController(ChessView _view, Board _model, boolean _computerIsWhite)
     {
+        computerIsWhite = _computerIsWhite;
         model = _model;
         view = _view;
 

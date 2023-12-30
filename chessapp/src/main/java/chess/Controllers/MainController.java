@@ -11,14 +11,14 @@ public class MainController implements ButtonClickListener
     ChessView board;
     public GUIView view;
     Object controller;
-
+    boolean isWhite = true;
     public MainController()
     {
         model = new Board(); // Create your model
         board = new ChessView(); // Create your view
         view = new GUIView(board, this); // Create your view
 
-        controller = new HumanVsComputerController(board, model);
+        controller = new HumanVsComputerController(board, model, isWhite);
     }
 
     public GUIView getView()
@@ -39,7 +39,8 @@ public class MainController implements ButtonClickListener
         {
             model = new Board(); // Reset the board
 
-            controller = new HumanVsComputerController(board, model);
+            controller = new HumanVsComputerController(board, model, isWhite);
+            isWhite = !isWhite;
         }
     }
 

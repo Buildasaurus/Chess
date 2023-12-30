@@ -6,6 +6,7 @@ import chess.Models.Piece.PieceType;
 
 public class Board
 {
+    public ArrayList<Move> playedMoves = new ArrayList<Move>();
     private Move[] legalMoves;
     /**
      * Same objects as in blackPieces and whitePieces
@@ -184,6 +185,7 @@ public class Board
                         wasLegalMove = true;
                         isInCheck = null;
                         pieceToMove.hasMoved = true;
+                        playedMoves.add(legalMove);
                     }
                 }
                 if (!wasLegalMove)
@@ -205,6 +207,7 @@ public class Board
      */
     public void undoMove(Move move)
     {
+        ArrayList<Piece> opponnentPieces = whiteToMove ? whitePieces : blackPieces;
         Piece pieceToMove =
                 move.isPromotion ? new Piece(!whiteToMove, PieceType.Pawn, move.startSquare)
                         : getPieceAtPoint(move.targetSquare);
@@ -218,11 +221,14 @@ public class Board
                     move.targetSquare.add(0, whiteToMove ? 1 : -1));
             enPassentablePawn = pawn;
             setPieceAtPoint(pawn, pawn.position);
+            opponnentPieces.add(pawn);
+
         }
         else if (move.isCapture)
         {
             enPassentablePawn = null;
             Piece piece = new Piece(whiteToMove, move.getCapturePieceType(), move.targetSquare);
+            opponnentPieces.add(piece);
             setPieceAtPoint(piece, piece.position);
         }
         else
@@ -254,7 +260,7 @@ public class Board
         whiteToMove = !whiteToMove;
         legalMoves = null;
         isInCheck = null;
-
+        playedMoves.remove(playedMoves.size() - 1);
     }
 
     /**
