@@ -1,22 +1,20 @@
 package chess.Bots;
 
-import java.util.ArrayList;
 import chess.Models.Board;
 import chess.Models.Move;
-import chess.Models.Piece;
-import chess.Models.Point;
+
 
 public class V1 implements IBot
 {
     private Move bestMove;
-    int movecount;
+    long movecount;
 
     public Move think(Board board)
     {
         movecount = 0;
 
         // Iterative deepening
-        negamax(board, 4);
+        negamax(board, 5);
         System.out.println(movecount);
 
         return bestMove;
@@ -29,6 +27,10 @@ public class V1 implements IBot
         if (depth <= 0)
         {
             movecount++;
+            if (movecount == 46078)
+            {
+                System.out.println(movecount);
+            }
             return;
         }
         for (Move move : legalMoves)

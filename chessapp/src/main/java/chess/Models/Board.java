@@ -219,7 +219,6 @@ public class Board
         {
             Piece pawn = new Piece(whiteToMove, PieceType.Pawn,
                     move.targetSquare.add(0, whiteToMove ? 1 : -1));
-            enPassentablePawn = pawn;
             setPieceAtPoint(pawn, pawn.position);
             opponnentPieces.add(pawn);
 
@@ -260,7 +259,23 @@ public class Board
         whiteToMove = !whiteToMove;
         legalMoves = null;
         isInCheck = null;
-        playedMoves.remove(playedMoves.size() - 1);
+        if (playedMoves.size() >= 1)
+        {
+            playedMoves.remove(playedMoves.size() - 1);
+            if (playedMoves.size() >= 1)
+            {
+                // update enpassentable pawn, based on if the move before this we just undid, was a
+                // pawnmove.
+                // IMPORTANT that this is after having removed the newest move.
+                Move previousMove = playedMoves.get(playedMoves.size() - 1);
+                if (previousMove.firstMove
+                        && getPieceAtPoint(previousMove.targetSquare).type == PieceType.Pawn)
+                {
+                    enPassentablePawn = getPieceAtPoint(previousMove.targetSquare);
+                }
+            }
+        }
+
     }
 
     /**
@@ -563,13 +578,15 @@ public class Board
             Piece first = getPieceAtPoint(enPassentablePawn.position.add(1, 0));
             Piece second = getPieceAtPoint(enPassentablePawn.position.add(-1, 0));
             int dir = whiteToMove ? 1 : -1;
-            if (first != null && isInBounds(first.position) && first.type == PieceType.Pawn)
+            if (first != null && isInBounds(first.position) && first.type == PieceType.Pawn
+                    && first.isWhite == whiteToMove)
             {
                 Move enpassent = new Move(first.position, enPassentablePawn.position.add(0, dir));
                 enpassent.isEnPassent = true;
                 legalMovesList.add(enpassent);
             }
-            if (second != null && isInBounds(second.position) && second.type == PieceType.Pawn)
+            if (second != null && isInBounds(second.position) && second.type == PieceType.Pawn
+                    && second.isWhite == whiteToMove)
             {
                 Move enpassent = new Move(second.position, enPassentablePawn.position.add(0, dir));
                 enpassent.isEnPassent = true;
