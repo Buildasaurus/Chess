@@ -1,6 +1,6 @@
 package chess.Controllers;
 
-import chess.Models.ChessModel;
+import chess.Models.Board;
 import chess.Models.Point;
 import chess.Views.ChessView;
 import javafx.scene.input.MouseEvent;
@@ -8,9 +8,9 @@ import javafx.scene.input.MouseEvent;
 public class ChessController
 {
     ChessView view;
-    ChessModel model;
+    Board model;
 
-    public ChessController(ChessView _view, ChessModel _model)
+    public ChessController(ChessView _view, Board _model)
     {
         model = _model;
         view = _view;

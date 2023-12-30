@@ -44,4 +44,10 @@ public class Piece
         return image;
     }
 
+    public boolean equals(Piece other)
+    {
+        return other.hasMoved == hasMoved && other.isWhite == isWhite
+                && other.position.equals(position) && other.type == type;
+    }
+
 }

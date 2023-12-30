@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import chess.Models.Piece.PieceType;
 
-public class ChessModel
+public class Board
 {
     private Move[] legalMoves;
     /**
@@ -28,7 +28,7 @@ public class ChessModel
     /**
      * Instantiates a chess board, with pieces on the standard squares.
      */
-    public ChessModel()
+    public Board()
     {
         board = new Piece[8][8];
         whitePieces =
@@ -73,7 +73,7 @@ public class ChessModel
     public void movePiece(Point start, Point end)
     {
         Move move = new Move(start, end);
-        movePiece(move);
+        makeMove(move);
     }
 
     /**
@@ -83,7 +83,7 @@ public class ChessModel
      * @param start The start square that the piece moves from
      * @param end The square that the piece wants to move to
      */
-    public void movePiece(Move move)
+    public void makeMove(Move move)
     {
         Point start = move.startSquare;
         Point end = move.targetSquare;
@@ -198,6 +198,70 @@ public class ChessModel
         }
     }
 
+    /**
+     * Undos the given move, assuming it is legal.
+     *
+     * @param move The move to undo
+     */
+    public void undoMove(Move move)
+    {
+        Piece pieceToMove =
+                move.isPromotion ? new Piece(!whiteToMove, PieceType.Pawn, move.startSquare)
+                        : getPieceAtPoint(move.targetSquare);
+
+        pieceToMove.position = move.startSquare;
+        setPieceAtPoint(pieceToMove, move.startSquare);
+        pieceToMove.hasMoved = !move.firstMove;
+        if (move.isEnPassent)
+        {
+            Piece pawn = new Piece(whiteToMove, PieceType.Pawn,
+                    move.targetSquare.add(0, whiteToMove ? 1 : -1));
+            enPassentablePawn = pawn;
+            setPieceAtPoint(pawn, pawn.position);
+        }
+        else if (move.isCapture)
+        {
+            enPassentablePawn = null;
+            Piece piece = new Piece(whiteToMove, move.getCapturePieceType(), move.targetSquare);
+            setPieceAtPoint(piece, piece.position);
+        }
+        else
+        {
+            enPassentablePawn = null;
+            setPieceAtPoint(null, move.targetSquare);
+        }
+        if (move.isCastling)
+        {
+            int y = whiteToMove ? 7 : 0;
+            // move the rook
+            if (move.targetSquare.x < 4) // if queenside castling
+            {
+                Point rookPoint = new Point(3, y);
+                Piece rook = getPieceAtPoint(rookPoint);
+                rook.position = new Point(0, y);
+                setPieceAtPoint(rook, rook.position);
+                setPieceAtPoint(null, rookPoint);
+            }
+            else
+            {
+                Point rookPoint = new Point(5, y);
+                Piece rook = getPieceAtPoint(rookPoint);
+                rook.position = new Point(7, y);
+                setPieceAtPoint(rook, rook.position);
+                setPieceAtPoint(null, rookPoint);
+            }
+        }
+        whiteToMove = !whiteToMove;
+        legalMoves = null;
+        isInCheck = null;
+
+    }
+
+    /**
+     * Finds all the legal moves in the current position
+     *
+     * @return A Move array of the legal moves of the current board state.
+     */
     public Move[] getLegalMoves()
     {
         if (legalMoves != null)
@@ -290,7 +354,7 @@ public class ChessModel
                     }
                 }
             }
-            if(isInCheck == null)
+            if (isInCheck == null)
             {
                 isInCheck = false;
             }
@@ -389,7 +453,14 @@ public class ChessModel
                                     && (board[position.y][position.x] == null
                                             || board[position.y][position.x].isWhite != whiteToMove))
                             {
-                                legalMovesList.add(new Move(king.position, position));
+                                Move kingMove = new Move(king.position, position);
+                                kingMove.firstMove = !king.hasMoved;
+                                if (board[position.y][position.x] != null)
+                                {
+                                    kingMove.isCapture = true;
+                                    kingMove.setCapturePieceType(getPieceAtPoint(position).type);
+                                }
+                                legalMovesList.add(kingMove);
                             }
                         }
                     }
@@ -405,6 +476,7 @@ public class ChessModel
                             Move kingsideCastling =
                                     new Move(new Point(4, yPosition), new Point(6, yPosition));
                             kingsideCastling.isCastling = true;
+                            kingsideCastling.firstMove = true;
                             legalMovesList.add(kingsideCastling);
                         }
                         if (board[yPosition][0] != null && !board[yPosition][0].hasMoved
@@ -414,6 +486,7 @@ public class ChessModel
                             Move queensideCastling =
                                     new Move(new Point(4, yPosition), new Point(2, yPosition));
                             queensideCastling.isCastling = true;
+                            queensideCastling.firstMove = true;
                             legalMovesList.add(queensideCastling);
                         }
                     }
@@ -430,7 +503,8 @@ public class ChessModel
                                 && pieceAtPoint.isWhite != piece.isWhite)
                         {
                             Move move = new Move(piece.position, point);
-                            move.isCapture = true;
+                            move.firstMove = !piece.hasMoved;
+                            move.setCapturePieceType(getPieceAtPoint(pieceAtPoint.position).type);
                             if (point.y == 7 || point.y == 0)
                                 move.isPromotion = true;
                             legalMovesList.add(move);
@@ -446,6 +520,7 @@ public class ChessModel
                         {
                             Move move = new Move(piece.position, point);
                             move.isCapture = false;
+                            move.firstMove = !piece.hasMoved;
                             if (point.y == 7 || point.y == 0)
                                 move.isPromotion = true;
                             legalMovesList.add(move);
@@ -484,13 +559,15 @@ public class ChessModel
             int dir = whiteToMove ? 1 : -1;
             if (first != null && isInBounds(first.position) && first.type == PieceType.Pawn)
             {
-                legalMovesList
-                        .add(new Move(first.position, enPassentablePawn.position.add(0, dir)));
+                Move enpassent = new Move(first.position, enPassentablePawn.position.add(0, dir));
+                enpassent.isEnPassent = true;
+                legalMovesList.add(enpassent);
             }
             if (second != null && isInBounds(second.position) && second.type == PieceType.Pawn)
             {
-                legalMovesList
-                        .add(new Move(second.position, enPassentablePawn.position.add(0, dir)));
+                Move enpassent = new Move(second.position, enPassentablePawn.position.add(0, dir));
+                enpassent.isEnPassent = true;
+                legalMovesList.add(enpassent);
             }
 
         }
@@ -607,7 +684,15 @@ public class ChessModel
                 Piece pieceAtSquare = board[coordinate.y][coordinate.x];
                 if (pieceAtSquare == null || pieceAtSquare.isWhite != whiteToMove)
                 {
-                    moves.add(new Move(startSquare, coordinate));
+                    Move move = new Move(startSquare, coordinate);
+                    move.firstMove = !getPieceAtPoint(startSquare).hasMoved;
+
+                    if (pieceAtSquare != null)
+                    {
+                        move.isCapture = true;
+                        move.setCapturePieceType(getPieceAtPoint(pieceAtSquare.position).type);
+                    }
+                    moves.add(move);
                 }
             }
 
@@ -645,13 +730,18 @@ public class ChessModel
                 {
                     if (pieceAtSquare.isWhite != whiteToMove)
                     {
-                        moves.add(new Move(startSquare, coordinate));
+                        Move move = new Move(startSquare, coordinate);
+                        move.firstMove = !getPieceAtPoint(startSquare).hasMoved;
+                        move.setCapturePieceType(getPieceAtPoint(pieceAtSquare.position).type);
+                        moves.add(move);
                     }
                     break;
                 }
                 else
                 {
-                    moves.add(new Move(startSquare, coordinate));
+                    Move move = new Move(startSquare, coordinate);
+                    move.firstMove = !getPieceAtPoint(startSquare).hasMoved;
+                    moves.add(move);
                 }
             }
         }
@@ -717,6 +807,15 @@ public class ChessModel
             getLegalMoves();
         }
         return isInCheck;
+    }
 
+    public ArrayList<Piece> getWhitePieces()
+    {
+        return whitePieces;
+    }
+
+    public ArrayList<Piece> getBlackPieces()
+    {
+        return blackPieces;
     }
 }

@@ -2,7 +2,8 @@ package chess.Controllers;
 
 import chess.Bots.IBot;
 import chess.Bots.Randombot;
-import chess.Models.ChessModel;
+import chess.Bots.V1;
+import chess.Models.Board;
 import chess.Models.Point;
 import chess.Views.ChessView;
 import javafx.scene.input.MouseEvent;
@@ -10,11 +11,11 @@ import javafx.scene.input.MouseEvent;
 public class HumanVsComputerController
 {
     ChessView view;
-    ChessModel model;
+    Board model;
     boolean computerIsWhite = false;
-    IBot bot = new Randombot();
+    IBot bot = new V1();
 
-    public HumanVsComputerController(ChessView _view, ChessModel _model)
+    public HumanVsComputerController(ChessView _view, Board _model)
     {
         model = _model;
         view = _view;
@@ -78,7 +79,7 @@ public class HumanVsComputerController
         {
             if (model.whiteToMove == computerIsWhite)
             {
-                model.movePiece(bot.think(model));
+                model.makeMove(bot.think(model));
                 view.updateBoard(model.board);
                 if (model.isCheckmate())
                 {

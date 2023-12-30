@@ -2,7 +2,7 @@ package Tests;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import chess.Models.ChessModel;
+import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Piece;
 import chess.Models.Point;
@@ -10,11 +10,11 @@ import chess.Models.Piece.PieceType;
 
 public class ChessModelTests
 {
-    ChessModel board;
+    Board board;
 
     public ChessModelTests()
     {
-        board = new ChessModel();
+        board = new Board();
         System.out.println("------------------START TEST----------------");
         broadTest();
         mateTest();
@@ -73,7 +73,7 @@ public class ChessModelTests
 
     void mateTest()
     {
-        board = new ChessModel();
+        board = new Board();
         System.out.println("<<<MATE TEST>>>");
 
 
@@ -89,7 +89,7 @@ public class ChessModelTests
         compare(board.getLegalMoves(), correctMoves);
 
         // part two: King is not safe behind itself.
-        board = new ChessModel();
+        board = new Board();
 
 
         board.movePiece(new Point(4, 1), new Point(4, 2)); // 1.e3
@@ -224,7 +224,7 @@ public class ChessModelTests
 
     void testEnPassent()
     {
-        board = new ChessModel();
+        board = new Board();
         System.out.println("<<<EN PASSENT TEST>>>");
 
 
@@ -258,7 +258,7 @@ public class ChessModelTests
 
     void testKingLegalMoves()
     {
-        board = new ChessModel();
+        board = new Board();
         System.out.println("<<<KING LEGAL MOVES TEST>>>");
 
 
@@ -290,7 +290,7 @@ public class ChessModelTests
 
         // part two, it is safe behind a friendly piece.
 
-        board = new ChessModel();
+        board = new Board();
 
 
         board.movePiece(new Point(5, 1), new Point(5, 2)); // 1.f3
@@ -319,7 +319,7 @@ public class ChessModelTests
 
         // part three, enemy king is dangerous too.
 
-        board = new ChessModel();
+        board = new Board();
 
 
         board.movePiece(new Point(5, 1), new Point(5, 2)); // 1.f3
@@ -348,7 +348,7 @@ public class ChessModelTests
 
     void testPins()
     {
-        board = new ChessModel();
+        board = new Board();
         System.out.println("<<<PINNED BISHOPS TEST>>>");
 
 
@@ -404,7 +404,7 @@ public class ChessModelTests
         // no bishops should be pinned.
 
         // Test 3. should be able to move along a pin.
-        board = new ChessModel();
+        board = new Board();
 
 
         board.movePiece(new Point(4, 1), new Point(4, 3)); // 1.e4
@@ -437,7 +437,7 @@ public class ChessModelTests
     void testCastling()
     {
 
-        board = new ChessModel();
+        board = new Board();
         System.out.println("<<<CASTLING TEST>>>");
 
 
@@ -480,7 +480,7 @@ public class ChessModelTests
 
     void promotionTest()
     {
-        board = new ChessModel();
+        board = new Board();
         System.out.println("<<<PROMOTION TEST>>>");
 
 
