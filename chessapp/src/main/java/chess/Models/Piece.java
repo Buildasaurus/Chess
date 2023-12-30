@@ -21,26 +21,31 @@ public class Piece
         position = startPosition;
         isWhite = _isWhite;
         type = _type;
-        try
-        {
-            String imageName;
-            imageName = isWhite ? "white-" : "black-";
-            imageName += type.toString().toLowerCase();
 
-            FileInputStream fis = new FileInputStream(
-                    "F:\\Github Projects\\Chess\\chessapp\\src\\main\\resources\\" + imageName
-                            + ".png");
-            image = new Image(fis);
-        }
-        catch (Exception e)
-        {
-            System.out.println("Image not found");
-        }
 
     }
 
     public Image getImage()
     {
+        if (image == null)
+        {
+            try
+            {
+                String imageName;
+                imageName = isWhite ? "white-" : "black-";
+                imageName += type.toString().toLowerCase();
+
+                FileInputStream fis = new FileInputStream(
+                        "F:\\Github Projects\\Chess\\chessapp\\src\\main\\resources\\" + imageName
+                                + ".png");
+                image = new Image(fis);
+            }
+            catch (Exception e)
+            {
+                System.out.println("Image not found");
+            }
+        }
+
         return image;
     }
 

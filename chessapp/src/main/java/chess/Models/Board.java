@@ -6,6 +6,10 @@ import chess.Models.Piece.PieceType;
 
 public class Board
 {
+    public int testcounter = 0;
+    public long legalMovesTime = 0;
+    public long makeMoveTime = 0;
+    public long undoTime = 0;
     public ArrayList<Move> playedMoves = new ArrayList<Move>();
     private Move[] legalMoves;
     /**
@@ -74,7 +78,100 @@ public class Board
     public void movePiece(Point start, Point end)
     {
         Move move = new Move(start, end);
-        makeMove(move);
+        tryToMakeMove(move);
+    }
+
+    public void makeMove(Move move)
+    {
+        long starttime = System.nanoTime();
+        Point start = move.startSquare;
+        Point end = move.targetSquare;
+        Piece pieceToMove = board[start.y][start.x];
+
+        // update the piece lists if there are captures
+        enPassentablePawn = null;
+        if (board[end.y][end.x] != null)
+        {
+            if (!whiteToMove)
+            {
+                whitePieces.remove(board[end.y][end.x]);
+            }
+            else
+            {
+                blackPieces.remove(board[end.y][end.x]);
+            }
+        }
+        else if (pieceToMove.type == PieceType.Pawn
+                && move.startSquare.x - move.targetSquare.x != 0)
+        // if is en passent (pawn attacking diagonally but moving to empty field)
+        {
+            if (!whiteToMove)
+            {
+                whitePieces.remove(board[end.y + 1][end.x]);
+                board[end.y + 1][end.x] = null;
+            }
+            else
+            {
+                blackPieces.remove(board[end.y - 1][end.x]);
+                board[end.y - 1][end.x] = null;
+            }
+
+        }
+
+        // update the old pieces and vacate the square the piece came from.
+        pieceToMove.position = new Point(end.x, end.y);
+        board[start.y][start.x] = null;
+        board[end.y][end.x] = pieceToMove;
+
+        if (move.isPromotion)
+        {
+            Piece newQueen = new Piece(whiteToMove, PieceType.Queen, end);
+            if (whiteToMove)
+            {
+                whitePieces.remove(pieceToMove);
+                whitePieces.add(newQueen);
+            }
+            else
+            {
+                blackPieces.remove(pieceToMove);
+                blackPieces.add(newQueen);
+            }
+            setPieceAtPoint(newQueen, end);
+        }
+        if (move.isCastling)
+        {
+            if (move.targetSquare.x > 4) // kingside castling
+            {
+                Piece rookToMove = board[move.targetSquare.y][7];
+                rookToMove.position = new Point(5, move.targetSquare.y);
+                setPieceAtPoint(rookToMove, rookToMove.position);
+                setPieceAtPoint(null, new Point(7, move.targetSquare.y));
+
+            }
+            else// queenside
+            {
+                Piece rookToMove = board[move.targetSquare.y][0];
+                rookToMove.position = new Point(3, move.targetSquare.y);
+                setPieceAtPoint(rookToMove, rookToMove.position);
+                setPieceAtPoint(null, new Point(0, move.targetSquare.y));
+            }
+        }
+
+        // for future moves, save that that if move was a pawn pushed two squares,
+        // it may be en-passented
+        if (pieceToMove.type == PieceType.Pawn)
+        {
+            if (Math.abs(move.targetSquare.y - move.startSquare.y) == 2)
+            {
+                enPassentablePawn = pieceToMove;
+            }
+        }
+        legalMoves = null;
+        whiteToMove = !whiteToMove;
+        isInCheck = null;
+        pieceToMove.hasMoved = true;
+        playedMoves.add(move);
+        makeMoveTime += System.nanoTime() - starttime;
     }
 
     /**
@@ -84,10 +181,9 @@ public class Board
      * @param start The start square that the piece moves from
      * @param end The square that the piece wants to move to
      */
-    public void makeMove(Move move)
+    public void tryToMakeMove(Move move)
     {
         Point start = move.startSquare;
-        Point end = move.targetSquare;
         Piece pieceToMove = board[start.y][start.x];
         if (pieceToMove != null && pieceToMove.isWhite == whiteToMove)
         // legal piece to try to move
@@ -102,90 +198,8 @@ public class Board
                 {
                     if (move.equals(legalMove))
                     {
-                        // update the piece lists if there are captures
-                        enPassentablePawn = null;
-                        if (board[end.y][end.x] != null)
-                        {
-                            if (!whiteToMove)
-                            {
-                                whitePieces.remove(board[end.y][end.x]);
-                            }
-                            else
-                            {
-                                blackPieces.remove(board[end.y][end.x]);
-                            }
-                        }
-                        else if (pieceToMove.type == PieceType.Pawn
-                                && move.startSquare.x - move.targetSquare.x != 0)
-                        // if is en passent (pawn attacking diagonally but moving to empty field)
-                        {
-                            if (!whiteToMove)
-                            {
-                                whitePieces.remove(board[end.y + 1][end.x]);
-                                board[end.y + 1][end.x] = null;
-                            }
-                            else
-                            {
-                                blackPieces.remove(board[end.y - 1][end.x]);
-                                board[end.y - 1][end.x] = null;
-                            }
-
-                        }
-
-                        // update the old pieces and vacate the square the piece came from.
-                        pieceToMove.position = new Point(end.x, end.y);
-                        board[start.y][start.x] = null;
-                        board[end.y][end.x] = pieceToMove;
-
-                        if (legalMove.isPromotion)
-                        {
-                            Piece newQueen = new Piece(whiteToMove, PieceType.Queen, end);
-                            if (whiteToMove)
-                            {
-                                whitePieces.remove(pieceToMove);
-                                whitePieces.add(newQueen);
-                            }
-                            else
-                            {
-                                blackPieces.remove(pieceToMove);
-                                blackPieces.add(newQueen);
-                            }
-                            setPieceAtPoint(newQueen, end);
-                        }
-                        if (legalMove.isCastling)
-                        {
-                            if (move.targetSquare.x > 4) // kingside castling
-                            {
-                                Piece rookToMove = board[move.targetSquare.y][7];
-                                rookToMove.position = new Point(5, move.targetSquare.y);
-                                setPieceAtPoint(rookToMove, rookToMove.position);
-                                setPieceAtPoint(null, new Point(7, move.targetSquare.y));
-
-                            }
-                            else// queenside
-                            {
-                                Piece rookToMove = board[move.targetSquare.y][0];
-                                rookToMove.position = new Point(3, move.targetSquare.y);
-                                setPieceAtPoint(rookToMove, rookToMove.position);
-                                setPieceAtPoint(null, new Point(0, move.targetSquare.y));
-                            }
-                        }
-
-                        // for future moves, save that that if move was a pawn pushed two squares,
-                        // it may be en-passented
-                        if (pieceToMove.type == PieceType.Pawn)
-                        {
-                            if (Math.abs(move.targetSquare.y - move.startSquare.y) == 2)
-                            {
-                                enPassentablePawn = pieceToMove;
-                            }
-                        }
-                        legalMoves = null;
-                        whiteToMove = !whiteToMove;
+                        makeMove(legalMove);
                         wasLegalMove = true;
-                        isInCheck = null;
-                        pieceToMove.hasMoved = true;
-                        playedMoves.add(legalMove);
                     }
                 }
                 if (!wasLegalMove)
@@ -207,6 +221,8 @@ public class Board
      */
     public void undoMove(Move move)
     {
+        long startTime = System.nanoTime();
+
         ArrayList<Piece> opponnentPieces = whiteToMove ? whitePieces : blackPieces;
         Piece pieceToMove =
                 move.isPromotion ? new Piece(!whiteToMove, PieceType.Pawn, move.startSquare)
@@ -215,26 +231,33 @@ public class Board
         pieceToMove.position = move.startSquare;
         setPieceAtPoint(pieceToMove, move.startSquare);
         pieceToMove.hasMoved = !move.firstMove;
+
         if (move.isEnPassent)
         {
             Piece pawn = new Piece(whiteToMove, PieceType.Pawn,
                     move.targetSquare.add(0, whiteToMove ? 1 : -1));
             setPieceAtPoint(pawn, pawn.position);
+            setPieceAtPoint(null, move.targetSquare);
             opponnentPieces.add(pawn);
 
         }
         else if (move.isCapture)
         {
+
             enPassentablePawn = null;
+            testcounter++;
             Piece piece = new Piece(whiteToMove, move.getCapturePieceType(), move.targetSquare);
+
             opponnentPieces.add(piece);
             setPieceAtPoint(piece, piece.position);
+
         }
         else
         {
             enPassentablePawn = null;
             setPieceAtPoint(null, move.targetSquare);
         }
+
         if (move.isCastling)
         {
             int y = whiteToMove ? 7 : 0;
@@ -275,6 +298,7 @@ public class Board
                 }
             }
         }
+        undoTime += System.nanoTime() - startTime;
 
     }
 
@@ -285,6 +309,7 @@ public class Board
      */
     public Move[] getLegalMoves()
     {
+        long start = System.nanoTime();
         if (legalMoves != null)
         {
             return legalMoves;
@@ -436,6 +461,7 @@ public class Board
             // those are already generated.
             legalMoves = legalMovesList.toArray(new Move[legalMovesList.size()]);
         }
+        legalMovesTime += System.nanoTime() - start;
         return legalMoves;
     }
 

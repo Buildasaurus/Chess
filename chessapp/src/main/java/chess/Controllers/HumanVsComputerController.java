@@ -80,7 +80,7 @@ public class HumanVsComputerController
         {
             if (model.whiteToMove == computerIsWhite)
             {
-                model.makeMove(bot.think(model));
+                model.tryToMakeMove(bot.think(model));
                 view.updateBoard(model.board);
                 if (model.isCheckmate())
                 {
