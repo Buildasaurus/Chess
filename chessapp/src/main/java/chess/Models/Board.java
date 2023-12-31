@@ -224,9 +224,19 @@ public class Board
         long startTime = System.nanoTime();
 
         ArrayList<Piece> opponnentPieces = whiteToMove ? whitePieces : blackPieces;
-        Piece pieceToMove =
-                move.isPromotion ? new Piece(!whiteToMove, PieceType.Pawn, move.startSquare)
-                        : getPieceAtPoint(move.targetSquare);
+        ArrayList<Piece> ownPieces = whiteToMove ? blackPieces : whitePieces;
+
+        Piece pieceToMove;
+        if (move.isPromotion)
+        {
+            pieceToMove = new Piece(!whiteToMove, PieceType.Pawn, move.startSquare);
+            ownPieces.add(pieceToMove);
+            System.out.println("removed piece" + ownPieces.remove(getPieceAtPoint(move.targetSquare)));
+        }
+        else
+        {
+            pieceToMove = getPieceAtPoint(move.targetSquare);
+        }
 
         pieceToMove.position = move.startSquare;
         setPieceAtPoint(pieceToMove, move.startSquare);
@@ -603,21 +613,46 @@ public class Board
         {
             Piece first = getPieceAtPoint(enPassentablePawn.position.add(1, 0));
             Piece second = getPieceAtPoint(enPassentablePawn.position.add(-1, 0));
+
+
             int dir = whiteToMove ? 1 : -1;
             if (first != null && isInBounds(first.position) && first.type == PieceType.Pawn
                     && first.isWhite == whiteToMove)
             {
                 Move enpassent = new Move(first.position, enPassentablePawn.position.add(0, dir));
                 enpassent.isEnPassent = true;
-                legalMovesList.add(enpassent);
+                enpassent.setCapturePieceType(PieceType.Pawn);
+                enpassent.isCapture = true;
+                setPieceAtPoint(null, first.position);
+                setPieceAtPoint(null, enPassentablePawn.position);
+                setPieceAtPoint(first, enpassent.targetSquare);
+                if (!squareIsAttacked(king.position))
+                {
+                    legalMovesList.add(enpassent);
+                }
+                setPieceAtPoint(first, first.position);
+                setPieceAtPoint(enPassentablePawn, enPassentablePawn.position);
+                setPieceAtPoint(null, enpassent.targetSquare);
             }
             if (second != null && isInBounds(second.position) && second.type == PieceType.Pawn
                     && second.isWhite == whiteToMove)
             {
                 Move enpassent = new Move(second.position, enPassentablePawn.position.add(0, dir));
                 enpassent.isEnPassent = true;
-                legalMovesList.add(enpassent);
+                enpassent.setCapturePieceType(PieceType.Pawn);
+                enpassent.isCapture = true;
+                setPieceAtPoint(null, second.position);
+                setPieceAtPoint(null, enPassentablePawn.position);
+                setPieceAtPoint(second, enpassent.targetSquare);
+                if (!squareIsAttacked(king.position))
+                {
+                    legalMovesList.add(enpassent);
+                }
+                setPieceAtPoint(second, second.position);
+                setPieceAtPoint(enPassentablePawn, enPassentablePawn.position);
+                setPieceAtPoint(null, enpassent.targetSquare);
             }
+
 
         }
 
