@@ -122,27 +122,32 @@ public class Board
         pieceToMove.position = new Point(end.x, end.y);
         board[start.y][start.x] = null;
         board[end.y][end.x] = pieceToMove;
+        pieceToMove.hasMoved = true;
+
 
         if (move.isPromotion)
         {
-            Piece newQueen = new Piece(whiteToMove, PieceType.Queen, end);
+            Piece newPiece = new Piece(whiteToMove, move.promotionType, end);
+            newPiece.hasMoved = true;
             if (whiteToMove)
             {
                 whitePieces.remove(pieceToMove);
-                whitePieces.add(newQueen);
+                whitePieces.add(newPiece);
             }
             else
             {
                 blackPieces.remove(pieceToMove);
-                blackPieces.add(newQueen);
+                blackPieces.add(newPiece);
             }
-            setPieceAtPoint(newQueen, end);
+            setPieceAtPoint(newPiece, end);
         }
         if (move.isCastling)
         {
             if (move.targetSquare.x > 4) // kingside castling
             {
                 Piece rookToMove = board[move.targetSquare.y][7];
+                rookToMove.hasMoved = true;
+
                 rookToMove.position = new Point(5, move.targetSquare.y);
                 setPieceAtPoint(rookToMove, rookToMove.position);
                 setPieceAtPoint(null, new Point(7, move.targetSquare.y));
@@ -151,6 +156,7 @@ public class Board
             else// queenside
             {
                 Piece rookToMove = board[move.targetSquare.y][0];
+                rookToMove.hasMoved = true;
                 rookToMove.position = new Point(3, move.targetSquare.y);
                 setPieceAtPoint(rookToMove, rookToMove.position);
                 setPieceAtPoint(null, new Point(0, move.targetSquare.y));
@@ -169,7 +175,6 @@ public class Board
         legalMoves = null;
         whiteToMove = !whiteToMove;
         isInCheck = null;
-        pieceToMove.hasMoved = true;
         playedMoves.add(move);
         makeMoveTime += System.nanoTime() - starttime;
     }
@@ -230,8 +235,10 @@ public class Board
         if (move.isPromotion)
         {
             pieceToMove = new Piece(!whiteToMove, PieceType.Pawn, move.startSquare);
+            pieceToMove.hasMoved = true;
             ownPieces.add(pieceToMove);
-            System.out.println("removed piece" + ownPieces.remove(getPieceAtPoint(move.targetSquare)));
+            System.out.println(
+                    "removed piece" + ownPieces.remove(getPieceAtPoint(move.targetSquare)));
         }
         else
         {
@@ -239,13 +246,14 @@ public class Board
         }
 
         pieceToMove.position = move.startSquare;
+        pieceToMove.hasMoved = !move.getFirstMove();
         setPieceAtPoint(pieceToMove, move.startSquare);
-        pieceToMove.hasMoved = !move.firstMove;
 
         if (move.isEnPassent)
         {
             Piece pawn = new Piece(whiteToMove, PieceType.Pawn,
                     move.targetSquare.add(0, whiteToMove ? 1 : -1));
+            pawn.hasMoved = true;
             setPieceAtPoint(pawn, pawn.position);
             setPieceAtPoint(null, move.targetSquare);
             opponnentPieces.add(pawn);
@@ -257,7 +265,7 @@ public class Board
             enPassentablePawn = null;
             testcounter++;
             Piece piece = new Piece(whiteToMove, move.getCapturePieceType(), move.targetSquare);
-
+            piece.hasMoved = !move.getFirstMove();
             opponnentPieces.add(piece);
             setPieceAtPoint(piece, piece.position);
 
@@ -276,6 +284,7 @@ public class Board
             {
                 Point rookPoint = new Point(3, y);
                 Piece rook = getPieceAtPoint(rookPoint);
+                rook.hasMoved = false;
                 rook.position = new Point(0, y);
                 setPieceAtPoint(rook, rook.position);
                 setPieceAtPoint(null, rookPoint);
@@ -284,6 +293,7 @@ public class Board
             {
                 Point rookPoint = new Point(5, y);
                 Piece rook = getPieceAtPoint(rookPoint);
+                rook.hasMoved = false;
                 rook.position = new Point(7, y);
                 setPieceAtPoint(rook, rook.position);
                 setPieceAtPoint(null, rookPoint);
@@ -301,7 +311,7 @@ public class Board
                 // pawnmove.
                 // IMPORTANT that this is after having removed the newest move.
                 Move previousMove = playedMoves.get(playedMoves.size() - 1);
-                if (previousMove.firstMove
+                if (previousMove.getFirstMove()
                         && getPieceAtPoint(previousMove.targetSquare).type == PieceType.Pawn)
                 {
                     enPassentablePawn = getPieceAtPoint(previousMove.targetSquare);
@@ -511,7 +521,7 @@ public class Board
                                             || board[position.y][position.x].isWhite != whiteToMove))
                             {
                                 Move kingMove = new Move(king.position, position);
-                                kingMove.firstMove = !king.hasMoved;
+                                kingMove.setFirstMove(!king.hasMoved);
                                 if (board[position.y][position.x] != null)
                                 {
                                     kingMove.isCapture = true;
@@ -533,7 +543,7 @@ public class Board
                             Move kingsideCastling =
                                     new Move(new Point(4, yPosition), new Point(6, yPosition));
                             kingsideCastling.isCastling = true;
-                            kingsideCastling.firstMove = true;
+                            kingsideCastling.setFirstMove(true);
                             legalMovesList.add(kingsideCastling);
                         }
                         if (board[yPosition][0] != null && !board[yPosition][0].hasMoved
@@ -543,7 +553,7 @@ public class Board
                             Move queensideCastling =
                                     new Move(new Point(4, yPosition), new Point(2, yPosition));
                             queensideCastling.isCastling = true;
-                            queensideCastling.firstMove = true;
+                            queensideCastling.setFirstMove(true);
                             legalMovesList.add(queensideCastling);
                         }
                     }
@@ -560,11 +570,29 @@ public class Board
                                 && pieceAtPoint.isWhite != piece.isWhite)
                         {
                             Move move = new Move(piece.position, point);
-                            move.firstMove = !piece.hasMoved;
+                            move.setFirstMove(!piece.hasMoved);
                             move.setCapturePieceType(getPieceAtPoint(pieceAtPoint.position).type);
                             if (point.y == 7 || point.y == 0)
+                            {
                                 move.isPromotion = true;
-                            legalMovesList.add(move);
+                                move.setFirstMove(false);
+                                Move otherPromotion = move.copy();
+                                otherPromotion.promotionType = PieceType.Knight;
+                                legalMovesList.add(otherPromotion);
+                                Move otherPromotion2 = move.copy();
+                                otherPromotion2.promotionType = PieceType.Bishop;
+                                legalMovesList.add(otherPromotion2);
+                                Move otherPromotion3 = move.copy();
+                                otherPromotion3.promotionType = PieceType.Queen;
+                                legalMovesList.add(otherPromotion3);
+                                Move otherPromotion4 = move.copy();
+                                otherPromotion4.promotionType = PieceType.Rook;
+                                legalMovesList.add(otherPromotion4);
+                            }
+                            else
+                            {
+                                legalMovesList.add(move);
+                            }
                         }
                     }
                     // nonattacking moves.
@@ -577,10 +605,28 @@ public class Board
                         {
                             Move move = new Move(piece.position, point);
                             move.isCapture = false;
-                            move.firstMove = !piece.hasMoved;
+                            move.setFirstMove(!piece.hasMoved);
                             if (point.y == 7 || point.y == 0)
+                            {
                                 move.isPromotion = true;
-                            legalMovesList.add(move);
+                                move.setFirstMove(false);
+                                Move otherPromotion = move.copy();
+                                otherPromotion.promotionType = PieceType.Knight;
+                                legalMovesList.add(otherPromotion);
+                                Move otherPromotion2 = move.copy();
+                                otherPromotion2.promotionType = PieceType.Bishop;
+                                legalMovesList.add(otherPromotion2);
+                                Move otherPromotion3 = move.copy();
+                                otherPromotion3.promotionType = PieceType.Queen;
+                                legalMovesList.add(otherPromotion3);
+                                Move otherPromotion4 = move.copy();
+                                otherPromotion4.promotionType = PieceType.Rook;
+                                legalMovesList.add(otherPromotion4);
+                            }
+                            else
+                            {
+                                legalMovesList.add(move);
+                            }
                         }
                         else
                         {
@@ -769,7 +815,7 @@ public class Board
                 if (pieceAtSquare == null || pieceAtSquare.isWhite != whiteToMove)
                 {
                     Move move = new Move(startSquare, coordinate);
-                    move.firstMove = !getPieceAtPoint(startSquare).hasMoved;
+                    move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
 
                     if (pieceAtSquare != null)
                     {
@@ -815,7 +861,7 @@ public class Board
                     if (pieceAtSquare.isWhite != whiteToMove)
                     {
                         Move move = new Move(startSquare, coordinate);
-                        move.firstMove = !getPieceAtPoint(startSquare).hasMoved;
+                        move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
                         move.setCapturePieceType(getPieceAtPoint(pieceAtSquare.position).type);
                         moves.add(move);
                     }
@@ -824,7 +870,7 @@ public class Board
                 else
                 {
                     Move move = new Move(startSquare, coordinate);
-                    move.firstMove = !getPieceAtPoint(startSquare).hasMoved;
+                    move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
                     moves.add(move);
                 }
             }

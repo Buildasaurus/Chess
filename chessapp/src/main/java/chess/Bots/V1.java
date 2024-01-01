@@ -14,7 +14,7 @@ public class V1 implements IBot
     {
         movecount = 0;
         long starttime = System.nanoTime();
-        negamax(board, 1);
+        negamax(board, 2);
         System.out.println(movecount);
         System.out.println("movegeneration: " + board.legalMovesTime / Math.pow(10, 9) + "s of "
                 + (System.nanoTime() - starttime) / Math.pow(10, 9));
