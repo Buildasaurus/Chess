@@ -70,7 +70,7 @@ public class Move
     public Move copy()
     {
         Move move = new Move(startSquare, targetSquare);
-        move.firstMove = firstMove;
+        move.setFirstMove(firstMove);
         move.isCapture = isCapture;
         move.isCastling = isCastling;
         move.isEnPassent = isEnPassent;

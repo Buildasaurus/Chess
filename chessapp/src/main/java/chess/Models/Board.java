@@ -666,6 +666,7 @@ public class Board
                     && first.isWhite == whiteToMove)
             {
                 Move enpassent = new Move(first.position, enPassentablePawn.position.add(0, dir));
+                enpassent.setFirstMove(false);
                 enpassent.isEnPassent = true;
                 enpassent.setCapturePieceType(PieceType.Pawn);
                 enpassent.isCapture = true;
@@ -685,6 +686,7 @@ public class Board
             {
                 Move enpassent = new Move(second.position, enPassentablePawn.position.add(0, dir));
                 enpassent.isEnPassent = true;
+                enpassent.setFirstMove(false);
                 enpassent.setCapturePieceType(PieceType.Pawn);
                 enpassent.isCapture = true;
                 setPieceAtPoint(null, second.position);
@@ -698,11 +700,7 @@ public class Board
                 setPieceAtPoint(enPassentablePawn, enPassentablePawn.position);
                 setPieceAtPoint(null, enpassent.targetSquare);
             }
-
-
         }
-
-
         return legalMovesList;
     }
 
