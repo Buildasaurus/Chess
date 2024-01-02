@@ -34,10 +34,11 @@ public class Piece
                 imageName += type.toString().toLowerCase();
 
                 FileInputStream fis = new FileInputStream(
-                        "C:\\Githubting\\Chess\\chessapp\\src\\main\\resources\\" + imageName
+                        "F:\\Github Projects\\Chess\\chessapp\\src\\main\\resources\\" + imageName
                                 + ".png");
                 image = new Image(fis);
             }
+            // "C:\\Githubting\\Chess\\chessapp\\src\\main\\resources\\"
             catch (Exception e)
             {
                 System.out.println("Image not found");

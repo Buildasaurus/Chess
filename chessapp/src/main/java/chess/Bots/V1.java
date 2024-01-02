@@ -14,7 +14,7 @@ public class V1 implements IBot
     {
         movecount = 0;
         long starttime = System.nanoTime();
-        negamax(board, 2);
+        negamax(board, 5);
         System.out.println(movecount);
         System.out.println("movegeneration: " + board.legalMovesTime / Math.pow(10, 9) + "s of "
                 + (System.nanoTime() - starttime) / Math.pow(10, 9));
@@ -23,9 +23,11 @@ public class V1 implements IBot
         System.out.println("undo move: " + board.undoTime / Math.pow(10, 9) + "s of "
                 + (System.nanoTime() - starttime) / Math.pow(10, 9));
         System.out.println(board.testcounter);
+        System.out.println("checkmates:" + checkmateCount);
         return bestMove;
     }
 
+    int checkmateCount = 0;
 
     public void negamax(Board board, int depth)
     {
@@ -37,7 +39,11 @@ public class V1 implements IBot
         long start = System.nanoTime();
         Move[] legalMoves = board.getLegalMoves();
         time += System.nanoTime() - start;
-
+        if (board.isCheckmate())
+        {
+            checkmateCount += 1;
+            return;
+        }
         for (Move move : legalMoves)
         {
             board.makeMove(move);
