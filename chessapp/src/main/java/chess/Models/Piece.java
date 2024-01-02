@@ -21,8 +21,6 @@ public class Piece
         position = startPosition;
         isWhite = _isWhite;
         type = _type;
-
-
     }
 
     public Image getImage()
@@ -36,7 +34,7 @@ public class Piece
                 imageName += type.toString().toLowerCase();
 
                 FileInputStream fis = new FileInputStream(
-                        "F:\\Github Projects\\Chess\\chessapp\\src\\main\\resources\\" + imageName
+                        "C:\\Githubting\\Chess\\chessapp\\src\\main\\resources\\" + imageName
                                 + ".png");
                 image = new Image(fis);
             }

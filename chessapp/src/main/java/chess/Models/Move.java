@@ -46,7 +46,10 @@ public class Move
     public void setCapturePieceType(PieceType type)
     {
         capturePieceType = type;
-        isCapture = true;
+        if (type != null)
+        {
+            isCapture = true;
+        }
     }
 
     public PieceType getCapturePieceType()
