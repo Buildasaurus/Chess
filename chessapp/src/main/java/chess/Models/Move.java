@@ -13,6 +13,7 @@ public class Move
     public boolean isCastling;
     private boolean firstMove;
     private PieceType capturePieceType;
+    public boolean capturedPieceHadMoved;
 
     public Move(Point _startSquare, Point _targetSquare)
     {
@@ -45,6 +46,10 @@ public class Move
 
     public void setCapturePieceType(PieceType type)
     {
+        if(type == PieceType.King)
+        {
+            System.out.println("Someone just took a king...");
+        }
         capturePieceType = type;
         if (type != null)
         {
@@ -71,6 +76,7 @@ public class Move
     {
         Move move = new Move(startSquare, targetSquare);
         move.setFirstMove(firstMove);
+        move.capturedPieceHadMoved = capturedPieceHadMoved;
         move.isCapture = isCapture;
         move.isCastling = isCastling;
         move.isEnPassent = isEnPassent;

@@ -2,11 +2,11 @@ package chess.Models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import chess.Models.Piece.PieceType;
 
 public class Board
 {
-    public int testcounter = 0;
     public long legalMovesTime = 0;
     public long makeMoveTime = 0;
     public long undoTime = 0;
@@ -73,6 +73,13 @@ public class Board
             board[1][i] = whitePawn;
             board[6][i] = blackPawn;
         }
+    }
+
+    public Board(Piece[][] board, ArrayList<Piece> blackPieces, ArrayList<Piece> whitePieces)
+    {
+        this.blackPieces = blackPieces;
+        this.whitePieces = whitePieces;
+        this.board = board;
     }
 
     public void movePiece(Point start, Point end)
@@ -237,8 +244,7 @@ public class Board
             pieceToMove = new Piece(!whiteToMove, PieceType.Pawn, move.startSquare);
             pieceToMove.hasMoved = true;
             ownPieces.add(pieceToMove);
-            System.out.println(
-                    "removed piece" + ownPieces.remove(getPieceAtPoint(move.targetSquare)));
+            ownPieces.remove(getPieceAtPoint(move.targetSquare));
         }
         else
         {
@@ -263,9 +269,8 @@ public class Board
         {
 
             enPassentablePawn = null;
-            testcounter++;
             Piece piece = new Piece(whiteToMove, move.getCapturePieceType(), move.targetSquare);
-            piece.hasMoved = !move.getFirstMove();
+            piece.hasMoved = move.capturedPieceHadMoved;
             opponnentPieces.add(piece);
             setPieceAtPoint(piece, piece.position);
 
@@ -312,14 +317,14 @@ public class Board
                 // IMPORTANT that this is after having removed the newest move.
                 Move previousMove = playedMoves.get(playedMoves.size() - 1);
                 if (previousMove.getFirstMove()
-                        && getPieceAtPoint(previousMove.targetSquare).type == PieceType.Pawn)
+                        && getPieceAtPoint(previousMove.targetSquare).type == PieceType.Pawn
+                        && previousMove.targetSquare.y - previousMove.startSquare.y == 2)
                 {
                     enPassentablePawn = getPieceAtPoint(previousMove.targetSquare);
                 }
             }
         }
         undoTime += System.nanoTime() - startTime;
-
     }
 
     /**
@@ -344,8 +349,11 @@ public class Board
 
             ArrayList<Point> checkDirections = new ArrayList<>();
             ArrayList<Point> legalSquares = new ArrayList<>();
+            Piece king = null;
+            king = getAllPieces(PieceType.King, whiteToMove)[0];
+
+
             // Find all pins, and checks.
-            Piece king = getAllPieces(PieceType.King, whiteToMove)[0];
             // diagonals
             Point coordinate;
             for (int dx = -1; dx < 2; dx++) // iterate over 8 directions
@@ -365,17 +373,9 @@ public class Board
                         {
                             if (pieceAtSquare.isWhite != whiteToMove) // opponnent piece
                             {
-                                if (pieceIsDangerous(pieceAtSquare, direction, king.position))
-                                {
-                                    break;
-                                }
-                                if (possiblyPinnedPiece != null)
-                                {
-                                    pieces.remove(possiblyPinnedPiece);
-                                    pinnedPieces.add(possiblyPinnedPiece);
-                                    pinnedDirections.add(direction);
-                                }
-                                else // this is a check
+                                boolean dangerousPiece =
+                                        pieceIsDangerous(pieceAtSquare, direction, king.position);
+                                if (dangerousPiece && possiblyPinnedPiece == null) // in check
                                 {
                                     for (int i = 1; i <= Math.max(
                                             Math.abs(coordinate.x - king.position.x),
@@ -386,6 +386,14 @@ public class Board
                                     checkDirections.add(new Point(dx, dy));
                                     isInCheck = true;
                                 }
+                                else if (dangerousPiece && possiblyPinnedPiece != null)
+                                {
+                                    pieces.remove(possiblyPinnedPiece);
+                                    pinnedPieces.add(possiblyPinnedPiece);
+                                    pinnedDirections.add(direction);
+                                }
+                                // if it is not dangerous, it's just a nonimportant enemy piece
+                                // shielding us.
                                 break;
                             }
                             else
@@ -429,13 +437,21 @@ public class Board
             {
                 for (int i = 0; i < pinnedPieces.size(); i++) // might be more pinned pieces
                 {
-                    ArrayList<Move> pinnedMoves = generateAllMoves(pinnedPieces);
+                    ArrayList<Move> pinnedMoves = generateAllMoves(pinnedPieces.get(i));
                     for (Move move : pinnedMoves)
                     {
                         if (move.targetSquare.subtract(move.startSquare)
                                 .isParallel(pinnedDirections.get(i)))
                         {
-                            legalMovesList.add(move);
+                            if (checkDirections.size() == 1
+                                    && legalSquares.contains(move.targetSquare))
+                            {
+                                legalMovesList.add(move);
+                            }
+                            else if (checkDirections.size() == 0)
+                            {
+                                legalMovesList.add(move);
+                            }
                         }
                     }
                 }
@@ -456,6 +472,15 @@ public class Board
                 // chekcing piece)
                 for (Move move : allMoves)
                 {
+                    try
+                    {
+                        PieceType a = getPieceAtPoint(move.startSquare).type;
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println("s");
+                        // TODO: handle exception
+                    }
                     if (getPieceAtPoint(move.startSquare).type == PieceType.King)
                     {
                         legalMovesList.add(move);
@@ -485,6 +510,10 @@ public class Board
         return legalMoves;
     }
 
+    private ArrayList<Move> generateAllMoves(Piece piece)
+    {
+        return generateAllMoves(new ArrayList<>(Collections.singletonList(piece)));
+    }
 
     /**
      * Generates all moves that pieces can make, regardless of whether king is in check, or if
@@ -525,6 +554,8 @@ public class Board
                                 if (board[position.y][position.x] != null)
                                 {
                                     kingMove.isCapture = true;
+                                    kingMove.capturedPieceHadMoved =
+                                            getPieceAtPoint(position).hasMoved;
                                     kingMove.setCapturePieceType(getPieceAtPoint(position).type);
                                 }
                                 legalMovesList.add(kingMove);
@@ -536,8 +567,10 @@ public class Board
                     {
                         int yPosition = whiteToMove ? 0 : 7;
                         // kingside
-                        if (board[yPosition][7] != null && !board[yPosition][7].hasMoved
-                                && isSafeEmptySquare(5, yPosition)
+                        if (board[yPosition][7] != null
+                                && board[yPosition][7].type == PieceType.Rook
+                                && board[yPosition][7].isWhite == whiteToMove
+                                && !board[yPosition][7].hasMoved && isSafeEmptySquare(5, yPosition)
                                 && isSafeEmptySquare(6, yPosition))
                         {
                             Move kingsideCastling =
@@ -546,8 +579,12 @@ public class Board
                             kingsideCastling.setFirstMove(true);
                             legalMovesList.add(kingsideCastling);
                         }
-                        if (board[yPosition][0] != null && !board[yPosition][0].hasMoved
-                                && isSafeEmptySquare(3, yPosition)
+                        if (board[yPosition][0] != null
+                                && board[yPosition][0].type == PieceType.Rook
+                                && board[yPosition][0].isWhite == whiteToMove // might castle with
+                                                                              // enemy rook just
+                                                                              // promoted
+                                && !board[yPosition][0].hasMoved && isSafeEmptySquare(3, yPosition)
                                 && isSafeEmptySquare(2, yPosition) && board[yPosition][1] == null)
                         {
                             Move queensideCastling =
@@ -559,6 +596,8 @@ public class Board
                     }
                     break;
                 case Pawn:
+
+                    // Attacking moves
                     int upDirection = whiteToMove ? 1 : -1;
                     Point[] attackSquares =
                     {piece.position.add(new Point(-1, upDirection)),
@@ -572,6 +611,8 @@ public class Board
                             Move move = new Move(piece.position, point);
                             move.setFirstMove(!piece.hasMoved);
                             move.setCapturePieceType(getPieceAtPoint(pieceAtPoint.position).type);
+                            move.capturedPieceHadMoved =
+                                    getPieceAtPoint(pieceAtPoint.position).hasMoved;
                             if (point.y == 7 || point.y == 0)
                             {
                                 move.isPromotion = true;
@@ -663,12 +704,13 @@ public class Board
 
             int dir = whiteToMove ? 1 : -1;
             if (first != null && isInBounds(first.position) && first.type == PieceType.Pawn
-                    && first.isWhite == whiteToMove)
+                    && first.isWhite == whiteToMove && pieces.contains(first))
             {
                 Move enpassent = new Move(first.position, enPassentablePawn.position.add(0, dir));
                 enpassent.setFirstMove(false);
                 enpassent.isEnPassent = true;
                 enpassent.setCapturePieceType(PieceType.Pawn);
+                enpassent.capturedPieceHadMoved = first.hasMoved;
                 enpassent.isCapture = true;
                 setPieceAtPoint(null, first.position);
                 setPieceAtPoint(null, enPassentablePawn.position);
@@ -682,12 +724,14 @@ public class Board
                 setPieceAtPoint(null, enpassent.targetSquare);
             }
             if (second != null && isInBounds(second.position) && second.type == PieceType.Pawn
-                    && second.isWhite == whiteToMove)
+                    && second.isWhite == whiteToMove && pieces.contains(second))
             {
                 Move enpassent = new Move(second.position, enPassentablePawn.position.add(0, dir));
                 enpassent.isEnPassent = true;
                 enpassent.setFirstMove(false);
                 enpassent.setCapturePieceType(PieceType.Pawn);
+                enpassent.capturedPieceHadMoved = second.hasMoved;
+
                 enpassent.isCapture = true;
                 setPieceAtPoint(null, second.position);
                 setPieceAtPoint(null, enPassentablePawn.position);
@@ -733,11 +777,11 @@ public class Board
                         {
                             if (pieceIsDangerous(pieceAtSquare, direction, square))
                             {
-                                break;
+                                return true;
                             }
                             else
                             {
-                                return true;
+                                break;
                             }
 
                         }
@@ -768,11 +812,19 @@ public class Board
         return false;
     }
 
+    /**
+     *
+     * @param enemyPiece
+     * @param direction
+     * @param friendlyPiece
+     * @return Returns a boolean representing whether the friendly piece is threatened, by the enemy
+     *         piece. Possibly through other pieces.
+     */
     boolean pieceIsDangerous(Piece enemyPiece, Point direction, Point friendlyPiece)
     {
-        return !canAttackInDirection(enemyPiece, direction.multiply(-1))
-                || (enemyPiece.type == PieceType.Pawn || enemyPiece.type == PieceType.King)
-                        && friendlyPiece.distance(enemyPiece.position) > 1;
+        return canAttackInDirection(enemyPiece, direction.multiply(-1))
+                && !((enemyPiece.type == PieceType.Pawn || enemyPiece.type == PieceType.King)
+                        && friendlyPiece.distance(enemyPiece.position) > 1);
     }
 
     /**
@@ -818,6 +870,7 @@ public class Board
                     if (pieceAtSquare != null)
                     {
                         move.isCapture = true;
+                        move.capturedPieceHadMoved = getPieceAtPoint(pieceAtSquare.position).hasMoved;
                         move.setCapturePieceType(getPieceAtPoint(pieceAtSquare.position).type);
                     }
                     moves.add(move);
@@ -860,6 +913,7 @@ public class Board
                     {
                         Move move = new Move(startSquare, coordinate);
                         move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
+                        move.capturedPieceHadMoved = getPieceAtPoint(pieceAtSquare.position).hasMoved;
                         move.setCapturePieceType(getPieceAtPoint(pieceAtSquare.position).type);
                         moves.add(move);
                     }
@@ -889,8 +943,8 @@ public class Board
     {
         boolean isDiagonal = Math.abs(direction.x * direction.y) == 1;
         return piece.type == PieceType.Queen || piece.type == PieceType.King
-                || isDiagonal && (piece.type == PieceType.Bishop
-                        || (piece.type == PieceType.Pawn && (direction.y > 0 == piece.isWhite)))
+                || isDiagonal && (piece.type == PieceType.Bishop || (piece.type == PieceType.Pawn
+                        && (direction.y > 0 == piece.isWhite) && direction.x != 0))
                 || !isDiagonal && (piece.type == PieceType.Rook);
     }
 
