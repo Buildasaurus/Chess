@@ -90,7 +90,7 @@ public class FenReader
 
                         case 'k': // not caring whether king has moved, as there is enough
                                   // information for castling rights, in whether the rooks have
-                                  // moved.
+                                  // moved. It defaults to false, which is what it must.
                             pieces.add(new Piece(isWhitePiece, PieceType.King,
                                     new Point(columnIndex, rowIndex)));
                             break;

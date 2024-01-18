@@ -7,6 +7,7 @@ import chess.Models.Piece.PieceType;
 
 public class Board
 {
+    //TODO - fix some castling issues. Apparently i castle wrongly at times.
     public long legalMovesTime = 0;
     public long makeMoveTime = 0;
     public long undoTime = 0;
@@ -563,7 +564,7 @@ public class Board
                         }
                     }
                     // Castling
-                    if (!king.hasMoved)
+                    if (!king.hasMoved && !squareIsAttacked(king.position))
                     {
                         int yPosition = whiteToMove ? 0 : 7;
                         // kingside
@@ -793,6 +794,8 @@ public class Board
                 }
             }
         }
+
+        //Check for knights attacking
         Point[] directions =
         {new Point(2, 1), new Point(2, -1), new Point(1, 2), new Point(1, -2), new Point(-1, -2),
             new Point(-1, 2), new Point(-2, 1), new Point(-2, -1)};
