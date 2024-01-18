@@ -135,13 +135,19 @@ public class FenReader
             boardBoard.enPassentablePawn = board[yPoint][point.x];
         }
 
+        // Half ply count
+        boardBoard.halfPlyCount = Integer.parseInt(components[4]);
+
+        // Full ply count
+        boardBoard.fullPlyCount = Integer.parseInt(components[5]);
+
         boardBoard.board = board;
         boardBoard.whitePieces = whitePieces;
         boardBoard.blackPieces = blackPieces;
+
         return boardBoard;
 
-        // halfmove - for how long we are on to 50-move rule TODO implement this
-        // TODO implement fullmove, which is total number of moves.
+
     }
 
     public static void saveToFen(Board board)

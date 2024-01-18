@@ -7,10 +7,11 @@ import chess.Models.Piece.PieceType;
 
 public class Board
 {
-    //TODO - fix some castling issues. Apparently i castle wrongly at times.
     public long legalMovesTime = 0;
     public long makeMoveTime = 0;
     public long undoTime = 0;
+    public int halfPlyCount = 0;
+    public int fullPlyCount = 0;
     public ArrayList<Move> playedMoves = new ArrayList<Move>();
     private Move[] legalMoves;
     /**
@@ -83,10 +84,17 @@ public class Board
         this.board = board;
     }
 
+    /**
+     * Attempts to move a piece from the start point to the end point.
+     * @param start
+     * @param end
+     */
     public void movePiece(Point start, Point end)
     {
-        Move move = new Move(start, end);
+        Move move = new Move(start, end, halfPlyCount);
         tryToMakeMove(move);
+        System.out.println(halfPlyCount);
+
     }
 
     public void makeMove(Move move)
@@ -100,6 +108,7 @@ public class Board
         enPassentablePawn = null;
         if (board[end.y][end.x] != null)
         {
+            halfPlyCount = -1; //reset halfmove on capture
             if (!whiteToMove)
             {
                 whitePieces.remove(board[end.y][end.x]);
@@ -175,6 +184,7 @@ public class Board
         // it may be en-passented
         if (pieceToMove.type == PieceType.Pawn)
         {
+            halfPlyCount = -1;
             if (Math.abs(move.targetSquare.y - move.startSquare.y) == 2)
             {
                 enPassentablePawn = pieceToMove;
@@ -185,6 +195,8 @@ public class Board
         isInCheck = null;
         playedMoves.add(move);
         makeMoveTime += System.nanoTime() - starttime;
+        fullPlyCount += 1;
+        halfPlyCount += 1;
     }
 
     /**
@@ -325,6 +337,8 @@ public class Board
                 }
             }
         }
+        halfPlyCount = move.previousHalfPlyCount;
+        fullPlyCount -= 1;
         undoTime += System.nanoTime() - startTime;
     }
 
@@ -473,15 +487,6 @@ public class Board
                 // chekcing piece)
                 for (Move move : allMoves)
                 {
-                    try
-                    {
-                        PieceType a = getPieceAtPoint(move.startSquare).type;
-                    }
-                    catch (Exception e)
-                    {
-                        System.out.println("s");
-                        // TODO: handle exception
-                    }
                     if (getPieceAtPoint(move.startSquare).type == PieceType.King)
                     {
                         legalMovesList.add(move);
@@ -550,7 +555,7 @@ public class Board
                                     && (board[position.y][position.x] == null
                                             || board[position.y][position.x].isWhite != whiteToMove))
                             {
-                                Move kingMove = new Move(king.position, position);
+                                Move kingMove = new Move(king.position, position, halfPlyCount);
                                 kingMove.setFirstMove(!king.hasMoved);
                                 if (board[position.y][position.x] != null)
                                 {
@@ -575,7 +580,7 @@ public class Board
                                 && isSafeEmptySquare(6, yPosition))
                         {
                             Move kingsideCastling =
-                                    new Move(new Point(4, yPosition), new Point(6, yPosition));
+                                    new Move(new Point(4, yPosition), new Point(6, yPosition),halfPlyCount);
                             kingsideCastling.isCastling = true;
                             kingsideCastling.setFirstMove(true);
                             legalMovesList.add(kingsideCastling);
@@ -589,7 +594,7 @@ public class Board
                                 && isSafeEmptySquare(2, yPosition) && board[yPosition][1] == null)
                         {
                             Move queensideCastling =
-                                    new Move(new Point(4, yPosition), new Point(2, yPosition));
+                                    new Move(new Point(4, yPosition), new Point(2, yPosition),halfPlyCount);
                             queensideCastling.isCastling = true;
                             queensideCastling.setFirstMove(true);
                             legalMovesList.add(queensideCastling);
@@ -609,7 +614,7 @@ public class Board
                         if (pieceAtPoint != null && isInBounds(point)
                                 && pieceAtPoint.isWhite != piece.isWhite)
                         {
-                            Move move = new Move(piece.position, point);
+                            Move move = new Move(piece.position, point,halfPlyCount);
                             move.setFirstMove(!piece.hasMoved);
                             move.setCapturePieceType(getPieceAtPoint(pieceAtPoint.position).type);
                             move.capturedPieceHadMoved =
@@ -645,7 +650,7 @@ public class Board
                         Piece pieceAtPoint = getPieceAtPoint(point);
                         if (pieceAtPoint == null && isInBounds(point))
                         {
-                            Move move = new Move(piece.position, point);
+                            Move move = new Move(piece.position, point,halfPlyCount);
                             move.isCapture = false;
                             move.setFirstMove(!piece.hasMoved);
                             if (point.y == 7 || point.y == 0)
@@ -707,7 +712,7 @@ public class Board
             if (first != null && isInBounds(first.position) && first.type == PieceType.Pawn
                     && first.isWhite == whiteToMove && pieces.contains(first))
             {
-                Move enpassent = new Move(first.position, enPassentablePawn.position.add(0, dir));
+                Move enpassent = new Move(first.position, enPassentablePawn.position.add(0, dir),halfPlyCount);
                 enpassent.setFirstMove(false);
                 enpassent.isEnPassent = true;
                 enpassent.setCapturePieceType(PieceType.Pawn);
@@ -727,7 +732,7 @@ public class Board
             if (second != null && isInBounds(second.position) && second.type == PieceType.Pawn
                     && second.isWhite == whiteToMove && pieces.contains(second))
             {
-                Move enpassent = new Move(second.position, enPassentablePawn.position.add(0, dir));
+                Move enpassent = new Move(second.position, enPassentablePawn.position.add(0, dir),halfPlyCount);
                 enpassent.isEnPassent = true;
                 enpassent.setFirstMove(false);
                 enpassent.setCapturePieceType(PieceType.Pawn);
@@ -867,7 +872,7 @@ public class Board
                 Piece pieceAtSquare = board[coordinate.y][coordinate.x];
                 if (pieceAtSquare == null || pieceAtSquare.isWhite != whiteToMove)
                 {
-                    Move move = new Move(startSquare, coordinate);
+                    Move move = new Move(startSquare, coordinate,halfPlyCount);
                     move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
 
                     if (pieceAtSquare != null)
@@ -914,7 +919,7 @@ public class Board
                 {
                     if (pieceAtSquare.isWhite != whiteToMove)
                     {
-                        Move move = new Move(startSquare, coordinate);
+                        Move move = new Move(startSquare, coordinate,halfPlyCount);
                         move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
                         move.capturedPieceHadMoved = getPieceAtPoint(pieceAtSquare.position).hasMoved;
                         move.setCapturePieceType(getPieceAtPoint(pieceAtSquare.position).type);
@@ -924,7 +929,7 @@ public class Board
                 }
                 else
                 {
-                    Move move = new Move(startSquare, coordinate);
+                    Move move = new Move(startSquare, coordinate,halfPlyCount);
                     move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
                     moves.add(move);
                 }
@@ -982,7 +987,7 @@ public class Board
 
     public boolean isDraw()
     {
-        return getLegalMoves().length == 0 && !isInCheck();
+        return getLegalMoves().length == 0 && !isInCheck() || halfPlyCount == 50;
     }
 
     public boolean isInCheck()

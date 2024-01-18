@@ -14,8 +14,21 @@ public class Move
     private boolean firstMove;
     private PieceType capturePieceType;
     public boolean capturedPieceHadMoved;
+    public int previousHalfPlyCount;
 
     public Move(Point _startSquare, Point _targetSquare)
+    {
+        System.out.println("Warning, incorrect constructor! - Only for testing - missing halfMoveCount");
+        firstMove = false;
+        startSquare = _startSquare;
+        targetSquare = _targetSquare;
+        isCapture = false;
+        isPromotion = false;
+        isEnPassent = false;
+        promotionType = PieceType.Queen;
+    }
+
+    public Move(Point _startSquare, Point _targetSquare, int halfMoveCount)
     {
         firstMove = false;
         startSquare = _startSquare;
@@ -74,7 +87,7 @@ public class Move
 
     public Move copy()
     {
-        Move move = new Move(startSquare, targetSquare);
+        Move move = new Move(startSquare, targetSquare,previousHalfPlyCount);
         move.setFirstMove(firstMove);
         move.capturedPieceHadMoved = capturedPieceHadMoved;
         move.isCapture = isCapture;

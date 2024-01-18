@@ -50,7 +50,6 @@ public class V1 implements IBot
             System.out.print(checkmateCount + "\n");
         }
 
-
         return bestMove;
     }
 
