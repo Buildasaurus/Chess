@@ -18,7 +18,7 @@ public class App extends Application
         MainController controller = new MainController();
         // Create your controller
 
-        scene = new Scene(controller.view, 900, 900); // Add the view to the scene. Adjust the
+        scene = new Scene(controller.view, Settings.WindowSize, Settings.WindowSize); // Add the view to the scene. Adjust the
                                                            // size as needed
         stage.setScene(scene);
         stage.show();

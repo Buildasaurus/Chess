@@ -1,5 +1,6 @@
 package chess.Controllers;
 
+import chess.Settings;
 import chess.Models.Board;
 import chess.Models.Point;
 import chess.Views.ChessView;
@@ -29,11 +30,11 @@ public class ChessController
     {
         // Get the x and y coordinates of the mouse click
         double x = event.getX();
-        double y = 800 - event.getY();
+        double y = Settings.getBoardSize() - event.getY();
 
         // Convert the coordinates to a position on the chess board
-        int row = (int) (y / 100);
-        int col = (int) (x / 100);
+        int row = (int) (y / Settings.getColumnWidth());
+        int col = (int) (x / Settings.getColumnWidth());
 
         start = new Point(col, row);
     }
@@ -44,11 +45,11 @@ public class ChessController
     {
         // Get the x and y coordinates of the mouse click
         double x = event.getX();
-        double y = 800 - event.getY();
+        double y = Settings.getBoardSize() - event.getY();
 
         // Convert the coordinates to a position on the chess board
-        int row = (int) (y / 100);
-        int col = (int) (x / 100);
+        int row = (int) (y / Settings.getColumnWidth());
+        int col = (int) (x / Settings.getColumnWidth());
 
         end = new Point(col, row);
         model.movePiece(start, end);
