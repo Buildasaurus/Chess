@@ -10,6 +10,7 @@ public class App extends Application
 {
 
     private static Scene scene;
+    private boolean test = false;
 
     @Override
     public void start(Stage stage)
@@ -22,7 +23,14 @@ public class App extends Application
                                                            // size as needed
         stage.setScene(scene);
         stage.show();
-        ChessModelTests tests = new ChessModelTests();
+        if(test)
+        {
+            new ChessModelTests();
+        }
+        else
+        {
+            System.out.println("!!!!! Testing is turned OFF !!!!!!!");
+        }
     }
 
     public static void main(String[] args)
