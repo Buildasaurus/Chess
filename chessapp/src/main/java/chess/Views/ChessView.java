@@ -5,6 +5,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
+import chess.Settings;
 import chess.Models.Piece;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -16,10 +17,11 @@ import javafx.scene.layout.BackgroundSize;
 
 public class ChessView extends GridPane
 {
+    double columnSize = Settings.getColumnWidth(); // board will be 8 times this size
+
     public void initializeBoard(Piece[][] pieces)
     {
-        double columnSize = 100; // board will be 8 times this size
-        double dimension = 8 * columnSize;
+        double dimension = Settings.getBoardSize();
         this.getColumnConstraints().clear();
         this.getRowConstraints().clear();
 
@@ -54,7 +56,7 @@ public class ChessView extends GridPane
                 if (pieces[y][x] != null)
                 {
                     ImageView imageView = new ImageView(pieces[y][x].getImage());
-                    imageView.setFitWidth(100);
+                    imageView.setFitWidth(columnSize);
                     imageView.setPreserveRatio(true);
                     this.add(imageView, x, 7 - y);
                 }

@@ -10,6 +10,7 @@ public class App extends Application
 {
 
     private static Scene scene;
+    private boolean test = false;
 
     @Override
     public void start(Stage stage)
@@ -18,11 +19,18 @@ public class App extends Application
         MainController controller = new MainController();
         // Create your controller
 
-        scene = new Scene(controller.view, 900, 900); // Add the view to the scene. Adjust the
+        scene = new Scene(controller.view, Settings.WindowSize, Settings.WindowSize); // Add the view to the scene. Adjust the
                                                            // size as needed
         stage.setScene(scene);
         stage.show();
-        ChessModelTests tests = new ChessModelTests();
+        if(test)
+        {
+            new ChessModelTests();
+        }
+        else
+        {
+            System.out.println("!!!!! Testing is turned OFF !!!!!!!");
+        }
     }
 
     public static void main(String[] args)
