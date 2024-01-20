@@ -1008,4 +1008,9 @@ public class Board
     {
         return blackPieces;
     }
+
+    public int getZobristHash()
+    {
+        return ZobristHasher.generateHash(this);
+    }
 }

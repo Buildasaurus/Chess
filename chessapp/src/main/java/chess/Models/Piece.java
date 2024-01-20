@@ -1,7 +1,9 @@
 package chess.Models;
 
 import java.io.FileInputStream;
+import chess.Resources;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class Piece
 {
@@ -10,7 +12,6 @@ public class Piece
         King, Queen, Rook, Bishop, Knight, Pawn, None
     }
 
-    Image image;
     public boolean hasMoved = false;
     public boolean isWhite;
     public PieceType type;
@@ -23,28 +24,15 @@ public class Piece
         type = _type;
     }
 
-    public Image getImage()
+
+
+    public ImageView getImage()
     {
-        if (image == null)
-        {
-            try
-            {
-                String imageName;
-                imageName = isWhite ? "white-" : "black-";
-                imageName += type.toString().toLowerCase();
+        String imageName;
+        imageName = isWhite ? "white-" : "black-";
+        imageName += type.toString().toLowerCase();
 
-                FileInputStream fis = new FileInputStream(
-                        "F:\\Github Projects\\Chess\\chessapp\\src\\main\\resources\\" + imageName
-                                + ".png");
-                image = new Image(fis);
-            }
-            // "C:\\Githubting\\Chess\\chessapp\\src\\main\\resources\\"
-            catch (Exception e)
-            {
-                System.out.println("Image not found");
-            }
-        }
-
+        ImageView image = new ImageView(Resources.getImageByName(imageName));
         return image;
     }
 

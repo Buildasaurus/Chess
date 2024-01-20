@@ -55,7 +55,7 @@ public class ChessView extends GridPane
                 // this.add(text, x, 7 - y);
                 if (pieces[y][x] != null)
                 {
-                    ImageView imageView = new ImageView(pieces[y][x].getImage());
+                    ImageView imageView = pieces[y][x].getImage();
                     imageView.setFitWidth(columnSize);
                     imageView.setPreserveRatio(true);
                     this.add(imageView, x, 7 - y);

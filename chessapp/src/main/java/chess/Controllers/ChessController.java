@@ -55,6 +55,7 @@ public class ChessController
         model.movePiece(start, end);
         // Handle mouse release event
         view.updateBoard(model.board);
+        System.out.println(model.getZobristHash());
 
         if (model.isCheckmate())
         {
