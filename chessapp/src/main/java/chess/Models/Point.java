@@ -2,8 +2,8 @@ package chess.Models;
 
 public class Point
 {
-    int y;
-    int x;
+    public int y;
+    public int x;
 
     public Point(int _x, int _y)
     {
