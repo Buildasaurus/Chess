@@ -86,6 +86,7 @@ public class Board
 
     /**
      * Attempts to move a piece from the start point to the end point.
+     *
      * @param start
      * @param end
      */
@@ -108,7 +109,7 @@ public class Board
         enPassentablePawn = null;
         if (board[end.y][end.x] != null)
         {
-            halfPlyCount = -1; //reset halfmove on capture
+            halfPlyCount = -1; // reset halfmove on capture
             if (!whiteToMove)
             {
                 whitePieces.remove(board[end.y][end.x]);
@@ -573,28 +574,18 @@ public class Board
                     {
                         int yPosition = whiteToMove ? 0 : 7;
                         // kingside
-                        if (board[yPosition][7] != null
-                                && board[yPosition][7].type == PieceType.Rook
-                                && board[yPosition][7].isWhite == whiteToMove
-                                && !board[yPosition][7].hasMoved && isSafeEmptySquare(5, yPosition)
-                                && isSafeEmptySquare(6, yPosition))
+                        if (canCastle(true, whiteToMove))
                         {
-                            Move kingsideCastling =
-                                    new Move(new Point(4, yPosition), new Point(6, yPosition),halfPlyCount);
+                            Move kingsideCastling = new Move(new Point(4, yPosition),
+                                    new Point(6, yPosition), halfPlyCount);
                             kingsideCastling.isCastling = true;
                             kingsideCastling.setFirstMove(true);
                             legalMovesList.add(kingsideCastling);
                         }
-                        if (board[yPosition][0] != null
-                                && board[yPosition][0].type == PieceType.Rook
-                                && board[yPosition][0].isWhite == whiteToMove // might castle with
-                                                                              // enemy rook just
-                                                                              // promoted
-                                && !board[yPosition][0].hasMoved && isSafeEmptySquare(3, yPosition)
-                                && isSafeEmptySquare(2, yPosition) && board[yPosition][1] == null)
+                        if (canCastle(false, whiteToMove))
                         {
-                            Move queensideCastling =
-                                    new Move(new Point(4, yPosition), new Point(2, yPosition),halfPlyCount);
+                            Move queensideCastling = new Move(new Point(4, yPosition),
+                                    new Point(2, yPosition), halfPlyCount);
                             queensideCastling.isCastling = true;
                             queensideCastling.setFirstMove(true);
                             legalMovesList.add(queensideCastling);
@@ -614,7 +605,7 @@ public class Board
                         if (pieceAtPoint != null && isInBounds(point)
                                 && pieceAtPoint.isWhite != piece.isWhite)
                         {
-                            Move move = new Move(piece.position, point,halfPlyCount);
+                            Move move = new Move(piece.position, point, halfPlyCount);
                             move.setFirstMove(!piece.hasMoved);
                             move.setCapturePieceType(getPieceAtPoint(pieceAtPoint.position).type);
                             move.capturedPieceHadMoved =
@@ -650,7 +641,7 @@ public class Board
                         Piece pieceAtPoint = getPieceAtPoint(point);
                         if (pieceAtPoint == null && isInBounds(point))
                         {
-                            Move move = new Move(piece.position, point,halfPlyCount);
+                            Move move = new Move(piece.position, point, halfPlyCount);
                             move.isCapture = false;
                             move.setFirstMove(!piece.hasMoved);
                             if (point.y == 7 || point.y == 0)
@@ -712,7 +703,8 @@ public class Board
             if (first != null && isInBounds(first.position) && first.type == PieceType.Pawn
                     && first.isWhite == whiteToMove && pieces.contains(first))
             {
-                Move enpassent = new Move(first.position, enPassentablePawn.position.add(0, dir),halfPlyCount);
+                Move enpassent = new Move(first.position, enPassentablePawn.position.add(0, dir),
+                        halfPlyCount);
                 enpassent.setFirstMove(false);
                 enpassent.isEnPassent = true;
                 enpassent.setCapturePieceType(PieceType.Pawn);
@@ -732,7 +724,8 @@ public class Board
             if (second != null && isInBounds(second.position) && second.type == PieceType.Pawn
                     && second.isWhite == whiteToMove && pieces.contains(second))
             {
-                Move enpassent = new Move(second.position, enPassentablePawn.position.add(0, dir),halfPlyCount);
+                Move enpassent = new Move(second.position, enPassentablePawn.position.add(0, dir),
+                        halfPlyCount);
                 enpassent.isEnPassent = true;
                 enpassent.setFirstMove(false);
                 enpassent.setCapturePieceType(PieceType.Pawn);
@@ -800,7 +793,7 @@ public class Board
             }
         }
 
-        //Check for knights attacking
+        // Check for knights attacking
         Point[] directions =
         {new Point(2, 1), new Point(2, -1), new Point(1, 2), new Point(1, -2), new Point(-1, -2),
             new Point(-1, 2), new Point(-2, 1), new Point(-2, -1)};
@@ -872,13 +865,14 @@ public class Board
                 Piece pieceAtSquare = board[coordinate.y][coordinate.x];
                 if (pieceAtSquare == null || pieceAtSquare.isWhite != whiteToMove)
                 {
-                    Move move = new Move(startSquare, coordinate,halfPlyCount);
+                    Move move = new Move(startSquare, coordinate, halfPlyCount);
                     move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
 
                     if (pieceAtSquare != null)
                     {
                         move.isCapture = true;
-                        move.capturedPieceHadMoved = getPieceAtPoint(pieceAtSquare.position).hasMoved;
+                        move.capturedPieceHadMoved =
+                                getPieceAtPoint(pieceAtSquare.position).hasMoved;
                         move.setCapturePieceType(getPieceAtPoint(pieceAtSquare.position).type);
                     }
                     moves.add(move);
@@ -919,9 +913,10 @@ public class Board
                 {
                     if (pieceAtSquare.isWhite != whiteToMove)
                     {
-                        Move move = new Move(startSquare, coordinate,halfPlyCount);
+                        Move move = new Move(startSquare, coordinate, halfPlyCount);
                         move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
-                        move.capturedPieceHadMoved = getPieceAtPoint(pieceAtSquare.position).hasMoved;
+                        move.capturedPieceHadMoved =
+                                getPieceAtPoint(pieceAtSquare.position).hasMoved;
                         move.setCapturePieceType(getPieceAtPoint(pieceAtSquare.position).type);
                         moves.add(move);
                     }
@@ -929,7 +924,7 @@ public class Board
                 }
                 else
                 {
-                    Move move = new Move(startSquare, coordinate,halfPlyCount);
+                    Move move = new Move(startSquare, coordinate, halfPlyCount);
                     move.setFirstMove(!getPieceAtPoint(startSquare).hasMoved);
                     moves.add(move);
                 }
@@ -1009,8 +1004,33 @@ public class Board
         return blackPieces;
     }
 
-    public int getZobristHash()
+    public long getZobristHash()
     {
         return ZobristHasher.generateHash(this);
+    }
+
+    /**
+     * Figures out if you can castle to a given side (0 or 7), for the given color
+     *
+     * @param side Kingside (7) or queenside (0)
+     * @param white Whether the pieces are white (true) or not (false)
+     * @return
+     */
+    public boolean canCastle(boolean kingside, boolean white)
+    {
+        int rank = white ? 0 : 7;
+        Piece piece = board[rank][kingside ? 7 : 0];
+        if (kingside) // kingside
+        {
+            return piece != null && piece.type == PieceType.Rook && piece.isWhite == whiteToMove
+                    && !piece.hasMoved && isSafeEmptySquare(5, rank) && isSafeEmptySquare(6, rank);
+        }
+        else
+        {
+            return piece != null && piece.type == PieceType.Rook && piece.isWhite == whiteToMove
+                    && !piece.hasMoved && isSafeEmptySquare(3, rank) && isSafeEmptySquare(2, rank)
+                    && board[rank][1] == null;
+        }
+
     }
 }

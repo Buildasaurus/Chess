@@ -8,16 +8,16 @@ public class ZobristHasher
 {
 
 
-    static int[][][] zobristTable;
+    static long[][][] zobristTable;
     static int boardWidth = 8;
     static int boardHeight = 8;
     /**
-     * 0-11 is pawn, knight, bishop, rook, quuen, king, for black and white
-     * 12 is white queen rook, castlingright, 13 is king castling right. 14 and 15 is for black.
-     * 16 is enpassent white, 17 enpssent black
+     * 0-11 is pawn, knight, bishop, rook, quuen, king, for black and white 12 is enpassent black,
+     * 13 is enpassent white.
      */
-    static int pieceTypes = 18;
+    static int pieceTypes = 14;
     static int whiteToMoveHash;
+    static long[] castlinghashes;
 
     static
     {
@@ -27,7 +27,8 @@ public class ZobristHasher
 
     static void initalizeValues()
     {
-        zobristTable = new int[boardHeight][boardWidth][pieceTypes];
+        castlinghashes = new long[4];
+        zobristTable = new long[boardHeight][boardWidth][pieceTypes];
         Random rand = new Random();
         for (int row = 0; row < boardHeight; row++)
         {
@@ -35,16 +36,20 @@ public class ZobristHasher
             {
                 for (int pieceType = 0; pieceType < pieceTypes; pieceType++)
                 {
-                    zobristTable[row][column][pieceType] = rand.nextInt();
+                    zobristTable[row][column][pieceType] = rand.nextLong();
                 }
             }
+        }
+        for (int i = 0; i < castlinghashes.length; i++)
+        {
+            castlinghashes[i] = rand.nextLong();
         }
         whiteToMoveHash = rand.nextInt();
     }
 
-    static int generateHash(Board board)
+    static long generateHash(Board board)
     {
-        int hash = board.whiteToMove ? whiteToMoveHash : 0;
+        long hash = board.whiteToMove ? whiteToMoveHash : 0;
         for (int row = 0; row < board.board.length; row++)
         {
             for (int column = 0; column < board.board[0].length; column++)
@@ -52,12 +57,31 @@ public class ZobristHasher
                 Piece piece = board.board[row][column];
                 if (piece != null) // if == null, then just don't do xor
                 {
-                    int whitePiece = piece.isWhite ? 0 : 9;
+                    int whitePiece = piece.isWhite ? 0 : pieceTypes/2;
                     hash ^= zobristTable[row][column][piece.type.ordinal() + whitePiece];
-
-                    //TODO - special cases for enpassent things
                 }
             }
+        }
+        if (board.canCastle(true, true))
+        {
+            hash ^= castlinghashes[0];
+        }
+        if (board.canCastle(true, false))
+        {
+            hash ^= castlinghashes[1];
+        }
+        if (board.canCastle(false, true))
+        {
+            hash ^= castlinghashes[2];
+        }
+        if (board.canCastle(false, false))
+        {
+            hash ^= castlinghashes[3];
+        }
+        Piece enPassentPawn =  board.enPassentablePawn;
+        if(enPassentPawn != null)
+        {
+            hash ^=  zobristTable[enPassentPawn.position.y][enPassentPawn.position.x][enPassentPawn.isWhite ? 12 : 13];
         }
         return hash;
     }
