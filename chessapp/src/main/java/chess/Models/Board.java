@@ -7,6 +7,12 @@ import chess.Models.Piece.PieceType;
 
 public class Board
 {
+    /**
+     * Stored as zobrist hashes.
+     */
+    public ArrayList<Long> previousPositions = new ArrayList<>();
+    private long cachedHash = 0;
+    private boolean hashIsCached = false;
     public long legalMovesTime = 0;
     public long makeMoveTime = 0;
     public long undoTime = 0;
@@ -98,6 +104,10 @@ public class Board
 
     }
 
+    /**
+     * Makes the given move. Assumes it is legal, and just bruteforces it through.
+     * @param move The given legal move.
+     */
     public void makeMove(Move move)
     {
         long starttime = System.nanoTime();
@@ -195,9 +205,11 @@ public class Board
         whiteToMove = !whiteToMove;
         isInCheck = null;
         playedMoves.add(move);
+        previousPositions.add(getZobristHash());
         makeMoveTime += System.nanoTime() - starttime;
         fullPlyCount += 1;
         halfPlyCount += 1;
+        hashIsCached = false;
     }
 
     /**
@@ -215,7 +227,9 @@ public class Board
         // legal piece to try to move
         {
             Move[] moves = getLegalMoves();
-            if (moves.length == 0)
+            if(isDraw())
+                System.out.println("The game is draw");
+            else if (moves.length == 0)
                 System.out.println("No legal moves");
             else
             {
@@ -321,6 +335,10 @@ public class Board
         whiteToMove = !whiteToMove;
         legalMoves = null;
         isInCheck = null;
+        if (previousPositions.size() >= 1)
+        {
+            previousPositions.remove(previousPositions.size() - 1);
+        }
         if (playedMoves.size() >= 1)
         {
             playedMoves.remove(playedMoves.size() - 1);
@@ -341,6 +359,7 @@ public class Board
         halfPlyCount = move.previousHalfPlyCount;
         fullPlyCount -= 1;
         undoTime += System.nanoTime() - startTime;
+        hashIsCached = false;
     }
 
     /**
@@ -982,14 +1001,36 @@ public class Board
 
     public boolean isDraw()
     {
-        return getLegalMoves().length == 0 && !isInCheck() || halfPlyCount == 50;
+        return getLegalMoves().length == 0 && !isInCheck() || halfPlyCount == 50 || isRepeatedPosition();
     }
+
+    public boolean isRepeatedPosition()
+    {
+        int repetitions = 1;
+        if (halfPlyCount < 3 || previousPositions.size() < 3)
+        {
+            return false;
+        }
+        for (int i = previousPositions.size() - 1; i > Math.max(-1, previousPositions.size() - 1 - halfPlyCount
+                - 1); i--) // subtracting 1 from halfplycount because it starts at 0 with a pawnmove
+                          // or capture
+        {
+            if(previousPositions.get(i) == getZobristHash())
+            {
+                repetitions += 1;
+            }
+        }
+        return repetitions > 2;
+    }
+
 
     public boolean isInCheck()
     {
         if (isInCheck == null)
         {
-            getLegalMoves();
+            Piece king = getAllPieces(PieceType.King, whiteToMove)[0];
+            isInCheck = squareIsAttacked(king.position);
+            return isInCheck;
         }
         return isInCheck;
     }
@@ -1006,7 +1047,12 @@ public class Board
 
     public long getZobristHash()
     {
-        return ZobristHasher.generateHash(this);
+        if(!hashIsCached)
+        {
+            cachedHash = ZobristHasher.generateHash(this);
+            hashIsCached = true;
+        }
+        return cachedHash;
     }
 
     /**
