@@ -29,7 +29,8 @@ public class ZobristHasher
     {
         castlinghashes = new long[4];
         zobristTable = new long[boardHeight][boardWidth][pieceTypes];
-        Random rand = new Random();
+        Random rand = new Random(12); // specific seed for the same hashing values on different
+                                      // instances of the game.
         for (int row = 0; row < boardHeight; row++)
         {
             for (int column = 0; column < boardWidth; column++)
@@ -49,6 +50,7 @@ public class ZobristHasher
 
     static long generateHash(Board board)
     {
+        //TODO - can probably be improved by only looping through the pieces. IDK how important this would be.
         long hash = board.whiteToMove ? whiteToMoveHash : 0;
         for (int row = 0; row < board.board.length; row++)
         {
@@ -57,7 +59,7 @@ public class ZobristHasher
                 Piece piece = board.board[row][column];
                 if (piece != null) // if == null, then just don't do xor
                 {
-                    int whitePiece = piece.isWhite ? 0 : pieceTypes/2;
+                    int whitePiece = piece.isWhite ? 0 : pieceTypes / 2;
                     hash ^= zobristTable[row][column][piece.type.ordinal() + whitePiece];
                 }
             }
@@ -78,10 +80,12 @@ public class ZobristHasher
         {
             hash ^= castlinghashes[3];
         }
-        Piece enPassentPawn =  board.enPassentablePawn;
-        if(enPassentPawn != null)
+        Piece enPassentPawn = board.enPassentablePawn;
+        if (enPassentPawn != null)
         {
-            hash ^=  zobristTable[enPassentPawn.position.y][enPassentPawn.position.x][enPassentPawn.isWhite ? 12 : 13];
+            hash ^= zobristTable[enPassentPawn.position.y][enPassentPawn.position.x][enPassentPawn.isWhite
+                    ? 12
+                    : 13];
         }
         return hash;
     }
