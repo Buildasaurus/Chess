@@ -3,7 +3,7 @@ package chess.Controllers;
 import chess.Settings;
 import chess.Bots.IBot;
 import chess.Bots.Randombot;
-import chess.Bots.V1;
+import chess.Bots.TesterBot;
 import chess.Models.Board;
 import chess.Models.Point;
 import chess.Views.ChessView;
@@ -14,7 +14,7 @@ public class HumanVsComputerController
     ChessView view;
     Board model;
     public boolean computerIsWhite = false;
-    IBot bot = new V1();
+    IBot bot = new TesterBot();
 
     public HumanVsComputerController(ChessView _view, Board _model, boolean _computerIsWhite)
     {
