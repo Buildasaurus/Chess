@@ -41,7 +41,7 @@ public class V1 implements IBot
         int bestEval = -9999999; // Standard really bad eval.
         if (depth <= 0)
         {
-            return SimpleEval.evaluation(board);
+            return SimpleEval.evaluation(board) * (board.whiteToMove ? 1 : -1);
         }
         Move[] legalMoves = board.getLegalMoves();
 
