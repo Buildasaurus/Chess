@@ -14,13 +14,14 @@ public class HumanVsComputerController
     ChessView view;
     Board model;
     public boolean computerIsWhite = false;
-    IBot bot = new TesterBot();
+    IBot bot;
 
-    public HumanVsComputerController(ChessView _view, Board _model, boolean _computerIsWhite)
+    public HumanVsComputerController(ChessView _view, Board _model, boolean _computerIsWhite, IBot computer)
     {
         computerIsWhite = _computerIsWhite;
         model = _model;
         view = _view;
+        bot = computer;
 
         // Add a mouse pressed event handler to the view
         view.setOnMousePressed(this::handleMousePress);

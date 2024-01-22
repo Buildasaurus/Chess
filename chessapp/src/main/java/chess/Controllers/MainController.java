@@ -5,6 +5,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import chess.Bots.TesterBot;
+import chess.Bots.V1;
 import chess.Models.Board;
 import chess.Models.FenReader;
 import chess.Views.ChessView;
@@ -47,7 +49,7 @@ public class MainController implements ButtonClickListener
         board = new ChessView(); // Create your view
         view = new GUIView(board, this); // Create your view
 
-        controller = new HumanVsComputerController(board, model, isWhite);
+        controller = new HumanVsComputerController(board, model, isWhite, new V1());
 
     }
 
@@ -66,9 +68,14 @@ public class MainController implements ButtonClickListener
         {
             controller = new ChessController(board, model);
         }
-        if (buttonName.equals("Human VS PC"))
+        if (buttonName.equals("Human VS TesterBot"))
         {
-            controller = new HumanVsComputerController(board, model, model.whiteToMove);
+            controller = new HumanVsComputerController(board, model, model.whiteToMove, new TesterBot());
+            isWhite = !isWhite;
+        }
+        if (buttonName.equals("Human VS V1"))
+        {
+            controller = new HumanVsComputerController(board, model, model.whiteToMove, new V1());
             isWhite = !isWhite;
         }
     }

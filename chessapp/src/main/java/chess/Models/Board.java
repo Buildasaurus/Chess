@@ -106,6 +106,7 @@ public class Board
 
     /**
      * Makes the given move. Assumes it is legal, and just bruteforces it through.
+     *
      * @param move The given legal move.
      */
     public void makeMove(Move move)
@@ -227,7 +228,7 @@ public class Board
         // legal piece to try to move
         {
             Move[] moves = getLegalMoves();
-            if(isDraw())
+            if (isDraw())
                 System.out.println("The game is draw");
             else if (moves.length == 0)
                 System.out.println("No legal moves");
@@ -868,6 +869,19 @@ public class Board
         return correctPieces.toArray(new Piece[correctPieces.size()]);
     }
 
+    /**
+     * returns the black and white list of pieces
+     * @return
+     */
+    public ArrayList<ArrayList<Piece>> getAllPieceLists()
+    {
+        ArrayList<ArrayList<Piece>> pieces = new ArrayList<ArrayList<Piece>>();
+        pieces.add(blackPieces);
+        pieces.add(whitePieces);
+        return pieces;
+
+    }
+
 
 
     public ArrayList<Move> generateKnightMoves(Point startSquare)
@@ -1001,7 +1015,8 @@ public class Board
 
     public boolean isDraw()
     {
-        return getLegalMoves().length == 0 && !isInCheck() || halfPlyCount == 50 || isRepeatedPosition();
+        return getLegalMoves().length == 0 && !isInCheck() || halfPlyCount == 50
+                || isRepeatedPosition();
     }
 
     public boolean isRepeatedPosition()
@@ -1011,11 +1026,14 @@ public class Board
         {
             return false;
         }
-        for (int i = previousPositions.size() - 1; i > Math.max(-1, previousPositions.size() - 1 - halfPlyCount
-                - 1); i--) // subtracting 1 from halfplycount because it starts at 0 with a pawnmove
-                          // or capture
+        for (int i = previousPositions.size() - 1; i > Math.max(-1,
+                previousPositions.size() - 1 - halfPlyCount - 1); i--) // subtracting 1 from
+                                                                       // halfplycount because it
+                                                                       // starts at 0 with a
+                                                                       // pawnmove
+                                                                       // or capture
         {
-            if(previousPositions.get(i) == getZobristHash())
+            if (previousPositions.get(i) == getZobristHash())
             {
                 repetitions += 1;
             }
@@ -1047,7 +1065,7 @@ public class Board
 
     public long getZobristHash()
     {
-        if(!hashIsCached)
+        if (!hashIsCached)
         {
             cachedHash = ZobristHasher.generateHash(this);
             hashIsCached = true;

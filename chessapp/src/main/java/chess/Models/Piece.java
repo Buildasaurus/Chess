@@ -9,7 +9,7 @@ public class Piece
 {
     public enum PieceType
     {
-        King, Queen, Rook, Bishop, Knight, Pawn, None
+        Pawn, Knight, Bishop, Rook, Queen, King
     }
 
     public boolean hasMoved = false;
