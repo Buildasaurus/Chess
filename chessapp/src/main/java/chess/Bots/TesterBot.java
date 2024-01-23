@@ -2,6 +2,7 @@ package chess.Bots;
 
 import chess.Models.Board;
 import chess.Models.Move;
+import chess.Models.Timer;
 
 
 public class TesterBot implements IBot
@@ -16,7 +17,7 @@ public class TesterBot implements IBot
     long captureCount;
     int checkmateCount = 0;
 
-    public Move think(Board board)
+    public Move think(Board board, Timer timer)
     {
         long starttime = System.nanoTime();
         for (int i = 1; i < 5; i++)

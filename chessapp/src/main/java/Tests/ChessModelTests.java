@@ -77,13 +77,13 @@ public class ChessModelTests
         System.out.println("<<<MATE TEST>>>");
 
 
-        board.movePiece(new Point(4, 1), new Point(4, 3)); // 1.e4
-        board.movePiece(new Point(1, 7), new Point(2, 5)); // 1.Nc6
-        board.movePiece(new Point(3, 0), new Point(7, 4)); // 2.Qh4
-        board.movePiece(new Point(2, 5), new Point(1, 7)); // 2.Nb8
-        board.movePiece(new Point(5, 0), new Point(2, 3)); // 3.Bc4
-        board.movePiece(new Point(1, 7), new Point(2, 5)); // 3.Nc6
-        board.movePiece(new Point(7, 4), new Point(5, 6)); // 4.Qf6#
+        board.tryToMakeMove(new Point(4, 1), new Point(4, 3)); // 1.e4
+        board.tryToMakeMove(new Point(1, 7), new Point(2, 5)); // 1.Nc6
+        board.tryToMakeMove(new Point(3, 0), new Point(7, 4)); // 2.Qh4
+        board.tryToMakeMove(new Point(2, 5), new Point(1, 7)); // 2.Nb8
+        board.tryToMakeMove(new Point(5, 0), new Point(2, 3)); // 3.Bc4
+        board.tryToMakeMove(new Point(1, 7), new Point(2, 5)); // 3.Nc6
+        board.tryToMakeMove(new Point(7, 4), new Point(5, 6)); // 4.Qf6#
 
         Move[] correctMoves = new Move[0];
         compare(board.getLegalMoves(), correctMoves);
@@ -92,11 +92,11 @@ public class ChessModelTests
         board = new Board();
 
 
-        board.movePiece(new Point(4, 1), new Point(4, 2)); // 1.e3
-        board.movePiece(new Point(4, 6), new Point(4, 4)); // 1.e5
-        board.movePiece(new Point(3, 0), new Point(7, 4)); // 2.Qh5
-        board.movePiece(new Point(4, 7), new Point(4, 6)); // 2.Ke7
-        board.movePiece(new Point(7, 4), new Point(4, 4)); // 3.Qxe5#
+        board.tryToMakeMove(new Point(4, 1), new Point(4, 2)); // 1.e3
+        board.tryToMakeMove(new Point(4, 6), new Point(4, 4)); // 1.e5
+        board.tryToMakeMove(new Point(3, 0), new Point(7, 4)); // 2.Qh5
+        board.tryToMakeMove(new Point(4, 7), new Point(4, 6)); // 2.Ke7
+        board.tryToMakeMove(new Point(7, 4), new Point(4, 4)); // 3.Qxe5#
 
         correctMoves = new Move[0];
         compare(board.getLegalMoves(), correctMoves);
@@ -123,8 +123,8 @@ public class ChessModelTests
 
         // bishop on diagonal moves test.
 
-        board.movePiece(new Point(6, 1), new Point(6, 3)); // 1.g4
-        board.movePiece(new Point(6, 6), new Point(6, 5)); // 1.g6
+        board.tryToMakeMove(new Point(6, 1), new Point(6, 3)); // 1.g4
+        board.tryToMakeMove(new Point(6, 6), new Point(6, 5)); // 1.g6
 
         correctMoves = new Move[]
         {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
@@ -143,8 +143,8 @@ public class ChessModelTests
 
         // can't move king into check test
 
-        board.movePiece(new Point(3, 1), new Point(3, 3)); // 2.d5
-        board.movePiece(new Point(5, 7), new Point(7, 5)); // 2.bh6
+        board.tryToMakeMove(new Point(3, 1), new Point(3, 3)); // 2.d5
+        board.tryToMakeMove(new Point(5, 7), new Point(7, 5)); // 2.bh6
 
         correctMoves = new Move[]
         {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
@@ -163,8 +163,8 @@ public class ChessModelTests
             new Move(new Point(2, 0), new Point(7, 5)), new Move(new Point(1, 0), new Point(3, 1))};
         compare(board.getLegalMoves(), correctMoves);
 
-        board.movePiece(new Point(2, 0), new Point(7, 5)); // Bxh6
-        board.movePiece(new Point(6, 7), new Point(7, 5)); // Nxh6
+        board.tryToMakeMove(new Point(2, 0), new Point(7, 5)); // Bxh6
+        board.tryToMakeMove(new Point(6, 7), new Point(7, 5)); // Nxh6
         correctMoves = new Move[]
         {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
             new Move(new Point(1, 1), new Point(1, 2)), new Move(new Point(1, 1), new Point(1, 3)),
@@ -180,46 +180,46 @@ public class ChessModelTests
             new Move(new Point(1, 0), new Point(3, 1)), new Move(new Point(4, 0), new Point(3, 1)),
             new Move(new Point(3, 0), new Point(2, 0))};
         compare(board.getLegalMoves(), correctMoves);
-        board.movePiece(new Point(3, 0), new Point(3, 1)); // Qd2
-        board.movePiece(new Point(7, 5), new Point(5, 4)); // Nf5
-        board.movePiece(new Point(3, 1), new Point(7, 5)); // Qh6
-        board.movePiece(new Point(5, 4), new Point(3, 3)); // Nxd4
-        board.movePiece(new Point(7, 5), new Point(5, 7)); // Qf8+
+        board.tryToMakeMove(new Point(3, 0), new Point(3, 1)); // Qd2
+        board.tryToMakeMove(new Point(7, 5), new Point(5, 4)); // Nf5
+        board.tryToMakeMove(new Point(3, 1), new Point(7, 5)); // Qh6
+        board.tryToMakeMove(new Point(5, 4), new Point(3, 3)); // Nxd4
+        board.tryToMakeMove(new Point(7, 5), new Point(5, 7)); // Qf8+
         correctMoves = new Move[]
         {new Move(new Point(4, 7), new Point(5, 7)), new Move(new Point(7, 7), new Point(5, 7))};
         compare(board.getLegalMoves(), correctMoves);
 
-        board.movePiece(new Point(4, 7), new Point(5, 7)); // Kxf8
-        board.movePiece(new Point(4, 0), new Point(3, 0)); // Kd1
-        board.movePiece(new Point(1, 7), new Point(2, 5)); // Nc6
-        board.movePiece(new Point(3, 0), new Point(4, 0)); // Ke1
-        board.movePiece(new Point(3, 3), new Point(2, 1)); // Nxc2+
+        board.tryToMakeMove(new Point(4, 7), new Point(5, 7)); // Kxf8
+        board.tryToMakeMove(new Point(4, 0), new Point(3, 0)); // Kd1
+        board.tryToMakeMove(new Point(1, 7), new Point(2, 5)); // Nc6
+        board.tryToMakeMove(new Point(3, 0), new Point(4, 0)); // Ke1
+        board.tryToMakeMove(new Point(3, 3), new Point(2, 1)); // Nxc2+
 
         correctMoves = new Move[]
         {new Move(new Point(4, 0), new Point(3, 0)), new Move(new Point(4, 0), new Point(3, 1))};
         compare(board.getLegalMoves(), correctMoves);
 
 
-        board.movePiece(new Point(4, 0), new Point(3, 1)); // Kd2
-        board.movePiece(new Point(1, 6), new Point(1, 5)); // b6
-        board.movePiece(new Point(3, 1), new Point(3, 2)); // Kd3
-        board.movePiece(new Point(2, 7), new Point(0, 5)); // Ba6+
+        board.tryToMakeMove(new Point(4, 0), new Point(3, 1)); // Kd2
+        board.tryToMakeMove(new Point(1, 6), new Point(1, 5)); // b6
+        board.tryToMakeMove(new Point(3, 1), new Point(3, 2)); // Kd3
+        board.tryToMakeMove(new Point(2, 7), new Point(0, 5)); // Ba6+
         correctMoves = new Move[]
         {new Move(new Point(3, 2), new Point(3, 1)), new Move(new Point(3, 2), new Point(2, 2)),
             new Move(new Point(3, 2), new Point(2, 1)), new Move(new Point(3, 2), new Point(4, 3))};
         compare(board.getLegalMoves(), correctMoves);
 
-        board.movePiece(new Point(3, 2), new Point(4, 3)); // Ke4
-        board.movePiece(new Point(4, 6), new Point(4, 5)); // e6
-        board.movePiece(new Point(4, 3), new Point(5, 2)); // Kf3
-        board.movePiece(new Point(3, 7), new Point(5, 5)); // Qf6+
+        board.tryToMakeMove(new Point(3, 2), new Point(4, 3)); // Ke4
+        board.tryToMakeMove(new Point(4, 6), new Point(4, 5)); // e6
+        board.tryToMakeMove(new Point(4, 3), new Point(5, 2)); // Kf3
+        board.tryToMakeMove(new Point(3, 7), new Point(5, 5)); // Qf6+
         correctMoves = new Move[]
         {new Move(new Point(5, 2), new Point(6, 2)), new Move(new Point(5, 2), new Point(4, 3)),
             new Move(new Point(5, 2), new Point(6, 1))};
         compare(board.getLegalMoves(), correctMoves);
 
-        board.movePiece(new Point(5, 2), new Point(6, 2)); // Kg3
-        board.movePiece(new Point(5, 5), new Point(4, 4)); // Qe5+
+        board.tryToMakeMove(new Point(5, 2), new Point(6, 2)); // Kg3
+        board.tryToMakeMove(new Point(5, 5), new Point(4, 4)); // Qe5+
     }
 
     void testEnPassent()
@@ -228,10 +228,10 @@ public class ChessModelTests
         System.out.println("<<<EN PASSENT TEST>>>");
 
 
-        board.movePiece(new Point(6, 1), new Point(6, 3)); // 1.g4
-        board.movePiece(new Point(6, 6), new Point(6, 5)); // 1.g6
-        board.movePiece(new Point(6, 3), new Point(6, 4)); // 2.g5
-        board.movePiece(new Point(5, 6), new Point(5, 4)); // 2.f5
+        board.tryToMakeMove(new Point(6, 1), new Point(6, 3)); // 1.g4
+        board.tryToMakeMove(new Point(6, 6), new Point(6, 5)); // 1.g6
+        board.tryToMakeMove(new Point(6, 3), new Point(6, 4)); // 2.g5
+        board.tryToMakeMove(new Point(5, 6), new Point(5, 4)); // 2.f5
 
         Move[] correctMoves =
         {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
@@ -247,7 +247,7 @@ public class ChessModelTests
             new Move(new Point(5, 0), new Point(7, 2))};
         compare(board.getLegalMoves(), correctMoves);
 
-        board.movePiece(new Point(6, 4), new Point(5, 5)); // 3.gxf
+        board.tryToMakeMove(new Point(6, 4), new Point(5, 5)); // 3.gxf
 
         if (board.getPieceAtPoint(new Point(4, 5)) != null)
         {
@@ -262,14 +262,14 @@ public class ChessModelTests
         System.out.println("<<<KING LEGAL MOVES TEST>>>");
 
 
-        board.movePiece(new Point(5, 1), new Point(5, 2)); // 1.f3
-        board.movePiece(new Point(4, 6), new Point(4, 5)); // 1.e6
-        board.movePiece(new Point(4, 0), new Point(5, 1)); // 2.Kf2
-        board.movePiece(new Point(1, 7), new Point(2, 5)); // 2.Nc6
-        board.movePiece(new Point(5, 1), new Point(4, 2)); // 2.Ke3
-        board.movePiece(new Point(5, 7), new Point(4, 6)); // 2.Be7
-        board.movePiece(new Point(4, 2), new Point(5, 3)); // 4.Kf4
-        board.movePiece(new Point(6, 7), new Point(5, 5)); // 4.Nf6
+        board.tryToMakeMove(new Point(5, 1), new Point(5, 2)); // 1.f3
+        board.tryToMakeMove(new Point(4, 6), new Point(4, 5)); // 1.e6
+        board.tryToMakeMove(new Point(4, 0), new Point(5, 1)); // 2.Kf2
+        board.tryToMakeMove(new Point(1, 7), new Point(2, 5)); // 2.Nc6
+        board.tryToMakeMove(new Point(5, 1), new Point(4, 2)); // 2.Ke3
+        board.tryToMakeMove(new Point(5, 7), new Point(4, 6)); // 2.Be7
+        board.tryToMakeMove(new Point(4, 2), new Point(5, 3)); // 4.Kf4
+        board.tryToMakeMove(new Point(6, 7), new Point(5, 5)); // 4.Nf6
 
 
 
@@ -293,12 +293,12 @@ public class ChessModelTests
         board = new Board();
 
 
-        board.movePiece(new Point(5, 1), new Point(5, 2)); // 1.f3
-        board.movePiece(new Point(6, 6), new Point(6, 5)); // 1.g6
-        board.movePiece(new Point(4, 0), new Point(5, 1)); // 2.Kf2
-        board.movePiece(new Point(5, 7), new Point(6, 6)); // 2.Bg7
-        board.movePiece(new Point(5, 2), new Point(5, 3)); // 3.f4
-        board.movePiece(new Point(6, 6), new Point(4, 4)); // 3.Be5
+        board.tryToMakeMove(new Point(5, 1), new Point(5, 2)); // 1.f3
+        board.tryToMakeMove(new Point(6, 6), new Point(6, 5)); // 1.g6
+        board.tryToMakeMove(new Point(4, 0), new Point(5, 1)); // 2.Kf2
+        board.tryToMakeMove(new Point(5, 7), new Point(6, 6)); // 2.Bg7
+        board.tryToMakeMove(new Point(5, 2), new Point(5, 3)); // 3.f4
+        board.tryToMakeMove(new Point(6, 6), new Point(4, 4)); // 3.Be5
 
 
         correctMoves = new Move[]
@@ -322,14 +322,14 @@ public class ChessModelTests
         board = new Board();
 
 
-        board.movePiece(new Point(5, 1), new Point(5, 2)); // 1.f3
-        board.movePiece(new Point(5, 6), new Point(5, 5)); // 1.f6
-        board.movePiece(new Point(4, 0), new Point(5, 1)); // 2.Kf2
-        board.movePiece(new Point(4, 7), new Point(5, 6)); // 2.Kf7
-        board.movePiece(new Point(5, 1), new Point(4, 2)); // 3.Ke3
-        board.movePiece(new Point(5, 6), new Point(4, 5)); // 3.Ke6
-        board.movePiece(new Point(4, 2), new Point(3, 2)); // 4.Kd3
-        board.movePiece(new Point(4, 5), new Point(3, 4)); // 4.Kd5
+        board.tryToMakeMove(new Point(5, 1), new Point(5, 2)); // 1.f3
+        board.tryToMakeMove(new Point(5, 6), new Point(5, 5)); // 1.f6
+        board.tryToMakeMove(new Point(4, 0), new Point(5, 1)); // 2.Kf2
+        board.tryToMakeMove(new Point(4, 7), new Point(5, 6)); // 2.Kf7
+        board.tryToMakeMove(new Point(5, 1), new Point(4, 2)); // 3.Ke3
+        board.tryToMakeMove(new Point(5, 6), new Point(4, 5)); // 3.Ke6
+        board.tryToMakeMove(new Point(4, 2), new Point(3, 2)); // 4.Kd3
+        board.tryToMakeMove(new Point(4, 5), new Point(3, 4)); // 4.Kd5
 
 
         correctMoves = new Move[]
@@ -352,12 +352,12 @@ public class ChessModelTests
         System.out.println("<<<PINNED BISHOPS TEST>>>");
 
 
-        board.movePiece(new Point(4, 1), new Point(4, 3)); // 1.e4
-        board.movePiece(new Point(4, 6), new Point(4, 4)); // 1.e5
-        board.movePiece(new Point(3, 1), new Point(3, 3)); // 2.d4
-        board.movePiece(new Point(3, 7), new Point(7, 3)); // 2.Qh4
-        board.movePiece(new Point(5, 0), new Point(4, 1)); // 3.Be2
-        board.movePiece(new Point(7, 3), new Point(4, 3)); // 3.Qxe4
+        board.tryToMakeMove(new Point(4, 1), new Point(4, 3)); // 1.e4
+        board.tryToMakeMove(new Point(4, 6), new Point(4, 4)); // 1.e5
+        board.tryToMakeMove(new Point(3, 1), new Point(3, 3)); // 2.d4
+        board.tryToMakeMove(new Point(3, 7), new Point(7, 3)); // 2.Qh4
+        board.tryToMakeMove(new Point(5, 0), new Point(4, 1)); // 3.Be2
+        board.tryToMakeMove(new Point(7, 3), new Point(4, 3)); // 3.Qxe4
 
         // e2 bishop is pinned now
         Move[] correctMoves =
@@ -378,8 +378,8 @@ public class ChessModelTests
         compare(board.getLegalMoves(), correctMoves);
 
 
-        board.movePiece(new Point(2, 0), new Point(4, 2)); // 4.Be3
-        board.movePiece(new Point(4, 4), new Point(3, 3)); // 4.exd
+        board.tryToMakeMove(new Point(2, 0), new Point(4, 2)); // 4.Be3
+        board.tryToMakeMove(new Point(4, 4), new Point(3, 3)); // 4.exd
         correctMoves = new Move[]
         {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
             new Move(new Point(1, 1), new Point(1, 2)), new Move(new Point(1, 1), new Point(1, 3)),
@@ -407,12 +407,12 @@ public class ChessModelTests
         board = new Board();
 
 
-        board.movePiece(new Point(4, 1), new Point(4, 3)); // 1.e4
-        board.movePiece(new Point(4, 6), new Point(4, 4)); // 1.e5
-        board.movePiece(new Point(3, 0), new Point(4, 1)); // 2.Qe2
-        board.movePiece(new Point(3, 7), new Point(7, 3)); // 2.Qh4
-        board.movePiece(new Point(4, 1), new Point(4, 2)); // 3.Qe3
-        board.movePiece(new Point(7, 3), new Point(4, 3)); // 3.Qxe4
+        board.tryToMakeMove(new Point(4, 1), new Point(4, 3)); // 1.e4
+        board.tryToMakeMove(new Point(4, 6), new Point(4, 4)); // 1.e5
+        board.tryToMakeMove(new Point(3, 0), new Point(4, 1)); // 2.Qe2
+        board.tryToMakeMove(new Point(3, 7), new Point(7, 3)); // 2.Qh4
+        board.tryToMakeMove(new Point(4, 1), new Point(4, 2)); // 3.Qe3
+        board.tryToMakeMove(new Point(7, 3), new Point(4, 3)); // 3.Qxe4
 
 
         correctMoves = new Move[]
@@ -441,12 +441,12 @@ public class ChessModelTests
         System.out.println("<<<CASTLING TEST>>>");
 
 
-        board.movePiece(new Point(6, 1), new Point(6, 2)); // 1.g3
-        board.movePiece(new Point(4, 6), new Point(4, 5)); // 1.e6
-        board.movePiece(new Point(5, 0), new Point(6, 1)); // 2.Bg2
-        board.movePiece(new Point(4, 5), new Point(4, 4)); // 2.e5
-        board.movePiece(new Point(6, 0), new Point(5, 2)); // 3.Nf3
-        board.movePiece(new Point(4, 4), new Point(4, 3)); // 1.e4
+        board.tryToMakeMove(new Point(6, 1), new Point(6, 2)); // 1.g3
+        board.tryToMakeMove(new Point(4, 6), new Point(4, 5)); // 1.e6
+        board.tryToMakeMove(new Point(5, 0), new Point(6, 1)); // 2.Bg2
+        board.tryToMakeMove(new Point(4, 5), new Point(4, 4)); // 2.e5
+        board.tryToMakeMove(new Point(6, 0), new Point(5, 2)); // 3.Nf3
+        board.tryToMakeMove(new Point(4, 4), new Point(4, 3)); // 1.e4
         // Start position test
         Move[] correctMoves =
         {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),
@@ -465,7 +465,7 @@ public class ChessModelTests
             new Move(new Point(7, 0), new Point(5, 0)),
             new Move(new Point(7, 0), new Point(6, 0)),};
         compare(board.getLegalMoves(), correctMoves);
-        board.movePiece(new Point(4, 0), new Point(6, 0)); // 4. O-O
+        board.tryToMakeMove(new Point(4, 0), new Point(6, 0)); // 4. O-O
         Piece supposedRook = board.getPieceAtPoint(new Point(5, 0));
         if (supposedRook == null || supposedRook.type != PieceType.Rook)
         {
@@ -484,16 +484,16 @@ public class ChessModelTests
         System.out.println("<<<PROMOTION TEST>>>");
 
 
-        board.movePiece(new Point(7, 1), new Point(7, 3)); // 1.h4
-        board.movePiece(new Point(0, 6), new Point(0, 4)); // 1.a5
-        board.movePiece(new Point(7, 3), new Point(7, 4)); // 2.h5
-        board.movePiece(new Point(0, 4), new Point(0, 3)); // 2.a4
-        board.movePiece(new Point(7, 4), new Point(7, 5)); // 3.h6
-        board.movePiece(new Point(0, 3), new Point(0, 2)); // 3.a3
-        board.movePiece(new Point(7, 5), new Point(6, 6)); // 3.hxg
-        board.movePiece(new Point(0, 2), new Point(1, 1)); // 3.axb
-        board.movePiece(new Point(6, 6), new Point(7, 7)); // 3.gxhQ
-        board.movePiece(new Point(1, 1), new Point(0, 0)); // 3.bxaQ
+        board.tryToMakeMove(new Point(7, 1), new Point(7, 3)); // 1.h4
+        board.tryToMakeMove(new Point(0, 6), new Point(0, 4)); // 1.a5
+        board.tryToMakeMove(new Point(7, 3), new Point(7, 4)); // 2.h5
+        board.tryToMakeMove(new Point(0, 4), new Point(0, 3)); // 2.a4
+        board.tryToMakeMove(new Point(7, 4), new Point(7, 5)); // 3.h6
+        board.tryToMakeMove(new Point(0, 3), new Point(0, 2)); // 3.a3
+        board.tryToMakeMove(new Point(7, 5), new Point(6, 6)); // 3.hxg
+        board.tryToMakeMove(new Point(0, 2), new Point(1, 1)); // 3.axb
+        board.tryToMakeMove(new Point(6, 6), new Point(7, 7)); // 3.gxhQ
+        board.tryToMakeMove(new Point(1, 1), new Point(0, 0)); // 3.bxaQ
         // At this point you should be able to take the other queen at a1
         Move[] correctMoves =
         {new Move(new Point(0, 1), new Point(0, 2)), new Move(new Point(0, 1), new Point(0, 3)),

@@ -1,8 +1,6 @@
 package chess.Models;
 
-import java.io.FileInputStream;
 import chess.Resources;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class Piece

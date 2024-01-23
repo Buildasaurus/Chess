@@ -96,11 +96,12 @@ public class Board
      * @param start
      * @param end
      */
-    public void movePiece(Point start, Point end)
+    public boolean tryToMakeMove(Point start, Point end)
     {
         Move move = new Move(start, end, halfPlyCount);
-        tryToMakeMove(move);
+        boolean succesful = tryToMakeMove(move);
         System.out.println(halfPlyCount);
+        return succesful;
 
     }
 
@@ -215,12 +216,12 @@ public class Board
 
     /**
      * Attempts to move a piece from the given startpoint, to the endpoint. If it isn't possible, it
-     * does nothing. Will generate all legal moves.
+     * does nothing and returns false. Will generate all legal moves.
      *
      * @param start The start square that the piece moves from
      * @param end The square that the piece wants to move to
      */
-    public void tryToMakeMove(Move move)
+    public boolean tryToMakeMove(Move move)
     {
         Point start = move.startSquare;
         Piece pieceToMove = board[start.y][start.x];
@@ -234,25 +235,22 @@ public class Board
                 System.out.println("No legal moves");
             else
             {
-                boolean wasLegalMove = false;
                 for (Move legalMove : moves)
                 {
                     if (move.equals(legalMove))
                     {
                         makeMove(legalMove);
-                        wasLegalMove = true;
+                        return true;
                     }
                 }
-                if (!wasLegalMove)
-                {
-                    System.out.println("The following move isn't legal: " + move);
-                }
+                System.out.println("The following move isn't legal: " + move);
             }
         }
         else
         {
             System.out.println("piece is null, or not of the right color.");
         }
+        return false;
     }
 
     /**

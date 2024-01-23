@@ -1,95 +1,73 @@
 package chess.Controllers;
 
-import chess.Settings;
 import chess.Bots.IBot;
-import chess.Bots.Randombot;
-import chess.Bots.TesterBot;
 import chess.Models.Board;
-import chess.Models.Point;
+import chess.Models.Move;
 import chess.Views.ChessView;
 import javafx.scene.input.MouseEvent;
 
-public class HumanVsComputerController
+public class HumanVsComputerController extends GameController
 {
-    ChessView view;
-    Board model;
     public boolean computerIsWhite = false;
     IBot bot;
 
-    public HumanVsComputerController(ChessView _view, Board _model, boolean _computerIsWhite, IBot computer)
+    public HumanVsComputerController(ChessView _view, Board _model, boolean _computerIsWhite,
+            IBot computer)
     {
+        super(_view, _model);
         computerIsWhite = _computerIsWhite;
-        model = _model;
-        view = _view;
         bot = computer;
-
-        // Add a mouse pressed event handler to the view
-        view.setOnMousePressed(this::handleMousePress);
-
-        // Add a mouse released event handler to the view
-        view.setOnMouseReleased(this::handleMouseRelease);
-        view.initializeBoard(model.board);
+        if (computerIsWhite && model.whiteToMove)
+        {
+            makeComputerMove();
+        }
     }
 
-    Point start;
-
-    private void handleMousePress(MouseEvent event)
+    private void makeComputerMove()
     {
-        // Get the x and y coordinates of the mouse click
-        double x = event.getX();
-        double y = Settings.getBoardSize() - event.getY();
-
-        // Convert the coordinates to a position on the chess board
-        int row = (int) (y / Settings.getColumnWidth());
-        int col = (int) (x / Settings.getColumnWidth());
-
-        start = new Point(col, row);
-    }
-
-    Point end;
-
-    private void handleMouseRelease(MouseEvent event)
-    {
-        if (model.isCheckmate())
+        Move botMove = bot.think(model, timer);
+        if (timer.remainingTime(computerIsWhite) < 0)
         {
-            return;
+            System.out.println("PC ran out of time");
         }
-        // Get the x and y coordinates of the mouse click
-        double x = event.getX();
-        double y = Settings.getBoardSize() - event.getY();
-
-        // Convert the coordinates to a position on the chess board
-        int row = (int) (y / Settings.getColumnWidth());
-        int col = (int) (x / Settings.getColumnWidth());
-
-        end = new Point(col, row);
-        if (model.whiteToMove != computerIsWhite)
+        else if (model.tryToMakeMove(botMove))
         {
-            model.movePiece(start, end);
-        }
-        // Handle mouse release event
-        view.updateBoard(model.board);
-
-        if (model.isCheckmate())
-        {
-            view.showWinner(!model.whiteToMove);
-        }
-        else if (model.isDraw())
-        {
-            view.displayDraw();
+            timer.switchTurn();
+            System.out.println("pc moved");
         }
         else
         {
-            if (model.whiteToMove == computerIsWhite)
-            {
-                model.tryToMakeMove(bot.think(model));
-                view.updateBoard(model.board);
-                if (model.isCheckmate())
-                {
-                    view.showWinner(!model.whiteToMove);
-                }
-            }
+            System.out.println("Computer made illegal move, human won.");
         }
-
+        refreshView();
     }
+
+    protected void handleMouseRelease(MouseEvent event)
+    {
+        super.handleMouseRelease(event);
+        if (timer.remainingTime(!computerIsWhite) < 0)
+        {
+            System.out.println("You lost on time!");
+        }
+        if (model.isCheckmate()) // early catch, if the game already is over.
+        {
+            return;
+        }
+        if (model.whiteToMove != computerIsWhite)
+        {
+            if (model.tryToMakeMove(start, end))
+            {
+                timer.switchTurn();
+                refreshView();
+                makeComputerMove();
+            }
+            else
+            {
+                System.out.println("Illegal move, try again.");
+            }
+
+        }
+    }
+
+
 }

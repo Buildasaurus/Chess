@@ -3,6 +3,7 @@ package chess.Bots;
 import chess.Bots.Evaluation.SimpleEval;
 import chess.Models.Board;
 import chess.Models.Move;
+import chess.Models.Timer;
 
 
 public class V1 implements IBot
@@ -16,19 +17,23 @@ public class V1 implements IBot
     long checkCount;
     long captureCount;
     int checkmateCount = 0;
+    Timer timer;
+    Board board;
 
-    public Move think(Board board)
+    public Move think(Board board, Timer timer)
     {
+        this.timer = timer;
+        this.board = board;
         for (int i = 1; i < 4; i++)
         {
-            negamax(board, i, 0);
+            negamax(i, 0);
         }
 
         return bestMove;
     }
 
 
-    public int negamax(Board board, int depth, int ply)
+    public int negamax(int depth, int ply)
     {
         if(board.isCheckmate())
         {
@@ -48,7 +53,7 @@ public class V1 implements IBot
         for (Move move : legalMoves)
         {
             board.makeMove(move);
-            int eval = -negamax(board, depth - 1, ply + 1);
+            int eval = -negamax(depth - 1, ply + 1);
             if(eval > bestEval)
             {
                 bestEval = eval;

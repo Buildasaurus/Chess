@@ -13,8 +13,7 @@ import chess.Views.ChessView;
 import chess.Views.GUIView;
 import chess.Views.GUIView.ButtonClickListener;
 import java.nio.file.*;
-import java.io.IOException;
-import java.util.List;
+
 
 public class MainController implements ButtonClickListener
 {
@@ -28,7 +27,6 @@ public class MainController implements ButtonClickListener
 
     public MainController()
     {
-
         try
         {
             // Get the path to the fens.txt file in the resources folder
@@ -43,11 +41,9 @@ public class MainController implements ButtonClickListener
             e.printStackTrace();
         }
 
-        model = FenReader.loadFenString(fenStrings[currentFenString % fenStrings.length]); // Create
-                                                                                           // your
-                                                                                           // model
-        board = new ChessView(); // Create your view
-        view = new GUIView(board, this); // Create your view
+        model = FenReader.loadFenString(fenStrings[currentFenString % fenStrings.length]);
+        board = new ChessView();
+        view = new GUIView(board, this);
 
         controller = new HumanVsComputerController(board, model, isWhite, new V1());
 
@@ -66,11 +62,12 @@ public class MainController implements ButtonClickListener
 
         if (buttonName.equals("Human VS Human"))
         {
-            controller = new ChessController(board, model);
+            controller = new HumanVsHumanController(board, model);
         }
         if (buttonName.equals("Human VS TesterBot"))
         {
-            controller = new HumanVsComputerController(board, model, model.whiteToMove, new TesterBot());
+            controller =
+                    new HumanVsComputerController(board, model, model.whiteToMove, new TesterBot());
             isWhite = !isWhite;
         }
         if (buttonName.equals("Human VS V1"))
