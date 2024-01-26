@@ -26,20 +26,30 @@ public class V1 implements IBot
         this.board = board;
         for (int i = 1; i < 4; i++)
         {
-            negamax(i, 0);
+            negamax(i, -9999999, 9999999, 0);
         }
 
         return bestMove;
     }
 
-
-    public int negamax(int depth, int ply)
+    /**
+     * figures out the eval of the given position. If at ply 1, also overwrites the best move.
+     *
+     * @param depth The depth to search
+     * @param alpha If there is found a move under this value, then it's too bad to choose, as
+     *        another move sequence is better
+     * @param beta If you find a move above this value, then the oponnent won't allow you into this
+     *        sequence, because it's too good
+     * @param ply How deep we have searched for now.
+     * @return
+     */
+    public int negamax(int depth, int alpha, int beta, int ply)
     {
-        if(board.isCheckmate())
+        if (board.isCheckmate())
         {
             return -99999999 + ply;
         }
-        if(board.isDraw())
+        if (board.isDraw())
         {
             return 0;
         }
@@ -53,16 +63,29 @@ public class V1 implements IBot
         for (Move move : legalMoves)
         {
             board.makeMove(move);
-            int eval = -negamax(depth - 1, ply + 1);
-            if(eval > bestEval)
+            int eval = -negamax(depth - 1, beta, alpha, ply + 1);
+            board.undoMove(move);
+            if (eval > bestEval)
             {
                 bestEval = eval;
-                if(ply == 0)
+                if (ply == 0)
                 {
                     bestMove = move;
                 }
+                /* untested for now
+                if (eval > beta) // beta cutoff, this position is too good. Oponnent wouldn't get on
+                                 // this branch in the first place.
+                {
+                    return eval;
+                } */
             }
-            board.undoMove(move);
+
+            /*
+            if (eval < alpha) // alpha cutoff, we have another branch that at the least is
+            // better than this.
+            {
+                return eval;
+            } */
         }
         return bestEval;
     }
