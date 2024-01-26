@@ -19,7 +19,7 @@ public class GUIView extends BorderPane
         this.chessView = chessView;
 
         // Create buttons for different game modes
-        button1 = new Button("Human VS PC");
+        button1 = new Button("Human VS TesterBot");
         button2 = new Button("Human VS Human");
         button3 = new Button("Human VS V1");
 
