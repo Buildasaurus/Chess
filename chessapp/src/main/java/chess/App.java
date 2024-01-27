@@ -1,6 +1,5 @@
 package chess;
 
-import java.io.Console;
 import java.lang.reflect.Constructor;
 import java.util.Set;
 import org.reflections.Reflections;
@@ -21,12 +20,8 @@ public class App extends Application
     @Override
     public void start(Stage stage)
     {
-
-
-
         MainController controller = new MainController();
         // Create your controller
-
         scene = new Scene(controller.view, Settings.WindowSize, Settings.WindowSize); // Add the
                                                                                       // view to the
                                                                                       // scene.
@@ -46,7 +41,7 @@ public class App extends Application
 
     public static void main(String[] args)
     {
-        if (args.length > 1 && args[0] == "uci")
+        if (args.length > 1 && args[0].equals("uci"))
         {
             System.out.println("Starting up in UCI mode...");
             startUCI(args);
@@ -61,11 +56,12 @@ public class App extends Application
 
         // Nice StackOverflow code to dynamiccaly get all classes that extends fruit, and spawn them
         // https://stackoverflow.com/questions/205573/at-runtime-find-all-classes-in-a-java-application-that-extend-a-base-class
-        Reflections reflections = new Reflections("com.snake");
+        Reflections reflections = new Reflections("chess");
         Set<Class<? extends IBot>> classes = reflections.getSubTypesOf(chess.Bots.IBot.class);
         for (Class<? extends IBot> aClass : classes)
         {
-            if (aClass.getName().equals(args[1]))
+            System.out.println(aClass.getSimpleName());
+            if (aClass.getSimpleName().equals(args[1]))
             {
                 try
                 { // cursed code from
@@ -84,7 +80,7 @@ public class App extends Application
         }
         if (bot == null)
         {
-            System.err.println("Couldn't fine the bot with the name" + args[1]);
+            System.err.println("Couldn't find the bot with the name " + args[1]);
             return;
         }
 

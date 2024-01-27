@@ -1,6 +1,7 @@
 package chess.Models;
 
 import chess.Models.Piece.PieceType;
+import chess.Utils.BoardHelper;
 
 public class Move
 {
@@ -18,7 +19,8 @@ public class Move
 
     public Move(Point _startSquare, Point _targetSquare)
     {
-        System.out.println("Warning, incorrect constructor! - Only for testing - missing halfMoveCount");
+        System.out.println(
+                "Warning, incorrect constructor! - Only for testing - missing halfMoveCount");
         firstMove = false;
         startSquare = _startSquare;
         targetSquare = _targetSquare;
@@ -39,6 +41,45 @@ public class Move
         promotionType = PieceType.Queen;
     }
 
+    /**
+     * Creates a move from a UCI name. Eg turns e2e4 into the move e2e4. If promotion, the UCI
+     * notation should include what it promotes to.
+     *
+     * @param moveNameUCI
+     * @param board
+     */
+    public Move(String moveNameUCI)
+    {
+        this(BoardHelper.squareIndexFromName(moveNameUCI.charAt(0) + "" + moveNameUCI.charAt(1)),
+                BoardHelper
+                        .squareIndexFromName(moveNameUCI.charAt(2) + "" + moveNameUCI.charAt(3)));
+
+        char promoteChar =
+                moveNameUCI.length() > 3 ? moveNameUCI.charAt(moveNameUCI.length() - 1) : ' ';
+
+        PieceType promotePieceType;
+        switch (promoteChar)
+        {
+            case 'q':
+                promotePieceType = PieceType.Queen;
+                break;
+            case 'r':
+                promotePieceType = PieceType.Rook;
+                break;
+            case 'n':
+                promotePieceType = PieceType.Knight;
+                break;
+            case 'b':
+                promotePieceType = PieceType.Bishop;
+                break;
+            default:
+                promotePieceType = PieceType.Queen;
+                break;
+        }
+
+        this.promotionType = promotePieceType;
+    }
+
     public boolean equals(Move otherMove)
     {
         return otherMove.startSquare.equals(startSquare)
@@ -52,14 +93,33 @@ public class Move
     @Override
     public String toString()
     {
+        String promotionString;
+        switch (capturePieceType)
+        {
+            case Queen:
+                promotionString = "Q";
+                break;
+            case Knight:
+                promotionString = "N";
+                break;
+            case Rook:
+                promotionString = "R";
+                break;
+            case Bishop:
+                promotionString = "B";
+                break;
+            default:
+                promotionString = "";
+                break;
+        }
         return (char) (startSquare.x + 65) + Integer.toString(startSquare.y + 1)
                 + (char) (targetSquare.x + 65) + Integer.toString(targetSquare.y + 1)
-                + (isPromotion ? "Q" : "");
+                + promotionString;
     }
 
     public void setCapturePieceType(PieceType type)
     {
-        if(type == PieceType.King)
+        if (type == PieceType.King)
         {
             System.out.println("Someone just took a king...");
         }
@@ -87,7 +147,7 @@ public class Move
 
     public Move copy()
     {
-        Move move = new Move(startSquare, targetSquare,previousHalfPlyCount);
+        Move move = new Move(startSquare, targetSquare, previousHalfPlyCount);
         move.setFirstMove(firstMove);
         move.capturedPieceHadMoved = capturedPieceHadMoved;
         move.isCapture = isCapture;
