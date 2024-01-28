@@ -12,3 +12,6 @@ go wtime 8080 btime 8080 winc 80 binc 80
 - testing -
 1024 rounds - 8+0.08 + 4 core
 "C:\Program Files (x86)\Cute Chess\cutechess-cli.exe"  -engine name="V1" cmd="engine.bat" arg="uci" arg="V1" -engine name="V1" cmd="engine.bat" arg="uci" arg="V1" -each proto=uci tc="8+0.08" -maxmoves 200 -games 2 -rounds 512 -ratinginterval 20 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -concurrency 4 -openings file="UHO_XXL_+0.80_+1.09.epd" format="epd"
+
+1024 rounds - 30+0.2 + 6 core
+"C:\Program Files (x86)\Cute Chess\cutechess-cli.exe"  -engine name="V1" cmd="engine.bat" arg="uci" arg="V1" -engine name="Random bot :O" cmd="engine.bat" arg="uci" arg="Randombot" -each proto=uci tc="30+0.2" -maxmoves 200 -games 2 -rounds 512 -ratinginterval 20 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -concurrency 6 -openings file="UHO_XXL_+0.80_+1.09.epd" format="epd"
