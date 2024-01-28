@@ -27,7 +27,7 @@ public abstract class GameController
         view.setOnMouseReleased(this::handleMouseRelease);
         view.initializeBoard(model.board);
 
-        timer = new Timer(60, 60, 10, model.whiteToMove);
+        timer = new Timer(60000, 60000, 1000, model.whiteToMove);
     }
 
 

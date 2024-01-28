@@ -1,5 +1,6 @@
 package chess.Bots;
 
+import java.util.Arrays;
 import chess.Bots.Evaluation.SimpleEval;
 import chess.Models.Board;
 import chess.Models.Move;
@@ -22,13 +23,13 @@ public class V1 implements IBot
 
     public Move think(Board board, Timer timer)
     {
+        bestMove = null;
         this.timer = timer;
         this.board = board;
-        for (int i = 1; i < 4; i++)
+        for (int i = 2; i < 3; i++)
         {
             negamax(i, -9999999, 9999999, 0);
         }
-
         return bestMove;
     }
 
@@ -45,14 +46,16 @@ public class V1 implements IBot
      */
     public int negamax(int depth, int alpha, int beta, int ply)
     {
+        boolean isRoot = ply == 0;
         if (board.isCheckmate())
         {
             return -99999999 + ply;
         }
-        if (board.isDraw())
+        if (!isRoot && board.isDraw())
         {
             return 0;
         }
+
         int bestEval = -9999999; // Standard really bad eval.
         if (depth <= 0)
         {
@@ -60,18 +63,22 @@ public class V1 implements IBot
         }
         Move[] legalMoves = board.getLegalMoves();
 
+
         for (Move move : legalMoves)
         {
             board.makeMove(move);
             int eval = -negamax(depth - 1, beta, alpha, ply + 1);
             board.undoMove(move);
+
             if (eval > bestEval)
             {
-                bestEval = eval;
-                if (ply == 0)
+                System.out.println();
+                if (isRoot)
                 {
                     bestMove = move;
                 }
+                bestEval = eval;
+
                 /* untested for now
                 if (eval > beta) // beta cutoff, this position is too good. Oponnent wouldn't get on
                                  // this branch in the first place.

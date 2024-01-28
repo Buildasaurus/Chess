@@ -16,16 +16,16 @@ public class Timer
     /**
      * A Timer can be used to keep track of the time of the game.
      *
-     * @param blackTime The time for the black player, in seconds.
-     * @param whiteTime The time for the black player, in seconds.
-     * @param increment The increment time for both players, in seconds.
+     * @param blackTime The time for the black player, in miliseconds.
+     * @param whiteTime The time for the black player, in miliseconds.
+     * @param increment The increment time for both players, in miliseconds.
      */
-    public Timer(long blackTime, long whiteTime, long increment, boolean whiteToMove)
+    public Timer(long whiteTime, long blackTime, long increment, boolean whiteToMove)
     {
-        whiteRemainingTime = whiteTime * 1_000_000_000;
-        blackRemainingTime = blackTime * 1_000_000_000;
-        blackIncrement = increment * 1_000_000_000;
-        whiteIncrement = increment * 1_000_000_000;
+        whiteRemainingTime = whiteTime * 1_000_000;
+        blackRemainingTime = blackTime * 1_000_000;
+        blackIncrement = increment * 1_000_000;
+        whiteIncrement = increment * 1_000_000;
         whitesTurn = whiteToMove;
         gameStartTime = System.nanoTime();
         turnStartTime = System.nanoTime();
@@ -57,6 +57,6 @@ public class Timer
 
     public long remainingTimeInSeconds(boolean white)
     {
-        return white ? Math.round(whiteRemainingTime/Math.pow(10, 9)) : Math.round(blackRemainingTime/Math.pow(10, 9));
+        return white ? Math.round(whiteRemainingTime/Math.pow(10, 6)) : Math.round(blackRemainingTime/Math.pow(10, 6));
     }
 }

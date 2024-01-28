@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import chess.Models.Piece.PieceType;
+import chess.Utils.BoardHelper;
 
 public class Board
 {
@@ -96,6 +97,46 @@ public class Board
      * @param start
      * @param end
      */
+    public boolean tryToMakeMove(String uciMove)
+    {
+        System.out.println("trying to make move" + uciMove);
+        Point start = BoardHelper.squareIndexFromName(uciMove.charAt(0) + "" + uciMove.charAt(1));
+        Point end = BoardHelper.squareIndexFromName(uciMove.charAt(2) + "" + uciMove.charAt(3));
+        Move move = new Move(start, end, halfPlyCount);
+
+        char promoteChar = uciMove.length() > 3 ? uciMove.charAt(uciMove.length() - 1) : ' ';
+
+        PieceType promotePieceType;
+        switch (promoteChar)
+        {
+            case 'q':
+                promotePieceType = PieceType.Queen;
+                break;
+            case 'r':
+                promotePieceType = PieceType.Rook;
+                break;
+            case 'n':
+                promotePieceType = PieceType.Knight;
+                break;
+            case 'b':
+                promotePieceType = PieceType.Bishop;
+                break;
+            default:
+                promotePieceType = PieceType.Queen;
+                break;
+        }
+
+        move.promotionType = promotePieceType;
+        boolean succesful = tryToMakeMove(move);
+        return succesful;
+    }
+
+    /**
+     * Attempts to move a piece from the start point to the end point.
+     *
+     * @param start
+     * @param end
+     */
     public boolean tryToMakeMove(Point start, Point end)
     {
         Move move = new Move(start, end, halfPlyCount);
@@ -103,6 +144,45 @@ public class Board
         System.out.println(halfPlyCount);
         return succesful;
 
+    }
+
+    /**
+     * Attempts to move a piece from the given startpoint, to the endpoint. If it isn't possible, it
+     * does nothing and returns false. Will generate all legal moves.
+     *
+     * @param start The start square that the piece moves from
+     * @param end The square that the piece wants to move to
+     */
+    public boolean tryToMakeMove(Move move)
+    {
+        Point start = move.startSquare;
+        Piece pieceToMove = board[start.y][start.x];
+        if (pieceToMove != null && pieceToMove.isWhite == whiteToMove)
+        // legal piece to try to move
+        {
+            Move[] moves = getLegalMoves();
+            if (isDraw())
+                System.out.println("The game is draw");
+            else if (moves.length == 0)
+                System.out.println("No legal moves");
+            else
+            {
+                for (Move legalMove : moves)
+                {
+                    if (move.equals(legalMove))
+                    {
+                        makeMove(legalMove);
+                        return true;
+                    }
+                }
+                System.out.println("The following move isn't legal: " + move);
+            }
+        }
+        else
+        {
+            System.out.println("piece is null, or not of the right color.");
+        }
+        return false;
     }
 
     /**
@@ -214,44 +294,7 @@ public class Board
         hashIsCached = false;
     }
 
-    /**
-     * Attempts to move a piece from the given startpoint, to the endpoint. If it isn't possible, it
-     * does nothing and returns false. Will generate all legal moves.
-     *
-     * @param start The start square that the piece moves from
-     * @param end The square that the piece wants to move to
-     */
-    public boolean tryToMakeMove(Move move)
-    {
-        Point start = move.startSquare;
-        Piece pieceToMove = board[start.y][start.x];
-        if (pieceToMove != null && pieceToMove.isWhite == whiteToMove)
-        // legal piece to try to move
-        {
-            Move[] moves = getLegalMoves();
-            if (isDraw())
-                System.out.println("The game is draw");
-            else if (moves.length == 0)
-                System.out.println("No legal moves");
-            else
-            {
-                for (Move legalMove : moves)
-                {
-                    if (move.equals(legalMove))
-                    {
-                        makeMove(legalMove);
-                        return true;
-                    }
-                }
-                System.out.println("The following move isn't legal: " + move);
-            }
-        }
-        else
-        {
-            System.out.println("piece is null, or not of the right color.");
-        }
-        return false;
-    }
+
 
     /**
      * Undos the given move, assuming it is legal.
@@ -869,6 +912,7 @@ public class Board
 
     /**
      * returns the black and white list of pieces
+     *
      * @return
      */
     public ArrayList<ArrayList<Piece>> getAllPieceLists()
@@ -1019,17 +1063,15 @@ public class Board
 
     public boolean isRepeatedPosition()
     {
-        int repetitions = 1;
+        int repetitions = 0;
+        System.out.println();
         if (halfPlyCount < 3 || previousPositions.size() < 3)
         {
             return false;
         }
         for (int i = previousPositions.size() - 1; i > Math.max(-1,
-                previousPositions.size() - 1 - halfPlyCount - 1); i--) // subtracting 1 from
-                                                                       // halfplycount because it
-                                                                       // starts at 0 with a
-                                                                       // pawnmove
-                                                                       // or capture
+                previousPositions.size() - 1 - halfPlyCount - 1); i--)
+        // subtracting 1 from halfplycount because it starts at 0 with a pawnmove or capture
         {
             if (previousPositions.get(i) == getZobristHash())
             {

@@ -26,6 +26,8 @@ public class UCI
     void positionCommand(String[] args)
     {
         int idx = -1;
+        System.out.println("args" + Arrays.toString(args));
+
         for (int i = 0; i < args.length; i++)
         {
             if ("moves".equals(args[i]))
@@ -42,8 +44,9 @@ public class UCI
             }
             else
             {
+                System.out.println("Received fenposition: " + String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
                 board = FenReader.loadFenString(
-                        String.join(" ", Arrays.copyOfRange(args, 2, args.length - 2)));
+                        String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
             }
         }
         else
@@ -54,15 +57,15 @@ public class UCI
             }
             else
             {
+                System.out.println("Received fenposition: " + String.join(" ", Arrays.copyOfRange(args, 2, idx)));
+
                 board = FenReader
-                        .loadFenString(String.join(" ", Arrays.copyOfRange(args, 2, idx - 2)));
+                        .loadFenString(String.join(" ", Arrays.copyOfRange(args, 2, idx)));
             }
 
             for (int i = idx + 1; i < args.length; i++)
             {
-                // this is such a hack
-                Move move = new Move(args[i]);
-                board.tryToMakeMove(move);
+                System.out.printf("move %s was %b\n", args[i], board.tryToMakeMove(args[i]));
             }
         }
 
@@ -71,7 +74,7 @@ public class UCI
 
     void goCommand(String[] args)
     {
-        int wtime = 0, btime = 0;
+        int wtime = 0, btime = 0, winc = 0, binc = 0;
 
         for (int i = 0; i < args.length; i++)
         {
@@ -88,6 +91,14 @@ public class UCI
                 btime = Integer.parseInt(args[i + 1]);
                 wtime = btime;
             }
+            else if (args[i].equals("winc"))
+            {
+                winc = Integer.parseInt(args[i + 1]);
+            }
+            else if (args[i].equals("winc"))
+            {
+                binc = Integer.parseInt(args[i + 1]);
+            }
         }
         if (!board.whiteToMove)
         {
@@ -95,7 +106,7 @@ public class UCI
             wtime = btime;
             btime = tmp;
         }
-        Timer timer = new Timer(wtime, btime, 0, true);
+        Timer timer = new Timer(wtime, btime, winc, true);
         Move move = bot.think(board, timer);
         System.out.println("bestmove " + move.toString());
     }

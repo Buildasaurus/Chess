@@ -41,44 +41,6 @@ public class Move
         promotionType = PieceType.Queen;
     }
 
-    /**
-     * Creates a move from a UCI name. Eg turns e2e4 into the move e2e4. If promotion, the UCI
-     * notation should include what it promotes to.
-     *
-     * @param moveNameUCI
-     * @param board
-     */
-    public Move(String moveNameUCI)
-    {
-        this(BoardHelper.squareIndexFromName(moveNameUCI.charAt(0) + "" + moveNameUCI.charAt(1)),
-                BoardHelper
-                        .squareIndexFromName(moveNameUCI.charAt(2) + "" + moveNameUCI.charAt(3)));
-
-        char promoteChar =
-                moveNameUCI.length() > 3 ? moveNameUCI.charAt(moveNameUCI.length() - 1) : ' ';
-
-        PieceType promotePieceType;
-        switch (promoteChar)
-        {
-            case 'q':
-                promotePieceType = PieceType.Queen;
-                break;
-            case 'r':
-                promotePieceType = PieceType.Rook;
-                break;
-            case 'n':
-                promotePieceType = PieceType.Knight;
-                break;
-            case 'b':
-                promotePieceType = PieceType.Bishop;
-                break;
-            default:
-                promotePieceType = PieceType.Queen;
-                break;
-        }
-
-        this.promotionType = promotePieceType;
-    }
 
     public boolean equals(Move otherMove)
     {
@@ -93,27 +55,31 @@ public class Move
     @Override
     public String toString()
     {
-        String promotionString;
-        switch (capturePieceType)
+        String promotionString = "";
+        if(isPromotion)
         {
-            case Queen:
-                promotionString = "Q";
-                break;
-            case Knight:
-                promotionString = "N";
-                break;
-            case Rook:
-                promotionString = "R";
-                break;
-            case Bishop:
-                promotionString = "B";
-                break;
-            default:
-                promotionString = "";
-                break;
+            switch (promotionType)
+            {
+                case Queen:
+                    promotionString = "q";
+                    break;
+                case Knight:
+                    promotionString = "n";
+                    break;
+                case Rook:
+                    promotionString = "r";
+                    break;
+                case Bishop:
+                    promotionString = "b";
+                    break;
+                default:
+                    promotionString = "";
+                    break;
+            }
         }
-        return (char) (startSquare.x + 65) + Integer.toString(startSquare.y + 1)
-                + (char) (targetSquare.x + 65) + Integer.toString(targetSquare.y + 1)
+
+        return (char) (startSquare.x + 97) + Integer.toString(startSquare.y + 1)
+                + (char) (targetSquare.x + 97) + Integer.toString(targetSquare.y + 1)
                 + promotionString;
     }
 
