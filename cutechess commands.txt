@@ -1,4 +1,10 @@
-java project
+ -- To run on lichess --
+cd C:\Users\jonat\Desktop\Chess Engine\lichess-bot-master\lichess-bot-master
+py -m venv venv
+venv\Scripts\activate
+py lichess-bot.py -u
+
+-- java project --
 - debbuging -
 selfdebugging
 java -jar Chess.jar uci V1
