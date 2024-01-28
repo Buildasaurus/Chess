@@ -21,7 +21,7 @@ public class MainController implements ButtonClickListener
     ChessView board;
     public GUIView view;
     Object controller;
-    boolean isWhite = true;
+    boolean isWhite = false;
     int currentFenString = 0;
     String[] fenStrings;
 

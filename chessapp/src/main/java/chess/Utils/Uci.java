@@ -8,6 +8,7 @@ import chess.Models.Board;
 import chess.Models.FenReader;
 import chess.Models.Move;
 import chess.Models.Timer;
+import javafx.application.Platform;
 
 /**
  * For playing with bots using the UCI format. First implement a timer.
@@ -44,9 +45,10 @@ public class UCI
             }
             else
             {
-                System.out.println("Received fenposition: " + String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
-                board = FenReader.loadFenString(
-                        String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
+                System.out.println("Received fenposition: "
+                        + String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
+                board = FenReader
+                        .loadFenString(String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
             }
         }
         else
@@ -57,10 +59,10 @@ public class UCI
             }
             else
             {
-                System.out.println("Received fenposition: " + String.join(" ", Arrays.copyOfRange(args, 2, idx)));
+                System.out.println("Received fenposition: "
+                        + String.join(" ", Arrays.copyOfRange(args, 2, idx)));
 
-                board = FenReader
-                        .loadFenString(String.join(" ", Arrays.copyOfRange(args, 2, idx)));
+                board = FenReader.loadFenString(String.join(" ", Arrays.copyOfRange(args, 2, idx)));
             }
 
             for (int i = idx + 1; i < args.length; i++)
@@ -159,8 +161,17 @@ public class UCI
             String line = console.nextLine();
 
             if (line.equals("quit") || line.equals("exit"))
+            {
+                System.out.println("Quitting");
+                console.close();
+                Platform.runLater(() -> {
+                    Platform.exit();
+                    System.exit(0);
+                });
                 return;
+            }
             execCommand(line);
         }
     }
+
 }

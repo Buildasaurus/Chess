@@ -49,14 +49,14 @@ public class V1 implements IBot
         boolean isRoot = ply == 0;
         if (board.isCheckmate())
         {
-            return -99999999 + ply;
+            return -999999 + ply;
         }
         if (!isRoot && board.isDraw())
         {
             return 0;
         }
 
-        int bestEval = -9999999; // Standard really bad eval.
+        int bestEval = -99999999; // Standard really bad eval. not reachable
         if (depth <= 0)
         {
             return SimpleEval.evaluation(board) * (board.whiteToMove ? 1 : -1);

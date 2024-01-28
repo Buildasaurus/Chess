@@ -17,7 +17,7 @@ public class HumanVsComputerController extends GameController
         super(_view, _model);
         computerIsWhite = _computerIsWhite;
         bot = computer;
-        if (computerIsWhite && model.whiteToMove)
+        if (computerIsWhite == model.whiteToMove)
         {
             makeComputerMove();
         }
@@ -57,9 +57,13 @@ public class HumanVsComputerController extends GameController
         {
             if (model.tryToMakeMove(start, end))
             {
+
                 timer.switchTurn();
                 refreshView();
-                makeComputerMove();
+                if (!model.isCheckmate())
+                {
+                    makeComputerMove();
+                }
             }
             else
             {
