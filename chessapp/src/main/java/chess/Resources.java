@@ -1,6 +1,10 @@
 package chess;
 
+import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import javafx.scene.image.Image;
 
@@ -25,5 +29,24 @@ public class Resources
 
         }
         return map.get(name);
+    }
+
+
+    public static String[] getFileByName(String name)
+    {
+
+        String[] array = new String[0];
+        try
+        {
+            URL url = Resources.class.getResource("/" + name + ".txt");
+            Path filePath = Paths.get(url.toURI());
+            array =  Files.readAllLines(filePath).toArray(new String[0]);
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
+
+        return array;
     }
 }

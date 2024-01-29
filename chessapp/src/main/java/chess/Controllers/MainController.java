@@ -1,10 +1,13 @@
 package chess.Controllers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
+import chess.Resources;
 import chess.Bots.TesterBot;
 import chess.Bots.V1;
 import chess.Models.Board;
@@ -27,19 +30,9 @@ public class MainController implements ButtonClickListener
 
     public MainController()
     {
-        try
-        {
-            // Get the path to the fens.txt file in the resources folder
-            Path path = Paths.get(getClass().getResource("/fens.txt").toURI());
-            // Read all lines from the file
-            List<String> lines = Files.readAllLines(path);
-            // Convert the List to an array
-            fenStrings = lines.toArray(new String[0]);
-        }
-        catch (IOException | URISyntaxException e)
-        {
-            e.printStackTrace();
-        }
+
+        fenStrings = Resources.getFileByName("fens");
+
 
         model = FenReader.loadFenString(fenStrings[currentFenString % fenStrings.length]);
         board = new ChessView();
