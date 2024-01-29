@@ -26,7 +26,7 @@ public class HumanVsComputerController extends GameController
     private void makeComputerMove()
     {
         Move botMove = bot.think(model, timer);
-        if (timer.remainingTime(computerIsWhite) < 0)
+        if (timer.getRemainingTime(computerIsWhite) < 0)
         {
             System.out.println("PC ran out of time");
         }
@@ -45,7 +45,7 @@ public class HumanVsComputerController extends GameController
     protected void handleMouseRelease(MouseEvent event)
     {
         super.handleMouseRelease(event);
-        if (timer.remainingTime(!computerIsWhite) < 0)
+        if (timer.getRemainingTime(!computerIsWhite) < 0)
         {
             System.out.println("You lost on time!");
         }

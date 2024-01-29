@@ -7,7 +7,7 @@ import javafx.scene.layout.HBox;
 public class GUIView extends BorderPane
 {
     private ChessView chessView;
-    private Button button1, button2, button3; // Add more buttons as needed
+    private Button button1, button2, button3, button4; // Add more buttons as needed
 
     public interface ButtonClickListener
     {
@@ -22,14 +22,17 @@ public class GUIView extends BorderPane
         button1 = new Button("Human VS TesterBot");
         button2 = new Button("Human VS Human");
         button3 = new Button("Human VS V1");
+        button4 = new Button("Human VS V2");
+
 
         // Add buttons to a horizontal box
-        HBox hbox = new HBox(button1, button2, button3);
+        HBox hbox = new HBox(button1, button2, button3, button4);
 
         // Set the button click listeners
         button1.setOnAction(e -> listener.onButtonClick(button1.getText()));
         button2.setOnAction(e -> listener.onButtonClick(button2.getText()));
         button3.setOnAction(e -> listener.onButtonClick(button3.getText()));
+        button4.setOnAction(e -> listener.onButtonClick(button4.getText()));
 
 
         // Add the chess view and buttons to this GUI view

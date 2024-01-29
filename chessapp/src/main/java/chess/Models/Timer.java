@@ -50,13 +50,19 @@ public class Timer
         return System.nanoTime() - turnStartTime;
     }
 
-    public long remainingTime(boolean white)
+    public long getRemainingTime(boolean white)
     {
         return white ? whiteRemainingTime : blackRemainingTime;
+    }
+
+    public long getIncrement(boolean white)
+    {
+        return white ? whiteIncrement : blackIncrement;
     }
 
     public long remainingTimeInSeconds(boolean white)
     {
         return white ? Math.round(whiteRemainingTime/Math.pow(10, 6)) : Math.round(blackRemainingTime/Math.pow(10, 6));
     }
+
 }

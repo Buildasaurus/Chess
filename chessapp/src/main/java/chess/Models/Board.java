@@ -1064,7 +1064,6 @@ public class Board
     public boolean isRepeatedPosition()
     {
         int repetitions = 0;
-        System.out.println();
         if (halfPlyCount < 3 || previousPositions.size() < 3)
         {
             return false;

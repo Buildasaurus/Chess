@@ -1,21 +1,13 @@
 package chess.Controllers;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Collectors;
+
 import chess.Resources;
-import chess.Bots.TesterBot;
-import chess.Bots.V1;
+import chess.Bots.*;
 import chess.Models.Board;
 import chess.Models.FenReader;
 import chess.Views.ChessView;
 import chess.Views.GUIView;
 import chess.Views.GUIView.ButtonClickListener;
-import java.nio.file.*;
 
 
 public class MainController implements ButtonClickListener
@@ -38,7 +30,7 @@ public class MainController implements ButtonClickListener
         board = new ChessView();
         view = new GUIView(board, this);
 
-        controller = new HumanVsComputerController(board, model, isWhite, new V1());
+        controller = new HumanVsComputerController(board, model, isWhite, new V2());
 
     }
 
@@ -66,6 +58,11 @@ public class MainController implements ButtonClickListener
         if (buttonName.equals("Human VS V1"))
         {
             controller = new HumanVsComputerController(board, model, model.whiteToMove, new V1());
+            isWhite = !isWhite;
+        }
+        if (buttonName.equals("Human VS V2"))
+        {
+            controller = new HumanVsComputerController(board, model, model.whiteToMove, new V2());
             isWhite = !isWhite;
         }
     }
