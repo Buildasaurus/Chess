@@ -27,7 +27,6 @@ public class UCI
     void positionCommand(String[] args)
     {
         int idx = -1;
-        System.out.println("args" + Arrays.toString(args));
 
         for (int i = 0; i < args.length; i++)
         {
@@ -45,8 +44,7 @@ public class UCI
             }
             else
             {
-                System.out.println("Received fenposition: "
-                        + String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
+
                 board = FenReader
                         .loadFenString(String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
             }
@@ -59,15 +57,12 @@ public class UCI
             }
             else
             {
-                System.out.println("Received fenposition: "
-                        + String.join(" ", Arrays.copyOfRange(args, 2, idx)));
-
                 board = FenReader.loadFenString(String.join(" ", Arrays.copyOfRange(args, 2, idx)));
             }
 
             for (int i = idx + 1; i < args.length; i++)
             {
-                System.out.printf("move %s was %b\n", args[i], board.tryToMakeMove(args[i]));
+                board.tryToMakeMove(args[i]);
             }
         }
 

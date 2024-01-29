@@ -99,7 +99,6 @@ public class Board
      */
     public boolean tryToMakeMove(String uciMove)
     {
-        System.out.println("trying to make move" + uciMove);
         Point start = BoardHelper.squareIndexFromName(uciMove.charAt(0) + "" + uciMove.charAt(1));
         Point end = BoardHelper.squareIndexFromName(uciMove.charAt(2) + "" + uciMove.charAt(3));
         Move move = new Move(start, end, halfPlyCount);
@@ -141,7 +140,6 @@ public class Board
     {
         Move move = new Move(start, end, halfPlyCount);
         boolean succesful = tryToMakeMove(move);
-        System.out.println(halfPlyCount);
         return succesful;
 
     }

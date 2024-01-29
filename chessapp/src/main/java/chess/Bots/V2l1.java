@@ -14,6 +14,7 @@ public class V2l1 implements IBot
     Board board;
     long maxUseTime;
     boolean isWhite;
+    boolean quit;
 
     public Move think(Board board, Timer timer)
     {
@@ -23,11 +24,12 @@ public class V2l1 implements IBot
         this.board = board;
         isWhite = board.whiteToMove;
         maxUseTime = timer.getRemainingTime(isWhite)/30 + timer.getIncrement(isWhite)/2;
-        for (int i = 2; i < 4; i++)
+        quit = false;
+        for (int i = 2; i < 10; i++)
         {
             print("Now going at depth: " + i);
             negamax(i, -9999999, 9999999, 0);
-            if(timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            if(quit)
             {
                 break;
             }
@@ -48,6 +50,10 @@ public class V2l1 implements IBot
      */
     public int negamax(int depth, int alpha, int beta, int ply)
     {
+        if(quit)
+        {
+            return 0;
+        }
         boolean isRoot = ply == 0;
         if (board.isCheckmate())
         {
@@ -63,13 +69,30 @@ public class V2l1 implements IBot
         {
             return SimpleEval.evaluation(board) * (board.whiteToMove ? 1 : -1);
         }
+
         Move[] legalMoves = board.getLegalMoves();
+        if(isRoot && bestMove != null)
+        {
+            //int[] ratings = new int[legalMoves.length];
+            Move[] orderedMoves = new Move[legalMoves.length];
+            int counter = 0;
+            for (Move move : legalMoves) {
+                if(!move.equals(bestMove))
+                {
+                    counter++;
+                    orderedMoves[counter] = move;
+                }
+            }
+            orderedMoves[0] = bestMove;
+            legalMoves = orderedMoves;
+        }
 
 
         for (Move move : legalMoves)
         {
-            if(timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            if(quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
             {
+                quit = true;
                 break;
             }
             board.makeMove(move);
@@ -83,20 +106,20 @@ public class V2l1 implements IBot
                     bestMove = move;
                 }
                 bestEval = eval;
-/*
+
                 if (eval > beta) // beta cutoff, this position is too good. Oponnent wouldn't get on
                                  // this branch in the first place.
                 {
                     return eval;
-                }*/
+                }
             }
 
-/*
+
             if (eval < alpha) // alpha cutoff, we have another branch that at the least is
             // better than this.
             {
                 return eval;
-            }*/
+            }
         }
         return bestEval;
     }
