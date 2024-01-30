@@ -1,5 +1,5 @@
  -- To run on lichess --
-cd C:\Users\jonat\Desktop\Chess Engine\lichess-bot-master\lichess-bot-master
+cd C:\Users\jonat\Desktop\Chess Engine\BotASaurus
 py -m venv venv
 venv\Scripts\activate
 py lichess-bot.py -u
