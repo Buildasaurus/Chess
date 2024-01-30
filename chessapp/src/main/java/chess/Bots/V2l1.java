@@ -23,7 +23,11 @@ public class V2l1 implements IBot
         this.timer = timer;
         this.board = board;
         isWhite = board.whiteToMove;
+        print("iswhite = " + isWhite);
+        print("time = " +timer.getRemainingTime(isWhite));
         maxUseTime = timer.getRemainingTime(isWhite)/30 + timer.getIncrement(isWhite)/2;
+        print("maxusetime = " + maxUseTime);
+
         quit = false;
         for (int i = 2; i < 10; i++)
         {
@@ -34,6 +38,7 @@ public class V2l1 implements IBot
                 break;
             }
         }
+        print("time used: " + timer.timeElapsedOnCurrentTurn());
         return bestMove;
     }
 

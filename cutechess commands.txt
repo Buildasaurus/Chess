@@ -13,7 +13,7 @@ position fen r1bqkb1r/ppp2pp1/5n1p/3P4/2P1p3/5N2/PPP2PPP/RNBQK2R w KQkq - 0 1
 go wtime 8080 btime 8080 winc 80 binc 80
 
 128 rounds - 8+0.08 + 1 core
-"C:\Program Files (x86)\Cute Chess\cutechess-cli.exe"  -engine name="V1" cmd="engine.bat" arg="uci" arg="V1" -engine name="V1" cmd="engine.bat" arg="uci" arg="V1" -each proto=uci tc="8+0.08" -maxmoves 200 -games 2 -rounds 64 -ratinginterval 20 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -concurrency 1 -openings file="UHO_XXL_+0.80_+1.09.epd" format="epd" -debug
+"C:\Program Files (x86)\Cute Chess\cutechess-cli.exe"  -engine name="V2" cmd="engine.bat" arg="uci" arg="V2" -engine name="V2.1" cmd="engine.bat" arg="uci" arg="V2l1" -each proto=uci tc="8+0.08" -maxmoves 200 -games 2 -rounds 64 -ratinginterval 20 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -concurrency 1 -openings file="UHO_XXL_+0.80_+1.09.epd" format="epd" -debug
 
 1024 rounds - 8+0.08 + 4 core
 "C:\Program Files (x86)\Cute Chess\cutechess-cli.exe"  -engine name="V2" cmd="engine.bat" arg="uci" arg="V2" -engine name="V2.1" cmd="engine.bat" arg="uci" arg="V2l1" -each proto=uci tc="8+0.08" -maxmoves 200 -games 2 -rounds 512 -ratinginterval 20 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -concurrency 4 -openings file="UHO_XXL_+0.80_+1.09.epd" format="epd" -debug

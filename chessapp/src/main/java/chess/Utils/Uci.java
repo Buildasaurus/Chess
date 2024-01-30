@@ -92,17 +92,12 @@ public class UCI
             {
                 winc = Integer.parseInt(args[i + 1]);
             }
-            else if (args[i].equals("winc"))
+            else if (args[i].equals("binc"))
             {
                 binc = Integer.parseInt(args[i + 1]);
             }
         }
-        if (!board.whiteToMove)
-        {
-            int tmp = wtime;
-            wtime = btime;
-            btime = tmp;
-        }
+        System.out.println(wtime + " " + btime);
         Timer timer = new Timer(wtime, btime, winc, true);
         Move move = bot.think(board, timer);
         System.out.println("bestmove " + move.toString());
