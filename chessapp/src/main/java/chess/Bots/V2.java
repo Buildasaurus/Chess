@@ -1,6 +1,6 @@
 package chess.Bots;
 
-import chess.Bots.Evaluation.SimpleEval;
+import chess.Evaluation.SimpleEval;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
@@ -83,7 +83,7 @@ public class V2 implements IBot
                     bestMove = move;
                 }
                 bestEval = eval;
-/*
+                /*
                 if (eval > beta) // beta cutoff, this position is too good. Oponnent wouldn't get on
                                  // this branch in the first place.
                 {
@@ -91,7 +91,7 @@ public class V2 implements IBot
                 }*/
             }
 
-/*
+            /*
             if (eval < alpha) // alpha cutoff, we have another branch that at the least is
             // better than this.
             {

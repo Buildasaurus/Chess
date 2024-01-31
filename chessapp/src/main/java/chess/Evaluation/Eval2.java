@@ -1,4 +1,4 @@
-package chess.Bots.Evaluation;
+package chess.Evaluation;
 
 import java.util.ArrayList;
 import chess.Models.Board;

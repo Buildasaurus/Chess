@@ -1,6 +1,6 @@
 package chess.Bots;
 
-import chess.Bots.Evaluation.Eval2;
+import chess.Evaluation.Eval2;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;

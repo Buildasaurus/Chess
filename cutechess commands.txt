@@ -20,7 +20,7 @@ go wtime 8080 btime 8080 winc 80 binc 80
 
 - testing -  ---- HUSK AT COMPILE!!! ----
 1024 rounds - 8+0.08 + 4 core
-"C:\Program Files (x86)\Cute Chess\cutechess-cli.exe"  -engine name="V2" cmd="engine.bat" arg="uci" arg="V2" -engine name="V2.1" cmd="engine.bat" arg="uci" arg="V2l1" -each proto=uci tc="8+0.08" -maxmoves 200 -games 2 -rounds 512 -ratinginterval 20 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -concurrency 4 -openings file="UHO_XXL_+0.80_+1.09.epd" format="epd"
+"C:\Program Files (x86)\Cute Chess\cutechess-cli.exe"  -engine name="MyBot" cmd="engine.bat" arg="uci" arg="MyBot" -engine name="EvilBot" cmd="engine.bat" arg="uci" arg="EvilBot" -each proto=uci tc="8+0.08" -maxmoves 200 -games 2 -rounds 512 -ratinginterval 20 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -concurrency 4 -openings file="UHO_XXL_+0.80_+1.09.epd" format="epd"
 
 1024 rounds - 30+0.2 + 4 core
-"C:\Program Files (x86)\Cute Chess\cutechess-cli.exe"  -engine name="V2" cmd="engine.bat" arg="uci" arg="V2" -engine name="V2.1" cmd="engine.bat" arg="uci" arg="V2l1" -each proto=uci tc="30+0.2" -maxmoves 200 -games 2 -rounds 512 -ratinginterval 20 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -concurrency 4 -openings file="UHO_XXL_+0.80_+1.09.epd" format="epd"
+"C:\Program Files (x86)\Cute Chess\cutechess-cli.exe"  -engine name="MyBot" cmd="engine.bat" arg="uci" arg="MyBot" -engine name="EvilBot" cmd="engine.bat" arg="uci" arg="EvilBot" -each proto=uci tc="30+0.2" -maxmoves 200 -games 2 -rounds 512 -ratinginterval 20 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -concurrency 4 -openings file="UHO_XXL_+0.80_+1.09.epd" format="epd"

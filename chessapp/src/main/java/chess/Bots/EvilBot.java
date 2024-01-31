@@ -1,12 +1,12 @@
 package chess.Bots;
 
-import chess.Evaluation.SimpleEval;
+import chess.Evaluation.Eval2;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
 
 
-public class V2l1 implements IBot
+public class EvilBot implements IBot
 {
     private Move bestMove;
     int checkmateCount = 0;
@@ -18,7 +18,7 @@ public class V2l1 implements IBot
 
     public Move think(Board board, Timer timer)
     {
-        print("V2l1 booted up, and thinking");
+        print("EvilBot booted up, and thinking");
         bestMove = null;
         this.timer = timer;
         this.board = board;
@@ -72,7 +72,7 @@ public class V2l1 implements IBot
         int bestEval = -99999999; // Standard really bad eval. not reachable
         if (depth <= 0)
         {
-            return SimpleEval.evaluation(board) * (board.whiteToMove ? 1 : -1);
+            return Eval2.evaluation(board) * (board.whiteToMove ? 1 : -1);
         }
 
         Move[] legalMoves = board.getLegalMoves();

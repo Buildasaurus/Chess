@@ -1,12 +1,21 @@
 package chess.Bots;
 
-import chess.Evaluation.SimpleEval;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.stream.IntStream;
+import chess.Evaluation.Eval2;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
 
+// Finished game 246 (EvilBot vs MyBot): * {No result}
+// Score of MyBot vs EvilBot: 166 - 39 - 40  [0.759] 245
+// ...      MyBot playing White: 76 - 25 - 22  [0.707] 123
+// ...      MyBot playing Black: 90 - 14 - 18  [0.811] 122
+// ...      White vs Black: 90 - 115 - 40  [0.449] 245
+// Elo difference: 199.5 +/- 45.2, LOS: 100.0 %, DrawRatio: 16.3 %
 
-public class V2l1 implements IBot
+public class MyBot implements IBot
 {
     private Move bestMove;
     int checkmateCount = 0;
@@ -18,22 +27,22 @@ public class V2l1 implements IBot
 
     public Move think(Board board, Timer timer)
     {
-        print("V2l1 booted up, and thinking");
+        print("MyBot booted up, and thinking");
         bestMove = null;
         this.timer = timer;
         this.board = board;
         isWhite = board.whiteToMove;
         print("iswhite = " + isWhite);
-        print("time = " +timer.getRemainingTime(isWhite));
-        maxUseTime = timer.getRemainingTime(isWhite)/30 + timer.getIncrement(isWhite)/2;
+        print("time = " + timer.getRemainingTime(isWhite));
+        maxUseTime = timer.getRemainingTime(isWhite) / 30 + timer.getIncrement(isWhite) / 2;
         print("maxusetime = " + maxUseTime);
 
         quit = false;
         for (int i = 2; i < 10; i++)
         {
             print("Now going at depth: " + i);
-            print("final Eval + " + negamax(i, -9999999, 9999999, 0) * (isWhite ? 1 : -1));
-            if(quit)
+            print("final Eval: " + negamax(i, -9999999, 9999999, 0) * (isWhite ? 1 : -1));
+            if (quit)
             {
                 break;
             }
@@ -55,7 +64,7 @@ public class V2l1 implements IBot
      */
     public int negamax(int depth, int alpha, int beta, int ply)
     {
-        if(quit)
+        if (quit)
         {
             return 0;
         }
@@ -72,30 +81,18 @@ public class V2l1 implements IBot
         int bestEval = -99999999; // Standard really bad eval. not reachable
         if (depth <= 0)
         {
-            return SimpleEval.evaluation(board) * (board.whiteToMove ? 1 : -1);
+            return Eval2.evaluation(board) * (board.whiteToMove ? 1 : -1);
         }
 
+        // Move ordering
         Move[] legalMoves = board.getLegalMoves();
-        if(isRoot && bestMove != null)
-        {
-            //int[] ratings = new int[legalMoves.length];
-            Move[] orderedMoves = new Move[legalMoves.length];
-            int counter = 0;
-            for (Move move : legalMoves) {
-                if(!move.equals(bestMove))
-                {
-                    counter++;
-                    orderedMoves[counter] = move;
-                }
-            }
-            orderedMoves[0] = bestMove;
-            legalMoves = orderedMoves;
-        }
+        legalMoves = orderMoves(legalMoves, isRoot);
 
-
+        boolean firstMove = true;
         for (Move move : legalMoves)
         {
-            if(quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
+
+            if (quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
             {
                 quit = true;
                 break;
@@ -103,7 +100,10 @@ public class V2l1 implements IBot
             board.makeMove(move);
             int eval = -negamax(depth - 1, -beta, -alpha, ply + 1);
             board.undoMove(move);
-
+            if (isRoot)
+            {
+                print("Move " + move + " got eval " + eval);
+            }
             if (eval > bestEval)
             {
                 if (isRoot)
@@ -129,6 +129,40 @@ public class V2l1 implements IBot
         return bestEval;
     }
 
+    int[] pieceValues = new int[]
+    {1000, 3000, 3500, 5000, 9000, 0};
+
+    private Move[] orderMoves(Move[] legalMoves, boolean isRoot)
+    {
+        int[] ratings = new int[legalMoves.length];
+        for (int i = 0; i < legalMoves.length; i++)
+        {
+            int rating = 0;
+            Move legalMove = legalMoves[i];
+            if (isRoot && bestMove != null && legalMove.equals(bestMove))
+            {
+                rating = 100_000;
+            }
+            else if (legalMoves[i].isCapture)
+            {
+
+                rating += pieceValues[legalMove.getCapturePieceType().ordinal()];
+                rating -= pieceValues[board.getPieceAtPoint(legalMove.startSquare).type.ordinal()]
+                        / 10;
+
+            }
+            ratings[i] = rating;
+        }
+
+        // Create an array of indices
+        Integer[] indices = IntStream.range(0, ratings.length).boxed().toArray(Integer[]::new);
+        // Sort the array of indices based on the values in the numbers array
+        Arrays.sort(indices, Comparator.comparingInt((Integer i) -> ratings[i]).reversed());
+        // Use the sorted indices to reorder the objects array
+        Move[] orderedMoves = Arrays.stream(indices).map(i -> legalMoves[i]).toArray(Move[]::new);
+
+        return orderedMoves;
+    }
 
     private void print(String string)
     {
