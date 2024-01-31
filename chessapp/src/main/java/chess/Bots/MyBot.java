@@ -91,15 +91,14 @@ public class MyBot implements IBot
         boolean firstMove = true;
         for (Move move : legalMoves)
         {
-
-            if (quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
-            {
-                quit = true;
-                break;
-            }
             board.makeMove(move);
             int eval = -negamax(depth - 1, -beta, -alpha, ply + 1);
             board.undoMove(move);
+            if (quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            {
+                quit = true;
+                return 0;
+            }
             if (isRoot)
             {
                 print("Move " + move + " got eval " + eval);
@@ -112,15 +111,12 @@ public class MyBot implements IBot
                 }
                 bestEval = eval;
 
-                if (eval > beta) // beta cutoff, this position is too good. Oponnent wouldn't get on
-                                 // this branch in the first place.
-                {
-                    return eval;
-                }
             }
+            alpha = Math.max(eval, alpha);
 
 
-            if (eval < alpha) // alpha cutoff, we have another branch that at the least is
+
+            if (alpha >= beta) // alpha cutoff, we have another branch that at the least is
             // better than this.
             {
                 return eval;

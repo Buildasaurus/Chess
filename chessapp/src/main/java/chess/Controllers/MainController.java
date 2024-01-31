@@ -41,7 +41,6 @@ public class MainController implements ButtonClickListener
 
     public void onButtonClick(String buttonName)
     {
-        currentFenString += 1; // TODO this might be too often, if you make more buttons
         // Reset the board
         model = FenReader.loadFenString(fenStrings[currentFenString % fenStrings.length]);
 
