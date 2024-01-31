@@ -8,12 +8,6 @@ import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
 
-// Finished game 246 (EvilBot vs MyBot): * {No result}
-// Score of MyBot vs EvilBot: 166 - 39 - 40  [0.759] 245
-// ...      MyBot playing White: 76 - 25 - 22  [0.707] 123
-// ...      MyBot playing Black: 90 - 14 - 18  [0.811] 122
-// ...      White vs Black: 90 - 115 - 40  [0.449] 245
-// Elo difference: 199.5 +/- 45.2, LOS: 100.0 %, DrawRatio: 16.3 %
 
 public class MyBot implements IBot
 {
@@ -38,10 +32,12 @@ public class MyBot implements IBot
         print("maxusetime = " + maxUseTime);
 
         quit = false;
-        for (int i = 2; i < 10; i++)
+        for (int i = 1; i < 10; i++)
         {
             print("Now going at depth: " + i);
             print("final Eval: " + negamax(i, -9999999, 9999999, 0) * (isWhite ? 1 : -1));
+            print("Final move: " + bestMove);
+
             if (quit)
             {
                 break;
@@ -81,14 +77,13 @@ public class MyBot implements IBot
         int bestEval = -99999999; // Standard really bad eval. not reachable
         if (depth <= 0)
         {
-            return Eval2.evaluation(board) * (board.whiteToMove ? 1 : -1);
+            return Eval2.evaluation(board);
         }
 
         // Move ordering
         Move[] legalMoves = board.getLegalMoves();
         legalMoves = orderMoves(legalMoves, isRoot);
 
-        boolean firstMove = true;
         for (Move move : legalMoves)
         {
             board.makeMove(move);
@@ -119,10 +114,54 @@ public class MyBot implements IBot
             if (alpha >= beta) // alpha cutoff, we have another branch that at the least is
             // better than this.
             {
-                return eval;
+                return bestEval;
             }
         }
         return bestEval;
+    }
+
+    public int QSearch(int alpha, int beta, int ply)
+    {
+        int standingPat = Eval2.evaluation(board);
+        if (standingPat >= beta)
+            return beta;
+        if (alpha < standingPat)
+        {
+            alpha = standingPat;
+        }
+        if (quit)
+        {
+            return 0;
+        }
+
+        // Move ordering
+        Move[] legalMoves = board.getLegalMoves();
+        legalMoves = orderMoves(legalMoves, false);
+
+        for (Move move : legalMoves)
+        {
+            if (!move.isCapture)
+            {
+                continue;
+            }
+            board.makeMove(move);
+            int eval = -QSearch(-beta, -alpha, ply + 1);
+            board.undoMove(move);
+            if (quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            {
+                quit = true;
+                return 0;
+            }
+			if (eval >= beta)
+			{
+				return beta;
+			}
+			if (eval > alpha)
+			{
+				alpha = eval;
+			}
+        }
+        return alpha;
     }
 
     int[] pieceValues = new int[]
