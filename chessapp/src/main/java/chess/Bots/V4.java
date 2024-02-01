@@ -16,7 +16,7 @@ import chess.Models.Timer;
 // Elo difference: 316.5 +/- 70.2, LOS: 100.0 %, DrawRatio: 25.8 %
 // SPRT: llr 2.97 (100.9%), lbound -2.94, ubound 2.94 - H1 was accepted
 
-public class MyBot implements IBot
+public class V4 implements IBot
 {
     private Move bestMove;
     int checkmateCount = 0;
