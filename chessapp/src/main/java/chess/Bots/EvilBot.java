@@ -8,6 +8,20 @@ import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
 
+// Finished game 246 (EvilBot vs MyBot): * {No result}
+// Score of MyBot vs EvilBot: 166 - 39 - 40  [0.759] 245
+// ...      MyBot playing White: 76 - 25 - 22  [0.707] 123
+// ...      MyBot playing Black: 90 - 14 - 18  [0.811] 122
+// ...      White vs Black: 90 - 115 - 40  [0.449] 245
+// Elo difference: 199.5 +/- 45.2, LOS: 100.0 %, DrawRatio: 16.3 %
+
+// compared to V3:
+//Score of MyBot vs EvilBot: 98 - 1 - 13  [0.933] 112
+// ...      MyBot playing White: 52 - 0 - 5  [0.956] 57
+// ...      MyBot playing Black: 46 - 1 - 8  [0.909] 55
+// ...      White vs Black: 53 - 46 - 13  [0.531] 112
+// Elo difference: 457.6 +/- 102.9, LOS: 100.0 %, DrawRatio: 11.6 %
+// SPRT: llr 3.03 (103.0%), lbound -2.94, ubound 2.94 - H1 was accepted
 
 public class EvilBot implements IBot
 {

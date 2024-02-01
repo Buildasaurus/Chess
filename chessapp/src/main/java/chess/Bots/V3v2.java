@@ -8,13 +8,15 @@ import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
 
+//Compared to V3.1
 // Score of MyBot vs EvilBot: 295 - 177 - 376  [0.570] 848
 // ...      MyBot playing White: 163 - 76 - 185  [0.603] 424
 // ...      MyBot playing Black: 132 - 101 - 191  [0.537] 424
 // ...      White vs Black: 264 - 208 - 376  [0.533] 848
 // Elo difference: 48.7 +/- 17.5, LOS: 100.0 %, DrawRatio: 44.3 %
 // SPRT: llr 2.95 (100.2%), lbound -2.94, ubound 2.94 - H1 was accepted
-public class MyBot implements IBot
+
+public class V3v2 implements IBot
 {
     private Move bestMove;
     int checkmateCount = 0;
@@ -28,7 +30,7 @@ public class MyBot implements IBot
 
     public Move think(Board board, Timer timer)
     {
-        print("MyBot booted up, and thinking");
+        print("V3.2 booted up, and thinking");
         bestMove = null;
         this.timer = timer;
         this.board = board;
