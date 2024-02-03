@@ -2,9 +2,9 @@ package chess.Controllers;
 
 
 import chess.Resources;
-import chess.Bots.*;
 import chess.Models.Board;
 import chess.Models.FenReader;
+import chess.Models.Bots.*;
 import chess.Views.ChessView;
 import chess.Views.GUIView;
 import chess.Views.GUIView.ButtonClickListener;

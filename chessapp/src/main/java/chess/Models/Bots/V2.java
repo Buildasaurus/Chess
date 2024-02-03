@@ -1,36 +1,36 @@
-package chess.Bots;
+package chess.Models.Bots;
 
-import java.util.Arrays;
-import chess.Evaluation.SimpleEval;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Evaluation.SimpleEval;
 
 
-public class V1 implements IBot
+public class V2 implements IBot
 {
     private Move bestMove;
-    long movecount;
-    long time = 0;
-    long enPassentcount;
-    long castleCount;
-    long promotionCount;
-    long checkCount;
-    long captureCount;
     int checkmateCount = 0;
     Timer timer;
     Board board;
+    long maxUseTime;
+    boolean isWhite;
 
     public Move think(Board board, Timer timer)
     {
-        System.out.println("V1 booted up, and thinking");
-
+        print("V2 booted up, and thinking");
         bestMove = null;
         this.timer = timer;
         this.board = board;
-        for (int i = 2; i < 3; i++)
+        isWhite = board.whiteToMove;
+        maxUseTime = timer.getRemainingTime(isWhite)/30 + timer.getIncrement(isWhite)/2;
+        for (int i = 2; i < 4; i++)
         {
+            print("Now going at depth: " + i);
             negamax(i, -9999999, 9999999, 0);
+            if(timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            {
+                break;
+            }
         }
         return bestMove;
     }
@@ -68,8 +68,12 @@ public class V1 implements IBot
 
         for (Move move : legalMoves)
         {
+            if(timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            {
+                break;
+            }
             board.makeMove(move);
-            int eval = -negamax(depth - 1, beta, alpha, ply + 1);
+            int eval = -negamax(depth - 1, -beta, -alpha, ply + 1);
             board.undoMove(move);
 
             if (eval > bestEval)
@@ -79,13 +83,12 @@ public class V1 implements IBot
                     bestMove = move;
                 }
                 bestEval = eval;
-
-                /* untested for now
+                /*
                 if (eval > beta) // beta cutoff, this position is too good. Oponnent wouldn't get on
                                  // this branch in the first place.
                 {
                     return eval;
-                } */
+                }*/
             }
 
             /*
@@ -93,9 +96,14 @@ public class V1 implements IBot
             // better than this.
             {
                 return eval;
-            } */
+            }*/
         }
         return bestEval;
     }
 
+
+    private void print(String string)
+    {
+        System.out.println("INFOSTRING --- " + string);
+    }
 }

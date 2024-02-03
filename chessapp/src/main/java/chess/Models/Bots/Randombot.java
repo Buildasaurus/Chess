@@ -1,4 +1,4 @@
-package chess.Bots;
+package chess.Models.Bots;
 
 import java.util.Random;
 import chess.Models.Board;

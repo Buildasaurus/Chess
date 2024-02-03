@@ -1,36 +1,45 @@
-package chess.Bots;
+package chess.Models.Bots;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.IntStream;
-import chess.Evaluation.Eval2;
 import chess.Models.Board;
 import chess.Models.Move;
+import chess.Models.TTEntry;
 import chess.Models.Timer;
+import chess.Models.TranspositionTable;
+import chess.Models.Evaluation.Eval2;
 
-//Compared to V3.1
-// Score of MyBot vs EvilBot: 295 - 177 - 376  [0.570] 848
-// ...      MyBot playing White: 163 - 76 - 185  [0.603] 424
-// ...      MyBot playing Black: 132 - 101 - 191  [0.537] 424
-// ...      White vs Black: 264 - 208 - 376  [0.533] 848
-// Elo difference: 48.7 +/- 17.5, LOS: 100.0 %, DrawRatio: 44.3 %
-// SPRT: llr 2.95 (100.2%), lbound -2.94, ubound 2.94 - H1 was accepted
+// Compared to V3v2 - now with QSearch
+// Score of MyBot vs EvilBot: 71 - 1 - 25 [0.861] 97
+// ... MyBot playing White: 37 - 0 - 12 [0.878] 49
+// ... MyBot playing Black: 34 - 1 - 13 [0.844] 48
+// ... White vs Black: 38 - 34 - 25 [0.521] 97
+// Elo difference: 316.5 +/- 70.2, LOS: 100.0 %, DrawRatio: 25.8 %
+// SPRT: llr 2.97 (100.9%), lbound -2.94, ubound 2.94 - H1 was accepted
 
-public class V3v2 implements IBot
+public class MyBot implements IBot
 {
+    private TranspositionTable table;
     private Move bestMove;
-    int checkmateCount = 0;
-    Timer timer;
-    Board board;
-    long maxUseTime;
-    boolean isWhite;
-    boolean quit;
 
-    Move[] killers;
+    private int checkmateCount = 0;
+    private Timer timer;
+    private Board board;
+    private long maxUseTime;
+    private boolean isWhite;
+    private boolean quit;
+
+    private Move[] killers;
+
+    public MyBot()
+    {
+        table = new TranspositionTable();
+    }
 
     public Move think(Board board, Timer timer)
     {
-        print("V3.2 booted up, and thinking");
+        print("MyBot booted up, and thinking");
         bestMove = null;
         this.timer = timer;
         this.board = board;
@@ -44,7 +53,8 @@ public class V3v2 implements IBot
             long startTime = System.nanoTime();
             print("final Eval: " + negamax(i, -9999999, 9999999, 0) * (isWhite ? 1 : -1));
             print("Final move: " + bestMove);
-            print("Time for depth: " + (System.nanoTime() - startTime)/Math.pow(10, 9) + " seconds");
+            print("Time for depth: " + (System.nanoTime() - startTime) / Math.pow(10, 9)
+                    + " seconds");
 
 
             if (quit)
@@ -86,13 +96,36 @@ public class V3v2 implements IBot
         int bestEval = -99999999; // Standard really bad eval. not reachable
         if (depth <= 0)
         {
-            return Eval2.evaluation(board) * (board.whiteToMove ? 1 : -1);
+            return QSearch(alpha, beta, ply);
         }
+
+
+        int oldAlpha = alpha;
+        // Transposition table lookup
+        long zobristHash = board.getZobristHash();
+        TTEntry entry = table.getEntry(board.getZobristHash());
+
+        // If we have an "exact" score (a < score < beta) just use that
+        // If we have a lower bound (an alpha) better than beta, use that
+        // If we have an upper bound (a beta) worse than alpha, use that
+        if (!isRoot && entry.hash == zobristHash && entry.depth >= depth
+                && Math.abs(entry.evaluation) < 50000 && (
+                // Exact
+                entry.flag == 1 ||
+                // Upperbound
+                        entry.flag == 2 && entry.evaluation <= alpha ||
+                        // Lowerbound
+                        entry.flag == 3 && entry.evaluation >= beta))
+        {
+            return entry.evaluation;
+        }
+
 
         // Move ordering
         Move[] legalMoves = board.getLegalMoves();
-        legalMoves = orderMoves(legalMoves, isRoot, ply);
-        Move goodMove = null;
+        Move goodMove = entry != null ? entry.bestMove : null;;
+
+        legalMoves = orderMoves(legalMoves, goodMove, ply);
 
         for (Move move : legalMoves)
         {
@@ -121,13 +154,23 @@ public class V3v2 implements IBot
             alpha = Math.max(eval, alpha);
 
 
-
-            if (alpha >= beta) // alpha cutoff, we have another branch that at the least is
-            // better than this.
+            if (alpha >= beta) // beta cutoff, this branch is too good.
             {
                 killers[ply] = goodMove != null ? goodMove : move;
-                return bestEval;
+                break; // not return, because we want to store in TT
             }
+        }
+
+        if (entry != null)
+        {
+            entry.update(board.getZobristHash(), goodMove, (byte) depth,
+                    (byte) (bestEval >= beta ? 3 : bestEval <= oldAlpha ? 2 : 1), bestEval);
+        }
+        else
+        {
+            TTEntry newEntry = new TTEntry(board.getZobristHash(), goodMove, (byte) depth,
+            (byte) (bestEval >= beta ? 3 : bestEval <= oldAlpha ? 2 : 1), bestEval);
+            table.setEntry(board.getZobristHash(), newEntry);
         }
         return bestEval;
     }
@@ -149,7 +192,7 @@ public class V3v2 implements IBot
 
         // Move ordering
         Move[] legalMoves = board.getLegalMoves();
-        legalMoves = orderMoves(legalMoves, false, ply);
+        legalMoves = orderMoves(legalMoves, null, ply);
 
         for (Move move : legalMoves)
         {
@@ -165,14 +208,14 @@ public class V3v2 implements IBot
                 quit = true;
                 return 0;
             }
-			if (eval >= beta)
-			{
-				return beta;
-			}
-			if (eval > alpha)
-			{
-				alpha = eval;
-			}
+            if (eval >= beta)
+            {
+                return beta;
+            }
+            if (eval > alpha)
+            {
+                alpha = eval;
+            }
         }
         return alpha;
     }
@@ -180,14 +223,14 @@ public class V3v2 implements IBot
     int[] pieceValues = new int[]
     {1000, 3000, 3500, 5000, 9000, 0};
 
-    private Move[] orderMoves(Move[] legalMoves, boolean isRoot, int ply)
+    private Move[] orderMoves(Move[] legalMoves, Move goodMove, int ply)
     {
         int[] ratings = new int[legalMoves.length];
         for (int i = 0; i < legalMoves.length; i++)
         {
             int rating = 0;
             Move legalMove = legalMoves[i];
-            if (isRoot && bestMove != null && legalMove.equals(bestMove))
+            if (goodMove != null && legalMove.equals(goodMove))
             {
                 rating = 100_000;
             }
@@ -199,7 +242,7 @@ public class V3v2 implements IBot
                         / 10;
 
             }
-            else if(killers[ply] != null && killers[ply].equals(legalMove))
+            else if (killers[ply] != null && killers[ply].equals(legalMove))
             {
                 rating = 999; // pieceValues[0]-1
             }

@@ -1,16 +1,22 @@
-package chess.Bots;
+package chess.Models.Bots;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.IntStream;
-import chess.Evaluation.Eval2;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Evaluation.Eval2;
 
-//move ordering.
+//Compared to V3.1
+// Score of MyBot vs EvilBot: 295 - 177 - 376  [0.570] 848
+// ...      MyBot playing White: 163 - 76 - 185  [0.603] 424
+// ...      MyBot playing Black: 132 - 101 - 191  [0.537] 424
+// ...      White vs Black: 264 - 208 - 376  [0.533] 848
+// Elo difference: 48.7 +/- 17.5, LOS: 100.0 %, DrawRatio: 44.3 %
+// SPRT: llr 2.95 (100.2%), lbound -2.94, ubound 2.94 - H1 was accepted
 
-public class V3 implements IBot
+public class V3v2 implements IBot
 {
     private Move bestMove;
     int checkmateCount = 0;
@@ -20,23 +26,27 @@ public class V3 implements IBot
     boolean isWhite;
     boolean quit;
 
+    Move[] killers;
+
     public Move think(Board board, Timer timer)
     {
-        print("MyBot booted up, and thinking");
+        print("V3.2 booted up, and thinking");
         bestMove = null;
         this.timer = timer;
         this.board = board;
         isWhite = board.whiteToMove;
-        print("iswhite = " + isWhite);
-        print("time = " + timer.getRemainingTime(isWhite));
         maxUseTime = timer.getRemainingTime(isWhite) / 30 + timer.getIncrement(isWhite) / 2;
-        print("maxusetime = " + maxUseTime);
-
+        killers = new Move[1024];
         quit = false;
-        for (int i = 2; i < 10; i++)
+        for (int i = 1; i < 99; i++)
         {
             print("Now going at depth: " + i);
+            long startTime = System.nanoTime();
             print("final Eval: " + negamax(i, -9999999, 9999999, 0) * (isWhite ? 1 : -1));
+            print("Final move: " + bestMove);
+            print("Time for depth: " + (System.nanoTime() - startTime)/Math.pow(10, 9) + " seconds");
+
+
             if (quit)
             {
                 break;
@@ -81,20 +91,19 @@ public class V3 implements IBot
 
         // Move ordering
         Move[] legalMoves = board.getLegalMoves();
-        legalMoves = orderMoves(legalMoves, isRoot);
+        legalMoves = orderMoves(legalMoves, isRoot, ply);
+        Move goodMove = null;
 
-        boolean firstMove = true;
         for (Move move : legalMoves)
         {
-
-            if (quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
-            {
-                quit = true;
-                break;
-            }
             board.makeMove(move);
             int eval = -negamax(depth - 1, -beta, -alpha, ply + 1);
             board.undoMove(move);
+            if (quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            {
+                quit = true;
+                return 0;
+            }
             if (isRoot)
             {
                 print("Move " + move + " got eval " + eval);
@@ -105,29 +114,73 @@ public class V3 implements IBot
                 {
                     bestMove = move;
                 }
+                goodMove = move;
                 bestEval = eval;
 
-                if (eval > beta) // beta cutoff, this position is too good. Oponnent wouldn't get on
-                                 // this branch in the first place.
-                {
-                    return eval;
-                }
             }
+            alpha = Math.max(eval, alpha);
 
 
-            if (eval < alpha) // alpha cutoff, we have another branch that at the least is
+
+            if (alpha >= beta) // alpha cutoff, we have another branch that at the least is
             // better than this.
             {
-                return eval;
+                killers[ply] = goodMove != null ? goodMove : move;
+                return bestEval;
             }
         }
         return bestEval;
     }
 
+    // Doesn't seem to work yet
+    public int QSearch(int alpha, int beta, int ply)
+    {
+        int standingPat = Eval2.evaluation(board) * (board.whiteToMove ? 1 : -1);
+        if (standingPat >= beta)
+            return beta;
+        if (alpha < standingPat)
+        {
+            alpha = standingPat;
+        }
+        if (quit)
+        {
+            return 0;
+        }
+
+        // Move ordering
+        Move[] legalMoves = board.getLegalMoves();
+        legalMoves = orderMoves(legalMoves, false, ply);
+
+        for (Move move : legalMoves)
+        {
+            if (!move.isCapture)
+            {
+                continue;
+            }
+            board.makeMove(move);
+            int eval = -QSearch(-beta, -alpha, ply + 1);
+            board.undoMove(move);
+            if (quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            {
+                quit = true;
+                return 0;
+            }
+			if (eval >= beta)
+			{
+				return beta;
+			}
+			if (eval > alpha)
+			{
+				alpha = eval;
+			}
+        }
+        return alpha;
+    }
+
     int[] pieceValues = new int[]
     {1000, 3000, 3500, 5000, 9000, 0};
 
-    private Move[] orderMoves(Move[] legalMoves, boolean isRoot)
+    private Move[] orderMoves(Move[] legalMoves, boolean isRoot, int ply)
     {
         int[] ratings = new int[legalMoves.length];
         for (int i = 0; i < legalMoves.length; i++)
@@ -145,6 +198,10 @@ public class V3 implements IBot
                 rating -= pieceValues[board.getPieceAtPoint(legalMove.startSquare).type.ordinal()]
                         / 10;
 
+            }
+            else if(killers[ply] != null && killers[ply].equals(legalMove))
+            {
+                rating = 999; // pieceValues[0]-1
             }
             ratings[i] = rating;
         }

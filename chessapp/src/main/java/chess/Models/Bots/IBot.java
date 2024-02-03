@@ -1,4 +1,4 @@
-package chess.Bots;
+package chess.Models.Bots;
 
 import chess.Models.Board;
 import chess.Models.Move;

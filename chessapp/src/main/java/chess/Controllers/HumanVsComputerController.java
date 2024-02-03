@@ -1,8 +1,8 @@
 package chess.Controllers;
 
-import chess.Bots.IBot;
 import chess.Models.Board;
 import chess.Models.Move;
+import chess.Models.Bots.IBot;
 import chess.Views.ChessView;
 import javafx.scene.input.MouseEvent;
 

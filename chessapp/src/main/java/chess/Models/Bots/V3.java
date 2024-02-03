@@ -1,29 +1,16 @@
-package chess.Bots;
+package chess.Models.Bots;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.IntStream;
-import chess.Evaluation.Eval2;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Evaluation.Eval2;
 
-// Finished game 246 (EvilBot vs MyBot): * {No result}
-// Score of MyBot vs EvilBot: 166 - 39 - 40  [0.759] 245
-// ...      MyBot playing White: 76 - 25 - 22  [0.707] 123
-// ...      MyBot playing Black: 90 - 14 - 18  [0.811] 122
-// ...      White vs Black: 90 - 115 - 40  [0.449] 245
-// Elo difference: 199.5 +/- 45.2, LOS: 100.0 %, DrawRatio: 16.3 %
+//move ordering.
 
-// compared to V3:
-//Score of MyBot vs EvilBot: 98 - 1 - 13  [0.933] 112
-// ...      MyBot playing White: 52 - 0 - 5  [0.956] 57
-// ...      MyBot playing Black: 46 - 1 - 8  [0.909] 55
-// ...      White vs Black: 53 - 46 - 13  [0.531] 112
-// Elo difference: 457.6 +/- 102.9, LOS: 100.0 %, DrawRatio: 11.6 %
-// SPRT: llr 3.03 (103.0%), lbound -2.94, ubound 2.94 - H1 was accepted
-
-public class V3v1 implements IBot
+public class V3 implements IBot
 {
     private Move bestMove;
     int checkmateCount = 0;
@@ -35,7 +22,7 @@ public class V3v1 implements IBot
 
     public Move think(Board board, Timer timer)
     {
-        print("V3.1 booted up, and thinking");
+        print("MyBot booted up, and thinking");
         bestMove = null;
         this.timer = timer;
         this.board = board;
@@ -99,14 +86,15 @@ public class V3v1 implements IBot
         boolean firstMove = true;
         for (Move move : legalMoves)
         {
-            board.makeMove(move);
-            int eval = -negamax(depth - 1, -beta, -alpha, ply + 1);
-            board.undoMove(move);
+
             if (quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
             {
                 quit = true;
-                return 0;
+                break;
             }
+            board.makeMove(move);
+            int eval = -negamax(depth - 1, -beta, -alpha, ply + 1);
+            board.undoMove(move);
             if (isRoot)
             {
                 print("Move " + move + " got eval " + eval);
@@ -119,12 +107,15 @@ public class V3v1 implements IBot
                 }
                 bestEval = eval;
 
+                if (eval > beta) // beta cutoff, this position is too good. Oponnent wouldn't get on
+                                 // this branch in the first place.
+                {
+                    return eval;
+                }
             }
-            alpha = Math.max(eval, alpha);
 
 
-
-            if (alpha >= beta) // alpha cutoff, we have another branch that at the least is
+            if (eval < alpha) // alpha cutoff, we have another branch that at the least is
             // better than this.
             {
                 return eval;

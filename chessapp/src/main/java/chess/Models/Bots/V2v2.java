@@ -1,12 +1,12 @@
-package chess.Bots;
+package chess.Models.Bots;
 
-import chess.Evaluation.SimpleEval;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Evaluation.Eval2;
 
 
-public class V2 implements IBot
+public class V2v2 implements IBot
 {
     private Move bestMove;
     int checkmateCount = 0;
@@ -14,24 +14,31 @@ public class V2 implements IBot
     Board board;
     long maxUseTime;
     boolean isWhite;
+    boolean quit;
 
     public Move think(Board board, Timer timer)
     {
-        print("V2 booted up, and thinking");
+        print("V2v2 booted up, and thinking");
         bestMove = null;
         this.timer = timer;
         this.board = board;
         isWhite = board.whiteToMove;
+        print("iswhite = " + isWhite);
+        print("time = " +timer.getRemainingTime(isWhite));
         maxUseTime = timer.getRemainingTime(isWhite)/30 + timer.getIncrement(isWhite)/2;
-        for (int i = 2; i < 4; i++)
+        print("maxusetime = " + maxUseTime);
+
+        quit = false;
+        for (int i = 2; i < 10; i++)
         {
             print("Now going at depth: " + i);
-            negamax(i, -9999999, 9999999, 0);
-            if(timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            print("final Eval + " + negamax(i, -9999999, 9999999, 0) * (isWhite ? 1 : -1));
+            if(quit)
             {
                 break;
             }
         }
+        print("time used: " + timer.timeElapsedOnCurrentTurn());
         return bestMove;
     }
 
@@ -48,6 +55,10 @@ public class V2 implements IBot
      */
     public int negamax(int depth, int alpha, int beta, int ply)
     {
+        if(quit)
+        {
+            return 0;
+        }
         boolean isRoot = ply == 0;
         if (board.isCheckmate())
         {
@@ -61,15 +72,32 @@ public class V2 implements IBot
         int bestEval = -99999999; // Standard really bad eval. not reachable
         if (depth <= 0)
         {
-            return SimpleEval.evaluation(board) * (board.whiteToMove ? 1 : -1);
+            return Eval2.evaluation(board) * (board.whiteToMove ? 1 : -1);
         }
+
         Move[] legalMoves = board.getLegalMoves();
+        if(isRoot && bestMove != null)
+        {
+            //int[] ratings = new int[legalMoves.length];
+            Move[] orderedMoves = new Move[legalMoves.length];
+            int counter = 0;
+            for (Move move : legalMoves) {
+                if(!move.equals(bestMove))
+                {
+                    counter++;
+                    orderedMoves[counter] = move;
+                }
+            }
+            orderedMoves[0] = bestMove;
+            legalMoves = orderedMoves;
+        }
 
 
         for (Move move : legalMoves)
         {
-            if(timer.timeElapsedOnCurrentTurn() > maxUseTime)
+            if(quit || timer.timeElapsedOnCurrentTurn() > maxUseTime)
             {
+                quit = true;
                 break;
             }
             board.makeMove(move);
@@ -83,20 +111,20 @@ public class V2 implements IBot
                     bestMove = move;
                 }
                 bestEval = eval;
-                /*
+
                 if (eval > beta) // beta cutoff, this position is too good. Oponnent wouldn't get on
                                  // this branch in the first place.
                 {
                     return eval;
-                }*/
+                }
             }
 
-            /*
+
             if (eval < alpha) // alpha cutoff, we have another branch that at the least is
             // better than this.
             {
                 return eval;
-            }*/
+            }
         }
         return bestEval;
     }

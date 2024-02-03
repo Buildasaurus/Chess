@@ -1,15 +1,22 @@
-package chess.Bots;
+package chess.Models.Bots;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.IntStream;
-import chess.Evaluation.Eval2;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Evaluation.Eval2;
 
+// Compared to V3v2 - now with QSearch
+// Score of MyBot vs EvilBot: 71 - 1 - 25  [0.861] 97
+// ...      MyBot playing White: 37 - 0 - 12  [0.878] 49
+// ...      MyBot playing Black: 34 - 1 - 13  [0.844] 48
+// ...      White vs Black: 38 - 34 - 25  [0.521] 97
+// Elo difference: 316.5 +/- 70.2, LOS: 100.0 %, DrawRatio: 25.8 %
+// SPRT: llr 2.97 (100.9%), lbound -2.94, ubound 2.94 - H1 was accepted
 
-public class EvilBot implements IBot
+public class V4 implements IBot
 {
     private Move bestMove;
     int checkmateCount = 0;
@@ -23,7 +30,7 @@ public class EvilBot implements IBot
 
     public Move think(Board board, Timer timer)
     {
-        print("EvilBot booted up, and thinking");
+        print("MyBot booted up, and thinking");
         bestMove = null;
         this.timer = timer;
         this.board = board;
@@ -79,7 +86,7 @@ public class EvilBot implements IBot
         int bestEval = -99999999; // Standard really bad eval. not reachable
         if (depth <= 0)
         {
-            return Eval2.evaluation(board) * (board.whiteToMove ? 1 : -1);
+            return QSearch(alpha, beta, ply);
         }
 
         // Move ordering

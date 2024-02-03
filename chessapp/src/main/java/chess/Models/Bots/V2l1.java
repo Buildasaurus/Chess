@@ -1,9 +1,9 @@
-package chess.Bots;
+package chess.Models.Bots;
 
-import chess.Evaluation.SimpleEval;
 import chess.Models.Board;
 import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Evaluation.SimpleEval;
 
 
 public class V2l1 implements IBot
