@@ -10,7 +10,7 @@ import chess.Models.Timer;
 import chess.Models.TranspositionTable;
 import chess.Models.Evaluation.Eval2;
 
-//  V4.1
+// V4.1
 
 public class EvilBot implements IBot
 {
@@ -33,7 +33,7 @@ public class EvilBot implements IBot
 
     public Move think(Board board, Timer timer)
     {
-        print("EvilBot booted up, and thinking");
+        print("EvilBot thinking");
         bestMove = null;
         lookupCount = 0;
         this.timer = timer;
