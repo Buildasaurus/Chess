@@ -10,13 +10,13 @@ import chess.Models.Timer;
 import chess.Models.TranspositionTable;
 import chess.Models.Evaluation.Eval2;
 
-// Compared to V3v2 - now with QSearch
-// Score of MyBot vs EvilBot: 71 - 1 - 25 [0.861] 97
-// ... MyBot playing White: 37 - 0 - 12 [0.878] 49
-// ... MyBot playing Black: 34 - 1 - 13 [0.844] 48
-// ... White vs Black: 38 - 34 - 25 [0.521] 97
-// Elo difference: 316.5 +/- 70.2, LOS: 100.0 %, DrawRatio: 25.8 %
-// SPRT: llr 2.97 (100.9%), lbound -2.94, ubound 2.94 - H1 was accepted
+// Compared to V4 - now with TT
+// Score of MyBot vs EvilBot: 114 - 56 - 153  [0.590] 323
+// ...      MyBot playing White: 68 - 22 - 72  [0.642] 162
+// ...      MyBot playing Black: 46 - 34 - 81  [0.537] 161
+// ...      White vs Black: 102 - 68 - 153  [0.553] 323
+// Elo difference: 63.1 +/- 27.5, LOS: 100.0 %, DrawRatio: 47.4 %
+// SPRT: llr 1.58 (53.8%), lbound -2.94, ubound 2.94
 
 public class MyBot implements IBot
 {
@@ -34,12 +34,12 @@ public class MyBot implements IBot
 
     public MyBot()
     {
-        table = new TranspositionTable();
+        table = new TranspositionTable(0x800000);
     }
 
     public Move think(Board board, Timer timer)
     {
-        print("MyBot booted up, and thinking");
+        print("MyBot thinking");
         bestMove = null;
         lookupCount = 0;
         this.timer = timer;

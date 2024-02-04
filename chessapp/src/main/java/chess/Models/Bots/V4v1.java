@@ -10,9 +10,15 @@ import chess.Models.Timer;
 import chess.Models.TranspositionTable;
 import chess.Models.Evaluation.Eval2;
 
-//  V4.1
+// Compared to V4 - now with TT
+// Score of MyBot vs EvilBot: 114 - 56 - 153  [0.590] 323
+// ...      MyBot playing White: 68 - 22 - 72  [0.642] 162
+// ...      MyBot playing Black: 46 - 34 - 81  [0.537] 161
+// ...      White vs Black: 102 - 68 - 153  [0.553] 323
+// Elo difference: 63.1 +/- 27.5, LOS: 100.0 %, DrawRatio: 47.4 %
+// SPRT: llr 1.58 (53.8%), lbound -2.94, ubound 2.94
 
-public class EvilBot implements IBot
+public class V4v1 implements IBot
 {
     private TranspositionTable table;
     private Move bestMove;
@@ -26,14 +32,14 @@ public class EvilBot implements IBot
 
     private Move[] killers;
 
-    public EvilBot()
+    public V4v1()
     {
         table = new TranspositionTable(0x400000);
     }
 
     public Move think(Board board, Timer timer)
     {
-        print("EvilBot booted up, and thinking");
+        print("V4v1 booted up, and thinking");
         bestMove = null;
         lookupCount = 0;
         this.timer = timer;
