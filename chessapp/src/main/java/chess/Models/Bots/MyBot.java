@@ -23,7 +23,7 @@ public class MyBot implements IBot
     private TranspositionTable table;
     private Move bestMove;
 
-    private int checkmateCount = 0;
+    private int lookupCount;
     private Timer timer;
     private Board board;
     private long maxUseTime;
@@ -41,6 +41,7 @@ public class MyBot implements IBot
     {
         print("MyBot booted up, and thinking");
         bestMove = null;
+        lookupCount = 0;
         this.timer = timer;
         this.board = board;
         isWhite = board.whiteToMove;
@@ -63,6 +64,7 @@ public class MyBot implements IBot
             }
         }
         print("time used: " + timer.timeElapsedOnCurrentTurn());
+        print("Lookupcount: " + lookupCount);
         return bestMove;
     }
 
@@ -108,7 +110,7 @@ public class MyBot implements IBot
         // If we have an "exact" score (a < score < beta) just use that
         // If we have a lower bound (an alpha) better than beta, use that
         // If we have an upper bound (a beta) worse than alpha, use that
-        if (!isRoot && entry.hash == zobristHash && entry.depth >= depth
+        if (entry != null && !isRoot && entry.hash == zobristHash && entry.depth >= depth
                 && Math.abs(entry.evaluation) < 50000 && (
                 // Exact
                 entry.flag == 1 ||
@@ -117,6 +119,7 @@ public class MyBot implements IBot
                         // Lowerbound
                         entry.flag == 3 && entry.evaluation >= beta))
         {
+            lookupCount++;
             return entry.evaluation;
         }
 
