@@ -43,6 +43,7 @@ public class MainController implements ButtonClickListener
     {
         // Reset the board
         model = FenReader.loadFenString(fenStrings[currentFenString % fenStrings.length]);
+        currentFenString++;
 
         if (buttonName.equals("Human VS Human"))
         {

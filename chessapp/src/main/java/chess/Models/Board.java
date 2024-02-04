@@ -552,6 +552,11 @@ public class Board
                         legalMovesList.add(move);
                         continue;
                     }
+                    if (move.isEnPassent) //en passent is always generated in a legal way.
+                    {
+                        legalMovesList.add(move);
+                        break;
+                    }
                     for (Point legalSquare : legalSquares)
                     {
                         if (move.targetSquare.equals(legalSquare))
@@ -559,6 +564,7 @@ public class Board
                             legalMovesList.add(move);
                             break;
                         }
+
                     }
                 }
             }
@@ -583,7 +589,7 @@ public class Board
 
     /**
      * Generates all moves that pieces can make, regardless of whether king is in check, or if
-     * pieces are pinned.
+     * pieces are pinned. Except for en passent, it only generates legal moves. (it checks if the king is in check.)
      *
      * @param pieces
      * @return
