@@ -108,7 +108,7 @@ public class MyBot implements IBot
                 && Math.abs(entry.evaluation) < 50000 && (
                 // Exact
                 entry.flag == 1 ||
-                // Upperbound
+                        // Upperbound
                         entry.flag == 2 && entry.evaluation <= alpha ||
                         // Lowerbound
                         entry.flag == 3 && entry.evaluation >= beta))
@@ -166,7 +166,7 @@ public class MyBot implements IBot
         else
         {
             TTEntry newEntry = new TTEntry(board.getZobristHash(), goodMove, (byte) depth,
-            (byte) (bestEval >= beta ? 3 : bestEval <= oldAlpha ? 2 : 1), bestEval);
+                    (byte) (bestEval >= beta ? 3 : bestEval <= oldAlpha ? 2 : 1), bestEval);
             table.setEntry(board.getZobristHash(), newEntry);
         }
         return bestEval;
@@ -218,7 +218,7 @@ public class MyBot implements IBot
     }
 
     int[] pieceValues = new int[]
-    {1000, 3000, 3500, 5000, 9000, 0};
+            {1000, 3000, 3500, 5000, 9000, 0};
 
     private Move[] orderMoves(Move[] legalMoves, Move goodMove, int ply)
     {
