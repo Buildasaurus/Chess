@@ -1,6 +1,8 @@
 package chess.Models;
 
 import java.util.Random;
+import chess.Models.Board.Board;
+import chess.Models.Board.Piece;
 
 // Static class
 // Assumes board is of size 64.
@@ -48,7 +50,7 @@ public class ZobristHasher
         whiteToMoveHash = rand.nextInt();
     }
 
-    static long generateHash(Board board)
+    public static long generateHash(Board board)
     {
         //TODO - can probably be improved by only looping through the pieces. IDK how important this would be.
         long hash = board.whiteToMove ? whiteToMoveHash : 0;

@@ -1,4 +1,4 @@
-package chess.Models;
+package chess.Models.Board;
 
 import chess.Resources;
 import javafx.scene.image.ImageView;

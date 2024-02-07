@@ -3,10 +3,10 @@ package chess.Utils;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Scanner;
-import chess.Models.Board;
 import chess.Models.FenReader;
-import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Board.Board;
+import chess.Models.Board.Move;
 import chess.Models.Bots.IBot;
 import javafx.application.Platform;
 

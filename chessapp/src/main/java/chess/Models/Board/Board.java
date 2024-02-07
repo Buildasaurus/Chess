@@ -1,9 +1,10 @@
-package chess.Models;
+package chess.Models.Board;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import chess.Models.Piece.PieceType;
+import chess.Models.ZobristHasher;
+import chess.Models.Board.Piece.PieceType;
 import chess.Utils.BoardHelper;
 
 public class Board
@@ -29,15 +30,15 @@ public class Board
     private Boolean isInCheck;
 
     public boolean whiteToMove = true;
-    Piece enPassentablePawn;
+    public Piece enPassentablePawn;
     /**
      * Same objects as in board
      */
-    ArrayList<Piece> whitePieces;
+    public ArrayList<Piece> whitePieces;
     /**
      * Same objects as in board
      */
-    ArrayList<Piece> blackPieces;
+    public ArrayList<Piece> blackPieces;
 
     /**
      * Instantiates a chess board, with pieces on the standard squares.

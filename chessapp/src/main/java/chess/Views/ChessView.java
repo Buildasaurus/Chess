@@ -5,7 +5,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.image.ImageView;
 import chess.Settings;
-import chess.Models.Piece;
+import chess.Models.Board.Piece;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;

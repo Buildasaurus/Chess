@@ -2,8 +2,8 @@ package moveTests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
-import chess.Models.Board;
 import chess.Models.FenReader;
+import chess.Models.Board.Board;
 import chess.Models.Bots.TesterBot;
 
 public class BotTest

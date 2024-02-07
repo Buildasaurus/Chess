@@ -1,4 +1,4 @@
-package chess.Models;
+package chess.Models.Board;
 
 public class Point
 {

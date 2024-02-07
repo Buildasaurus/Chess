@@ -1,9 +1,9 @@
 package chess.Controllers;
 
 import chess.Settings;
-import chess.Models.Board;
-import chess.Models.Point;
 import chess.Models.Timer;
+import chess.Models.Board.Board;
+import chess.Models.Board.Point;
 import chess.Views.ChessView;
 import javafx.scene.input.MouseEvent;
 

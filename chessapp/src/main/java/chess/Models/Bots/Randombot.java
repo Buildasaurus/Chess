@@ -1,9 +1,9 @@
 package chess.Models.Bots;
 
 import java.util.Random;
-import chess.Models.Board;
-import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Board.Board;
+import chess.Models.Board.Move;
 
 public class Randombot implements IBot
 {

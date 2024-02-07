@@ -1,6 +1,6 @@
-package chess.Models;
+package chess.Models.Board;
 
-import chess.Models.Piece.PieceType;
+import chess.Models.Board.Piece.PieceType;
 import chess.Utils.BoardHelper;
 
 public class Move

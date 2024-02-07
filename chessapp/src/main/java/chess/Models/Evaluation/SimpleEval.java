@@ -1,9 +1,9 @@
 package chess.Models.Evaluation;
 
 import java.util.ArrayList;
-import chess.Models.Board;
-import chess.Models.Piece;
-import chess.Models.Piece.PieceType;
+import chess.Models.Board.Board;
+import chess.Models.Board.Piece;
+import chess.Models.Board.Piece.PieceType;
 
 
 

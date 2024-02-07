@@ -2,8 +2,8 @@ package chess.Controllers;
 
 
 import chess.Resources;
-import chess.Models.Board;
 import chess.Models.FenReader;
+import chess.Models.Board.Board;
 import chess.Models.Bots.*;
 import chess.Views.ChessView;
 import chess.Views.GUIView;

@@ -4,15 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
-
-
+import chess.Models.Board.Board;
+import chess.Models.Board.Move;
+import chess.Models.Board.Piece;
+import chess.Models.Board.Point;
+import chess.Models.Board.Piece.PieceType;
 import java.util.ArrayList;
 import java.util.Arrays;
-import chess.Models.Board;
-import chess.Models.Move;
-import chess.Models.Piece;
-import chess.Models.Point;
-import chess.Models.Piece.PieceType;
 
 public class ManualTest
 {

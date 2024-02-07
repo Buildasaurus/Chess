@@ -3,7 +3,6 @@ package chess;
 import java.lang.reflect.Constructor;
 import java.util.Set;
 import org.reflections.Reflections;
-import Tests.ChessModelTests;
 import chess.Controllers.MainController;
 import chess.Models.Bots.IBot;
 import chess.Utils.UCI;
@@ -15,7 +14,6 @@ public class App extends Application
 {
 
     private static Scene scene;
-    private boolean test = false;
 
     @Override
     public void start(Stage stage)
@@ -29,14 +27,6 @@ public class App extends Application
         // size as needed
         stage.setScene(scene);
         stage.show();
-        if (test)
-        {
-            new ChessModelTests();
-        }
-        else
-        {
-            System.out.println("!!!!! Testing is turned OFF !!!!!!!");
-        }
     }
 
     public static void main(String[] args)
@@ -57,7 +47,8 @@ public class App extends Application
         // Nice StackOverflow code to dynamiccaly get all classes that extends fruit, and spawn them
         // https://stackoverflow.com/questions/205573/at-runtime-find-all-classes-in-a-java-application-that-extend-a-base-class
         Reflections reflections = new Reflections("chess");
-        Set<Class<? extends IBot>> classes = reflections.getSubTypesOf(chess.Models.Bots.IBot.class);
+        Set<Class<? extends IBot>> classes =
+                reflections.getSubTypesOf(chess.Models.Bots.IBot.class);
         for (Class<? extends IBot> aClass : classes)
         {
             System.out.println(aClass.getSimpleName());
@@ -87,5 +78,4 @@ public class App extends Application
         UCI uci = new UCI(bot);
         uci.run();
     }
-
 }

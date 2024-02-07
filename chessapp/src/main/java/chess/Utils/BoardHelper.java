@@ -1,6 +1,6 @@
 package chess.Utils;
 
-import chess.Models.Point;
+import chess.Models.Board.Point;
 
 // Static class
 public class BoardHelper

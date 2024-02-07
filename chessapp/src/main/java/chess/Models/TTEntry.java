@@ -1,5 +1,7 @@
 package chess.Models;
 
+import chess.Models.Board.Move;
+
 public class TTEntry
 {
     public long hash; // Needed to make sure there are no hash collisions, as the table can't store

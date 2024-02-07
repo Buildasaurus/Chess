@@ -3,9 +3,9 @@ package chess.Models.Bots;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.IntStream;
-import chess.Models.Board;
-import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Board.Board;
+import chess.Models.Board.Move;
 import chess.Models.Evaluation.Eval2;
 
 // Compared to V3v2 - now with QSearch

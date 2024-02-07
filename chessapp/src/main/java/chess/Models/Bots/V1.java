@@ -1,9 +1,8 @@
 package chess.Models.Bots;
 
-import java.util.Arrays;
-import chess.Models.Board;
-import chess.Models.Move;
 import chess.Models.Timer;
+import chess.Models.Board.Board;
+import chess.Models.Board.Move;
 import chess.Models.Evaluation.SimpleEval;
 
 
