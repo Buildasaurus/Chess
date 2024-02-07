@@ -16,11 +16,20 @@ public class TesterBot implements IBot
     long checkCount;
     long captureCount;
     int checkmateCount = 0;
+    int depth = 4;
+    /**
+     *
+     * @param depth The ply to go to, ply 0 doesn't make sense. ply 1 is all the legal moves in the position.
+     */
+    public TesterBot(int depth)
+    {
+        this.depth = depth;
+    }
 
     public Move think(Board board, Timer timer)
     {
         long starttime = System.nanoTime();
-        for (int i = 1; i < 5; i++)
+        for (int i = 1; i <= depth; i++)
         {
             System.out.println("---------------- depth " + i + "-----------");
             movecount = 0;
@@ -40,15 +49,6 @@ public class TesterBot implements IBot
                     + (System.nanoTime() - starttime) / Math.pow(10, 9));
             System.out.println("undo move: " + board.undoTime / Math.pow(10, 9) + "s of "
                     + (System.nanoTime() - starttime) / Math.pow(10, 9));
-            System.out.println("nodes\tCapture\tE.P\tcastles\tPromo\tChecks\tCheckmates");
-
-            System.out.print(movecount + "\t");
-            System.out.print(captureCount + "\t");
-            System.out.print(enPassentcount + "\t");
-            System.out.print(castleCount + "\t");
-            System.out.print(promotionCount + "\t");
-            System.out.print(checkCount + "\t");
-            System.out.print(checkmateCount + "\n");
         }
 
         return bestMove;
@@ -99,5 +99,14 @@ public class TesterBot implements IBot
             bestMove = move;
         }
 
+    }
+
+    /**
+     *
+     * @return An array with nodes, captures, en-passents, castles, promotions, checks, checkmates
+     */
+    public long[] getResults()
+    {
+        return new long[]{movecount, captureCount, enPassentcount, castleCount, promotionCount, checkCount, checkmateCount};
     }
 }

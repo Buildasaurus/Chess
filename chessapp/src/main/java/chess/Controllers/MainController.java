@@ -52,7 +52,7 @@ public class MainController implements ButtonClickListener
         if (buttonName.equals("Human VS TesterBot"))
         {
             controller =
-                    new HumanVsComputerController(board, model, model.whiteToMove, new TesterBot());
+                    new HumanVsComputerController(board, model, model.whiteToMove, new TesterBot(3));
             isWhite = !isWhite;
         }
         if (buttonName.equals("Human VS V1"))
