@@ -896,6 +896,7 @@ public class Board
 
     /**
      * returns all the pieces of a specific type.
+     * TODO this can be improved a lot in efficiency, is not very efficient right now.
      *
      * @param type
      * @param isWhite

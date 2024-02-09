@@ -345,7 +345,7 @@ public class MagicBoard
 
 
     /**
-     * Undos the given move, assuming it is legal.
+     * Undoes the given move, assuming it is legal.
      *
      * @param move The move to undo
      */
