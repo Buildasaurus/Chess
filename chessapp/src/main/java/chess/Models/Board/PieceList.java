@@ -20,14 +20,19 @@ public class PieceList
         map = new int[64];
     }
 
-    public void AddPieceAtSquare(int square)
+    public void addPieceAtSquare(int square)
     {
         occupiedSquares[pieceCount] = square;
         map[square] = pieceCount;
         pieceCount++;
     }
+    public void addPieceAtSquare(Point square)
+    {
+        addPieceAtSquare(pointToInt(square));
 
-    public void RemovePieceAtSquare(int square)
+    }
+
+    public void removePieceAtSquare(int square)
     {
         // get the index of this element in the occupiedSquares array
         int pieceIndex = map[square];
@@ -39,11 +44,31 @@ public class PieceList
         pieceCount--;
     }
 
-    public void MovePiece(int startSquare, int targetSquare)
+    public void removePieceAtSquare(Point square)
     {
-        int pieceIndex = map[startSquare];
+        removePieceAtSquare(pointToInt(square));
+    }
+
+    public void removePieceAtSquare(int x, int y)
+    {
+        removePieceAtSquare(pointToInt(x, y));
+    }
+
+    public void movePiece(Point startSquare, Point targetSquare)
+    {
+        int pieceIndex = map[pointToInt(startSquare)];
         // get the index of this element in the occupiedSquares array
-        occupiedSquares[pieceIndex] = targetSquare;
-        map[targetSquare] = pieceIndex;
+        occupiedSquares[pieceIndex] = pointToInt(targetSquare);
+        map[pointToInt(targetSquare)] = pieceIndex;
+    }
+
+    private int pointToInt(Point point)
+    {
+        return point.x + point.y*8;
+    }
+
+    private int pointToInt(int x, int y)
+    {
+        return x + y*8;
     }
 }

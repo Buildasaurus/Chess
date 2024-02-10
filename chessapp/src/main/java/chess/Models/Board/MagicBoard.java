@@ -3,14 +3,14 @@ package chess.Models.Board;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import chess.Models.ZobristHasher;
+
 import chess.Models.Board.Piece.PieceType;
 import chess.Utils.BoardHelper;
 
 public class MagicBoard
 {
     long allPiecesBitBoard;
-    PieceList[] sidePiecesBitBoard;
+    PieceList[] pieceLists;
     PieceList[] kingBitBoards;
     PieceList[] queenBitBoards;
     PieceList[] rookBitBoards;
@@ -55,8 +55,6 @@ public class MagicBoard
     {
         board = new Piece[8][8];
         // 0 for white, 1 for black
-        sidePiecesBitBoard = new PieceList[]
-        {new PieceList(16), new PieceList(16)};
         kingBitBoards = new PieceList[]
         {new PieceList(1), new PieceList(1)};
         queenBitBoards = new PieceList[]
@@ -70,37 +68,48 @@ public class MagicBoard
         pawnBitBoards = new PieceList[]
         {new PieceList(8), new PieceList(8)};
 
-        for (int i = 0; i < 16; i++)
-        {
-            sidePiecesBitBoard[0].AddPieceAtSquare(i);
-            sidePiecesBitBoard[1].AddPieceAtSquare(i + 48);
-        }
-        kingBitBoards[0].AddPieceAtSquare(4);
-        kingBitBoards[1].AddPieceAtSquare(60);
 
-        queenBitBoards[0].AddPieceAtSquare(3);
-        queenBitBoards[1].AddPieceAtSquare(59);
+        kingBitBoards[0].addPieceAtSquare(4);
+        kingBitBoards[1].addPieceAtSquare(60);
 
-        rookBitBoards[0].AddPieceAtSquare(0);
-        rookBitBoards[0].AddPieceAtSquare(7);
-        rookBitBoards[1].AddPieceAtSquare(56);
-        rookBitBoards[1].AddPieceAtSquare(63);
+        queenBitBoards[0].addPieceAtSquare(3);
+        queenBitBoards[1].addPieceAtSquare(59);
 
-        bishopBitBoards[0].AddPieceAtSquare(2);
-        bishopBitBoards[0].AddPieceAtSquare(5);
-        bishopBitBoards[1].AddPieceAtSquare(58);
-        bishopBitBoards[1].AddPieceAtSquare(61);
+        rookBitBoards[0].addPieceAtSquare(0);
+        rookBitBoards[0].addPieceAtSquare(7);
+        rookBitBoards[1].addPieceAtSquare(56);
+        rookBitBoards[1].addPieceAtSquare(63);
 
-        knightBitBoards[0].AddPieceAtSquare(1);
-        knightBitBoards[0].AddPieceAtSquare(6);
-        knightBitBoards[1].AddPieceAtSquare(57);
-        knightBitBoards[1].AddPieceAtSquare(62);
+        bishopBitBoards[0].addPieceAtSquare(2);
+        bishopBitBoards[0].addPieceAtSquare(5);
+        bishopBitBoards[1].addPieceAtSquare(58);
+        bishopBitBoards[1].addPieceAtSquare(61);
+
+        knightBitBoards[0].addPieceAtSquare(1);
+        knightBitBoards[0].addPieceAtSquare(6);
+        knightBitBoards[1].addPieceAtSquare(57);
+        knightBitBoards[1].addPieceAtSquare(62);
 
         for (int i = 0; i < 8; i++)
         {
-            pawnBitBoards[0].AddPieceAtSquare(i+8);
-            pawnBitBoards[1].AddPieceAtSquare(i+48);
+            pawnBitBoards[0].addPieceAtSquare(i+8);
+            pawnBitBoards[1].addPieceAtSquare(i+48);
         }
+
+        pieceLists = new PieceList[12];
+        pieceLists[0] = pawnBitBoards[0];
+        pieceLists[1] = knightBitBoards[0];
+        pieceLists[2] = bishopBitBoards[0];
+        pieceLists[3] = rookBitBoards[0];
+        pieceLists[4] = queenBitBoards[0];
+        pieceLists[5] = kingBitBoards[0];
+
+        pieceLists[6] = pawnBitBoards[1];
+        pieceLists[7] = knightBitBoards[1];
+        pieceLists[8] = bishopBitBoards[1];
+        pieceLists[9] = rookBitBoards[1];
+        pieceLists[10] = queenBitBoards[1];
+        pieceLists[11] = kingBitBoards[1];
 
         whitePieces =
                 new ArrayList<Piece>(Arrays.asList(new Piece(true, PieceType.Rook, new Point(0, 0)),
@@ -244,6 +253,7 @@ public class MagicBoard
         Point start = move.startSquare;
         Point end = move.targetSquare;
         Piece pieceToMove = board[start.y][start.x];
+        int pieceType = pieceToMove.type.ordinal() + 6*(pieceToMove.isWhite ? 0 : 1);
 
         // update the piece lists if there are captures
         enPassentablePawn = null;
@@ -261,17 +271,21 @@ public class MagicBoard
         }
         else if (pieceToMove.type == PieceType.Pawn
                 && move.startSquare.x - move.targetSquare.x != 0)
-        // if is en passent (pawn attacking diagonally but moving to empty field)
+        // if is en passant (pawn attacking diagonally but moving to empty field)
         {
             if (!whiteToMove)
             {
                 whitePieces.remove(board[end.y + 1][end.x]);
                 board[end.y + 1][end.x] = null;
+                pieceLists[pieceType].removePieceAtSquare(end.x, end.y+1);
+
             }
             else
             {
                 blackPieces.remove(board[end.y - 1][end.x]);
                 board[end.y - 1][end.x] = null;
+                pieceLists[pieceType].removePieceAtSquare(end.x, end.y-1);
+
             }
 
         }
@@ -281,6 +295,7 @@ public class MagicBoard
         board[start.y][start.x] = null;
         board[end.y][end.x] = pieceToMove;
         pieceToMove.hasMoved = true;
+        pieceLists[pieceType].movePiece(move.startSquare, move.targetSquare);
 
 
         if (move.isPromotion)
@@ -298,6 +313,8 @@ public class MagicBoard
                 blackPieces.add(newPiece);
             }
             setPieceAtPoint(newPiece, end);
+            pieceLists[pieceType].removePieceAtSquare(move.targetSquare);
+            pieceLists[move.promotionType.ordinal() + 6 * (pieceToMove.isWhite ? 0 : 1)].addPieceAtSquare(move.targetSquare);
         }
         if (move.isCastling)
         {
@@ -307,8 +324,12 @@ public class MagicBoard
                 rookToMove.hasMoved = true;
 
                 rookToMove.position = new Point(5, move.targetSquare.y);
+                Point previousSquare = new Point(7, move.targetSquare.y);
+
                 setPieceAtPoint(rookToMove, rookToMove.position);
-                setPieceAtPoint(null, new Point(7, move.targetSquare.y));
+                setPieceAtPoint(null, previousSquare);
+                pieceLists[rookToMove.type.ordinal() + 6 * (pieceToMove.isWhite ? 0 : 1)].movePiece(previousSquare, rookToMove.position);
+
 
             }
             else// queenside
@@ -316,13 +337,17 @@ public class MagicBoard
                 Piece rookToMove = board[move.targetSquare.y][0];
                 rookToMove.hasMoved = true;
                 rookToMove.position = new Point(3, move.targetSquare.y);
+                Point previousSquare = new Point(0, move.targetSquare.y);
+
                 setPieceAtPoint(rookToMove, rookToMove.position);
-                setPieceAtPoint(null, new Point(0, move.targetSquare.y));
+                setPieceAtPoint(null, previousSquare);
+                pieceLists[rookToMove.type.ordinal() + 6 * (pieceToMove.isWhite ? 0 : 1)].movePiece(previousSquare, rookToMove.position);
+
             }
         }
 
         // for future moves, save that that if move was a pawn pushed two squares,
-        // it may be en-passented
+        // it may be en-passant-ed
         if (pieceToMove.type == PieceType.Pawn)
         {
             halfPlyCount = -1;
@@ -331,6 +356,7 @@ public class MagicBoard
                 enPassentablePawn = pieceToMove;
             }
         }
+
         legalMoves = null;
         whiteToMove = !whiteToMove;
         isInCheck = null;
@@ -425,14 +451,14 @@ public class MagicBoard
         whiteToMove = !whiteToMove;
         legalMoves = null;
         isInCheck = null;
-        if (previousPositions.size() >= 1)
+        if (!previousPositions.isEmpty())
         {
             previousPositions.remove(previousPositions.size() - 1);
         }
-        if (playedMoves.size() >= 1)
+        if (!playedMoves.isEmpty())
         {
             playedMoves.remove(playedMoves.size() - 1);
-            if (playedMoves.size() >= 1)
+            if (!playedMoves.isEmpty())
             {
                 // update enpassentable pawn, based on if the move before this we just undid, was a
                 // pawnmove.
@@ -446,6 +472,7 @@ public class MagicBoard
                 }
             }
         }
+
         halfPlyCount = move.previousHalfPlyCount;
         fullPlyCount -= 1;
         undoTime += System.nanoTime() - startTime;
@@ -1093,6 +1120,8 @@ public class MagicBoard
         if (!isInBounds(point))
             return;
         board[point.y][point.x] = piece;
+        pieceLists[piece.type.ordinal() + 6*(piece.isWhite ? 0 : 1)].addPieceAtSquare(point);
+
     }
 
     public boolean isCheckmate()
